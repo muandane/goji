@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/log"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
 func GitRepo() (string, error) {
@@ -36,7 +37,10 @@ func (c *Config) GitCommit(repoPath, message, description string) error {
 	_, err = wt.Commit(fmt.Sprintf("%s\n\n%s", message, description), &git.CommitOptions{
 		All:               false,
 		AllowEmptyCommits: false,
-		Amend:             false,
+		Author:            &object.Signature{},
+		Committer:         &object.Signature{},
+		// Parents:           []plumbing.Hash{},
+		Amend: false,
 	})
 
 	return err
