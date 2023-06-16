@@ -1,4 +1,4 @@
-module goji
+module goji.go
 
 go 1.20
 

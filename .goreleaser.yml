@@ -19,10 +19,10 @@ universal_binaries:
 
 brews:
 - name: goji
-  homepage: "https://github.com/muandane/homebrew-goji"
+  homepage: "https://github.com/muandane/homebrew-gitmoji"
   tap:
     owner: muandane
-    name: homebrew-goji
+    name: homebrew-gitmoji
   commit_author:
     name: muandane
     email: zmoualhi@outlook.com
