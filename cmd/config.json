@@ -1,0 +1,62 @@
+{
+  "Types": [
+    {
+      "Emoji": "✨",
+      "Code": ":sparkles:",
+      "Description": "Introducing new features.",
+      "Name": "feat"
+    },
+    {
+      "Emoji": "🐛",
+      "Code": ":bug:",
+      "Description": "Fixing a bug.",
+      "Name": "fix"
+    },
+    {
+      "Emoji": "📚",
+      "Code": ":books:",
+      "Description": "Documentation change.",
+      "Name": "docs"
+    },
+    {
+      "Emoji": "🎨",
+      "Code": ":art:",
+      "Description": "Improve structure/format of the code.",
+      "Name": "refactor"
+    },
+    {
+      "Emoji": "⚡️",
+      "Code": ":zap:",
+      "Description": "Improve performance.",
+      "Name": "perf"
+    },
+    {
+      "Emoji": "🔥",
+      "Code": ":fire:",
+      "Description": "Remove code or files.",
+      "Name": "Clean"
+    },
+    {
+      "Emoji": "🚑️",
+      "Code": ":ambulance:",
+      "Description": "Critical hotfix.",
+      "Name": "hotfix"
+    },
+    {
+      "Emoji": "⚰️",
+      "Code": ":coffin:",
+      "Description": "Remove dead code.",
+      "Name": "dead-code removal"
+    },
+    {
+      "Emoji": "🧹",
+      "Code": ":broom:",
+      "Description": "A chore change.",
+      "Name": "chore"
+    }
+  ],
+  "Scopes": ["home", "accounts", "ci"],
+  "Symbol": true,
+  "SkipQuestions": [],
+  "SubjectMaxLength": 50
+}
