@@ -2,13 +2,18 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os/exec"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/fatih/color"
 )
+
+var helpFlag bool
+var versionFlag bool
 
 type CommitType struct {
 	Emoji       string
@@ -79,23 +84,43 @@ func AskQuestions(config *Config) (string, error) {
 	commitMessage := fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
 	return commitMessage, nil
 }
-
+func init() {
+	flag.BoolVar(&helpFlag, "h", false, "Display help information")
+	flag.BoolVar(&helpFlag, "help", false, "Display help information")
+	flag.BoolVar(&versionFlag, "v", false, "Display version information")
+	flag.BoolVar(&versionFlag, "version", false, "Display version information")
+}
 func main() {
+	flag.Parse()
+	if helpFlag {
+		fmt.Println("Help information:")
+		fmt.Println("-h --help: Display help information")
+		fmt.Println("-v --version: Display version information")
+		return
+	}
+
+	if versionFlag {
+		fmt.Println("CLI version: 1.0.0")
+		return
+	}
+
+	fmt.Println(color.GreenString("Goji v0.0.1 is a cli tool to generate conventional commits with emojis."), "\n")
+	// fmt.Println(color.YellowString("Goji is a cli tool to generate conventional commits with emojis."))
 	config, err := LoadConfig("config.json")
 	if err != nil {
-		log.Fatalf("Error loading config: %v", err)
+		log.Fatalf(color.YellowString("Error loading config: %v"), err)
 	}
 
 	commitMessage, err := AskQuestions(config)
 	if err != nil {
-		log.Fatalf("Error asking questions: %v", err)
+		log.Fatalf(color.YellowString("Error asking questions: %v"), err)
 	}
 	cmd := exec.Command("git", "commit", "-m", commitMessage)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf("Error executing git commit: %v\n", err)
+		fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
 		return
 	}
 	fmt.Printf("Git commit output: %s\n", string(output))
-	// fmt.Println("Commit message:", commitMessage)
+
 }
