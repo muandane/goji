@@ -20,7 +20,7 @@ universal_binaries:
 brews:
 - name: goji
   homepage: "https://github.com/muandane/homebrew-gitmoji"
-  repository:
+  tap:
     owner: muandane
     name: homebrew-gitmoji
   commit_author:
