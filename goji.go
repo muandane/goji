@@ -74,7 +74,7 @@ func AskQuestions(config *Config) (string, error) {
 	}
 
 	for _, ct := range config.Types {
-		if ct.Description == commitType {
+		if ct.Emoji == commitType {
 			commitType = fmt.Sprintf("%s %s", ct.Name, ct.Emoji)
 			break
 		}
