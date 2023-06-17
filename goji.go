@@ -53,7 +53,7 @@ func AskQuestions(config *Config) (string, error) {
 
 	commitTypeOptions := make([]string, len(config.Types))
 	for i, ct := range config.Types {
-		commitTypeOptions[i] = fmt.Sprintf("%s %s", ct.Emoji, ct.Name)
+		commitTypeOptions[i] = fmt.Sprintf("%-10s %-5s %-10s", ct.Name, ct.Emoji, ct.Description)
 	}
 
 	promptType := &survey.Select{
@@ -91,6 +91,7 @@ func init() {
 	flag.BoolVar(&versionFlag, "version", false, "Display version information")
 }
 func main() {
+	version := "0.0.2"
 	flag.Parse()
 	if helpFlag {
 		fmt.Println("Help information:")
@@ -100,12 +101,12 @@ func main() {
 	}
 
 	if versionFlag {
-		fmt.Println("CLI version: 1.0.0")
+		fmt.Println("CLI version: ", version)
 		return
 	}
-
-	fmt.Println(color.GreenString("Goji v0.0.1 is a cli tool to generate conventional commits with emojis."), "\n")
-	// fmt.Println(color.YellowString("Goji is a cli tool to generate conventional commits with emojis."))
+	color.Set(color.FgGreen)
+	fmt.Println("Goji v", version, "is a cli tool to generate conventional commits with emojis.", "\n")
+	color.Unset()
 	config, err := LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf(color.YellowString("Error loading config: %v"), err)
