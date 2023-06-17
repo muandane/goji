@@ -64,6 +64,12 @@ func AskQuestions(config *Config) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	for _, ct := range config.Types {
+		if ct.Emoji == commitType {
+			commitType = ct.Name
+			break
+		}
+	}
 
 	promptScope := &survey.Input{
 		Message: "Enter the scope of the change:",
@@ -71,13 +77,6 @@ func AskQuestions(config *Config) (string, error) {
 	err = survey.AskOne(promptScope, &commitScope)
 	if err != nil {
 		return "", err
-	}
-
-	for _, ct := range config.Types {
-		if ct.Emoji == commitType {
-			commitType = ct.Name
-			break
-		}
 	}
 
 	promptSubject := &survey.Input{
