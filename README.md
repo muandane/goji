@@ -1,5 +1,7 @@
 # goji
 
+<img align="right" src="examples/go-gopher.gif">
+
 > Commitizen-like tool for formatting commit messages using emojis written in go.
 
 **goji** allows you to easily use emojis in your commits using [git].
