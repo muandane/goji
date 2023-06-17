@@ -4,7 +4,7 @@
       "Emoji": "✨",
       "Code": ":sparkles:",
       "Description": "Introducing new features.",
-      "Name": "feat"
+      "Name": "feature"
     },
     {
       "Emoji": "🐛",
@@ -34,7 +34,7 @@
       "Emoji": "🔥",
       "Code": ":fire:",
       "Description": "Remove code or files.",
-      "Name": "Clean"
+      "Name": "clean"
     },
     {
       "Emoji": "🚑️",
@@ -46,7 +46,13 @@
       "Emoji": "⚰️",
       "Code": ":coffin:",
       "Description": "Remove dead code.",
-      "Name": "dead-code removal"
+      "Name": "deprecate"
+    },
+    {
+      "Emoji": "🧪",
+      "Code": ":test_tube:",
+      "Description": "Add a test.",
+      "Name": "test"
     },
     {
       "Emoji": "🧹",
