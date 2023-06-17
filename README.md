@@ -32,6 +32,8 @@ go build goji.go
 
 ## Usage
 
+pretty simple just :
+
 ```sh
 goji
 ```
