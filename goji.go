@@ -73,6 +73,13 @@ func AskQuestions(config *Config) (string, error) {
 		return "", err
 	}
 
+	for _, ct := range config.Types {
+		if ct.Description == commitType {
+			commitType = fmt.Sprintf("%s %s", ct.Name, ct.Emoji)
+			break
+		}
+	}
+
 	promptSubject := &survey.Input{
 		Message: "Enter a short description of the change:",
 	}
