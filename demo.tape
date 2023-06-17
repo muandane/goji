@@ -1,15 +1,28 @@
 Set Shell zsh
-Sleep 1.5s
-Type "goji"
-Enter
-Sleep 1s
-Down 3
-Up 5
-Enter
-Sleep 1s
-Type "./"
-Enter
-Type "test"
+Output examples/goji-demo.gif
+Set BorderRadius 10
+Set Framerate 60
+Set Theme "Horizon"
+Sleep 500ms
+Type@20ms "goji"
 Enter
 Sleep 1.5s
-
+Up
+Down 1
+Sleep 800ms
+Down 1
+Sleep 1s
+Up 1
+Sleep 1s
+Up 1
+Sleep 1s
+Up 1
+Sleep 1s
+Enter
+Sleep 1s
+Type@500ms "./"
+Enter
+Sleep 1s
+Type@40ms "goji test commit"
+Enter
+Sleep 1s

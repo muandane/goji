@@ -38,6 +38,8 @@ pretty simple just :
 goji
 ```
 
+![Goji gif](examples/goji-demo.gif)
+
 ## Customization
 
 By default `goji` comes ready to run out of the box. *For now customization is on the roadmap (?)*
