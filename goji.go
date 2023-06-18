@@ -113,7 +113,7 @@ func main() {
 	color.Set(color.FgGreen)
 	fmt.Println("Goji v", version, "is a cli tool to generate conventional commits with emojis.", "\n")
 	color.Unset()
-	config, err := LoadConfig("config.json")
+	config, err := LoadConfig(".goji.json")
 	if err != nil {
 		log.Fatalf(color.YellowString("Error loading config: %v"), err)
 	}

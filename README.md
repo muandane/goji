@@ -48,7 +48,7 @@ By default `goji` comes ready to run out of the box. *For now customization is i
 
 **HOW TO**
 
-You can customize the `config.json` file to add or change the scopes, types and other parameters:
+You can customize the `.goji.json` file to add or change the scopes, types and other parameters:
 
 ```json
 {
