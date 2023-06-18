@@ -44,10 +44,37 @@ goji
 
 ## Customization
 
-By default `goji` comes ready to run out of the box. *For now customization is on the roadmap (?)*
+By default `goji` comes ready to run out of the box. *For now customization is in the works (?)*
 
-Uses may vary, so there will be a need for configuration options to allow fine tuning for project needs.
-Although if you build locally you can customize the `config.json` file to add or change the scopes, types and other parameters.
+**HOW TO**
+
+You can customize the `config.json` file to add or change the scopes, types and other parameters:
+
+```json
+{
+  "Types": [
+    //***
+    {
+      "Emoji": "✨",
+      "Code": ":sparkles:",
+      "Description": "Introducing new features.",
+      "Name": "feature"
+    },
+    {
+      "Emoji": "🐛",
+      "Code": ":bug:",
+      "Description": "Fixing a bug.",
+      "Name": "fix"
+    }
+    //***
+  ],
+  "Scopes": ["home", "accounts", "ci"],
+  "Symbol": true,
+  "SkipQuestions": [],
+  "SubjectMaxLength": 50
+}
+
+```
 
 ## License
 
