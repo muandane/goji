@@ -79,3 +79,7 @@ You can customize the `.goji.json` file to add or change the scopes, types and o
 ## License
 
 Apache 2.0 license [Zine El Abidine Moualhi](https://www.linkedin.com/in/zinemoualhi/)
+
+**Special Thanks**
+
+Thanks to @Simplifi-ED & @IT Challenge in letting me work on this open source side procject and to my mentor @EtienneDeneuve for the help with learning Go lang.
