@@ -29,7 +29,8 @@ brew install goji
 ```bash
 git clone https://github.com/muandane/goji.git && cd goji
 go build goji.go
-./goji
+mv goji /usr/local/bin
+goji -v 
 ```
 
 ## Usage
