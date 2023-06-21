@@ -20,7 +20,7 @@
 **Homebrew**
 
 ```bash
-brew tap muandane/gitmoji 
+brew tap muandane/gitmoji
 brew install goji
 ```
 
@@ -29,7 +29,8 @@ brew install goji
 ```bash
 git clone https://github.com/muandane/goji.git && cd goji
 go build goji.go
-./goji
+mv goji /usr/local/bin
+goji -v 
 ```
 
 ## Usage
@@ -44,7 +45,7 @@ goji
 
 ## Customization
 
-By default `goji` comes ready to run out of the box. *For now customization is in the works (?)*
+By default `goji` comes ready to run out of the box. _For now customization is in the works (?)_
 
 **HOW TO**
 
@@ -73,13 +74,12 @@ You can customize the `.goji.json` file to add or change the scopes, types and o
   "SkipQuestions": [],
   "SubjectMaxLength": 50
 }
-
 ```
 
 ## License
 
 Apache 2.0 license [Zine El Abidine Moualhi](https://www.linkedin.com/in/zinemoualhi/)
 
-**Special Thanks**
+## Special Thanks
 
-Thanks to @Simplifi-ED & @IT Challenge in letting me work on this open source side procject and to my mentor @EtienneDeneuve for the help with learning Go lang.
+Thanks to [@Simplifi-ED](https://www.simplified.fr) & @IT Challenge in letting me work on this open source side project and to my mentor [@EtienneDeneuve](https://github.com/EtienneDeneuve) for the help with learning Go lang.
