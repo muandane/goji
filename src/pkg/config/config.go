@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -40,8 +41,12 @@ func LoadConfig(filename string) (*Config, error) {
 	configFile := filepath.Join(rootDir, filename)
 	data, err := ioutil.ReadFile(configFile)
 	if err != nil {
-		// If not found, try to load it from /usr/bin/goji
-		configFile = filepath.Join("/usr/bin/goji", filename)
+		// If not found, try to load it from the home directory
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return nil, fmt.Errorf("error finding home directory: %v", err)
+		}
+		configFile = filepath.Join(homeDir, filename)
 		data, err = ioutil.ReadFile(configFile)
 		if err != nil {
 			return nil, err
