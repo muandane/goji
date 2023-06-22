@@ -2,13 +2,50 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"os/exec"
+	"path/filepath"
+	"strings"
 )
 
+/*
+	func LoadConfig(filename string) (*Config, error) {
+		data, err := ioutil.ReadFile(filename)
+		if err != nil {
+			return nil, err
+		}
+
+		var config Config
+		err = json.Unmarshal(data, &config)
+		if err != nil {
+			return nil, err
+		}
+
+		return &config, nil
+	}
+*/
+
 func LoadConfig(filename string) (*Config, error) {
-	data, err := ioutil.ReadFile(filename)
+	// Get the root directory of the Git project
+	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
+	rootDirBytes, err := cmd.Output()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error finding git root directory: %v", err)
+	}
+	rootDir := string(rootDirBytes)
+	rootDir = strings.TrimSpace(rootDir) // Remove newline character at the end
+
+	// Try to load the config file from the root of the Git project
+	configFile := filepath.Join(rootDir, filename)
+	data, err := ioutil.ReadFile(configFile)
+	if err != nil {
+		// If not found, try to load it from /usr/bin/goji
+		configFile = filepath.Join("/usr/bin/goji", filename)
+		data, err = ioutil.ReadFile(configFile)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var config Config

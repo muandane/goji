@@ -4,7 +4,9 @@
 
 > Commitizen-like tool for formatting commit messages using emojis written in go.
 
-**goji** allows you to easily use emojis in your commits using [git].
+**goji** is an easy-to-use commit message formatting tool, inspired by Commitizen and cz-cli, 
+that helps you create conventional commits with emojis with streamlined [git] commit process by providing a user-friendly TUI 
+for selecting the type of change, scope, and description of your commit message..
 
 ```sh
 ? Select the type of change you are committing: (Use arrow keys)
@@ -14,6 +16,13 @@
   refactor  🎨  Improve structure/format of the code.
   clean     🔥  Remove code or files.
 ```
+
+## Features
+
+- Interactive CLI for choosing commit types, scopes, and descriptions
+- Predefined commit types with corresponding emojis
+- Customizable commit types and scopes through a JSON configuration file
+- Supports Git out of the box
 
 ## Install
 
@@ -35,11 +44,7 @@ goji -v
 
 ## Usage
 
-pretty simple just :
-
-```sh
-goji
-```
+Simply run `goji` in your terminal to start the interactive commit process:
 
 ![Goji gif](examples/goji-demo.gif)
 
@@ -80,6 +85,6 @@ You can customize the `.goji.json` file to add or change the scopes, types and o
 
 Apache 2.0 license [Zine El Abidine Moualhi](https://www.linkedin.com/in/zinemoualhi/)
 
-## Special Thanks
+## Acknowledgements
 
 Thanks to [@Simplifi-ED](https://www.simplified.fr) & @IT Challenge in letting me work on this open source side project and to my mentor [@EtienneDeneuve](https://github.com/EtienneDeneuve) for the help with learning Go lang.
