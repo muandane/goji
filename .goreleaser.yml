@@ -1,5 +1,6 @@
 builds:
 - binary: goji
+  main: ./cmd
   goos:
   - darwin
   - linux
