@@ -1,5 +1,7 @@
 builds:
 - binary: goji
+  main: ./src/cmd
+  dir: src
   goos:
   - darwin
   - linux
