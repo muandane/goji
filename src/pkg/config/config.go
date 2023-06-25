@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -22,7 +21,7 @@ func LoadConfig(filename string) (*Config, error) {
 
 	// Try to load the config file from the root of the Git project
 	configFile := filepath.Join(rootDir, filename)
-	data, err := ioutil.ReadFile(configFile)
+	data, err := os.ReadFile(configFile)
 	if err != nil {
 		// If not found, try to load it from the home directory
 		homeDir, err := os.UserHomeDir()
@@ -30,7 +29,7 @@ func LoadConfig(filename string) (*Config, error) {
 			return nil, fmt.Errorf("error finding home directory: %v", err)
 		}
 		configFile = filepath.Join(homeDir, filename)
-		data, err = ioutil.ReadFile(configFile)
+		data, err = os.ReadFile(configFile)
 		if err != nil {
 			return nil, err
 		}

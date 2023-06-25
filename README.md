@@ -1,3 +1,4 @@
+[![codecov](https://codecov.io/gh/muandane/goji/branch/main/graph/badge.svg?token=0PYU31AH2S)](https://codecov.io/gh/muandane/goji)
 # goji
 
 <img align="right" src="examples/go-gopher.gif">
