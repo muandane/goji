@@ -22,7 +22,7 @@ func AskQuestions(config *config.Config) (string, error) {
 		Message: "Select the type of change you are committing:",
 		Options: commitTypeOptions,
 	}
-	err := survey.AskOne(promptType, &commitType)
+	err := askOneFunc(promptType, &commitType)
 	if err != nil {
 		return "", err
 	}
@@ -36,7 +36,7 @@ func AskQuestions(config *config.Config) (string, error) {
 	promptScope := &survey.Input{
 		Message: "Enter the scope of the change:",
 	}
-	err = survey.AskOne(promptScope, &commitScope)
+	err = askOneFunc(promptScope, &commitScope)
 	if err != nil {
 		return "", err
 	}
@@ -44,7 +44,7 @@ func AskQuestions(config *config.Config) (string, error) {
 	promptSubject := &survey.Input{
 		Message: "Enter a short description of the change:",
 	}
-	err = survey.AskOne(promptSubject, &commitSubject)
+	err = askOneFunc(promptSubject, &commitSubject)
 	if err != nil {
 		return "", err
 	}
