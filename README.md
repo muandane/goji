@@ -1,3 +1,4 @@
+[![codecov](https://codecov.io/gh/muandane/goji/branch/main/graph/badge.svg?token=0PYU31AH2S)](https://codecov.io/gh/muandane/goji)
 # goji
 
 <img align="right" src="examples/go-gopher.gif">
@@ -37,9 +38,9 @@ brew install goji
 
 ```bash
 git clone https://github.com/muandane/goji.git && cd goji
-go build goji.go
+go build ./src/cmd/goji.go
 mv goji /usr/local/bin
-goji -v 
+goji --version 
 ```
 
 ## Usage
@@ -50,11 +51,15 @@ Simply run `goji` in your terminal to start the interactive commit process:
 
 ## Customization
 
-By default `goji` comes ready to run out of the box. _For now customization is in the works (?)_
+By default `goji` comes ready to run out of the box and you can initialize a config file with commands. _For now customization is in the works (?)_
+
+```sh
+goji --init
+```
 
 **HOW TO**
 
-You can customize the `.goji.json` file to add or change the scopes, types and other parameters:
+You can customize the `.goji.json` generated file to add or change the scopes, types and other parameters:
 
 ```json
 {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"goji/pkg/config"
 	"goji/pkg/utils"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -130,5 +129,5 @@ func SaveGitmojisToFile(config initConfig, filename string) error {
 		return err
 	}
 
-	return ioutil.WriteFile(configFile, data, 0644)
+	return os.WriteFile(configFile, data, 0644)
 }
