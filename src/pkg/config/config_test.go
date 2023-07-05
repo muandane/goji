@@ -1,9 +1,12 @@
 package config
 
 import (
+	"github.com/stretchr/testify/mock"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -182,4 +185,92 @@ func TestLoadConfigInvalidJSON(t *testing.T) {
 	if config != nil {
 		t.Error("Expected config to be nil for invalid JSON")
 	}
+}
+
+var mockedExitStatus = 1
+var mockedStdout = ""
+
+func TestHelperProcess(t *testing.T) {
+	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
+		return
+	}
+
+	// Print the mocked stdout.
+	os.Stdout.WriteString(os.Getenv("STDOUT"))
+
+	// Exit with the mocked exit status.
+	i, _ := strconv.Atoi(os.Getenv("EXIT_STATUS"))
+	os.Exit(i)
+}
+
+func fakeExecCommand(command string, args ...string) *exec.Cmd {
+	cs := []string{"-test.run=TestHelperProcess", "--", command}
+	cs = append(cs, args...)
+	cmd := exec.Command(os.Args[0], cs...)
+	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1",
+		"STDOUT=" + mockedStdout,
+		"EXIT_STATUS=" + strconv.Itoa(mockedExitStatus)}
+	return cmd
+}
+
+var execCommand = exec.Command
+
+func TestLoadConfig_Failure(t *testing.T) {
+	// Replace the exec.Command function with the mock version.
+	execCommand = fakeExecCommand
+	defer func() { execCommand = exec.Command }()
+
+	_, err := LoadConfig("config.json")
+	if err == nil {
+		t.Errorf("Expected error, but got nil")
+	}
+}
+
+// Define interfaces for os and exec
+type OS interface {
+	ReadFile(filename string) ([]byte, error)
+}
+
+type Exec interface {
+	Command(name string, arg ...string) *exec.Cmd
+}
+
+// Create mock types for the interfaces
+type MockOS struct {
+	mock.Mock
+}
+
+func (m *MockOS) ReadFile(filename string) ([]byte, error) {
+	args := m.Called(filename)
+	return args.Get(0).([]byte), args.Error(1)
+}
+
+type MockExec struct {
+	mock.Mock
+}
+
+func (m *MockExec) Command(name string, arg ...string) *exec.Cmd {
+	args := m.Called(name, arg)
+	return args.Get(0).(*exec.Cmd)
+}
+func TestLoadConfig_Failure1(t *testing.T) {
+	// Create a temporary directory for the test
+	tmpDir, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Delete the temporary directory after the test
+	defer os.RemoveAll(tmpDir)
+
+	// Change the working directory to the temporary directory
+	os.Chdir(tmpDir)
+
+	// Try to load a non-existent config file
+	_, err = LoadConfig("non_existent_file.json")
+	if err == nil {
+		t.Errorf("Expected error, got nil")
+	}
+
+	// The test will succeed if there is any error (not just a 'file does not exist' error)
 }

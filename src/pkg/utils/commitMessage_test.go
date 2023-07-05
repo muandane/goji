@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/stretchr/testify/mock"
 	"goji/pkg/config"
 	"goji/pkg/models"
 	"testing"
@@ -79,5 +80,48 @@ func TestAskQuestions(t *testing.T) {
 				t.Errorf("Expected commit message '%s', got '%s'", tc.ExpectedOutput, commitMessage)
 			}
 		})
+	}
+}
+
+// MockAskOneFunc is a mock type for askOneFunc
+type MockAskOneFunc struct {
+	mock.Mock
+}
+
+// AskOne is a mock function for askOneFunc
+func (m *MockAskOneFunc) AskOne(prompt survey.Prompt, response interface{}, options ...survey.AskOpt) error {
+	args := m.Called(prompt, response, options)
+	return args.Error(0)
+}
+
+func TestAskQuestions_Failure(t *testing.T) {
+	// Create a new mock for askOneFunc
+	mockAskOne := new(MockAskOneFunc)
+
+	// Simulate an error in the mock function
+	mockAskOne.On("AskOne", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("simulated error"))
+
+	// Override the askOneFunc with the mock function
+	askOneFunc = mockAskOne.AskOne
+
+	// Restore the original askOneFunc after the test
+	defer func() {
+		askOneFunc = defaultAskOne
+	}()
+
+	mockConfig := &config.Config{
+		Types: []models.CommitType{
+			{Name: "feat", Emoji: ":sparkles:", Description: "A new feature"},
+			{Name: "fix", Emoji: ":bug:", Description: "Fix a bug"},
+		},
+	}
+
+	commitMessage, err := AskQuestions(mockConfig)
+	if err == nil || err.Error() != "simulated error" {
+		t.Errorf("Expected error 'simulated error', got '%v'", err)
+	}
+
+	if commitMessage != "" {
+		t.Errorf("Expected commit message '', got '%s'", commitMessage)
 	}
 }

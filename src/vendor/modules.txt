@@ -24,10 +24,13 @@ github.com/mgutz/ansi
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
+# github.com/stretchr/objx v0.1.0
+## explicit
+github.com/stretchr/objx
 # github.com/stretchr/testify v1.6.1
 ## explicit; go 1.13
 github.com/stretchr/testify/assert
-github.com/stretchr/testify/require
+github.com/stretchr/testify/mock
 # golang.org/x/sys v0.6.0
 ## explicit; go 1.17
 golang.org/x/sys/internal/unsafeheader
