@@ -1,6 +1,8 @@
 package config
 
 import (
+	"github.com/stretchr/testify/mock"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -222,4 +224,53 @@ func TestLoadConfig_Failure(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error, but got nil")
 	}
+}
+
+// Define interfaces for os and exec
+type OS interface {
+	ReadFile(filename string) ([]byte, error)
+}
+
+type Exec interface {
+	Command(name string, arg ...string) *exec.Cmd
+}
+
+// Create mock types for the interfaces
+type MockOS struct {
+	mock.Mock
+}
+
+func (m *MockOS) ReadFile(filename string) ([]byte, error) {
+	args := m.Called(filename)
+	return args.Get(0).([]byte), args.Error(1)
+}
+
+type MockExec struct {
+	mock.Mock
+}
+
+func (m *MockExec) Command(name string, arg ...string) *exec.Cmd {
+	args := m.Called(name, arg)
+	return args.Get(0).(*exec.Cmd)
+}
+func TestLoadConfig_Failure1(t *testing.T) {
+	// Create a temporary directory for the test
+	tmpDir, err := ioutil.TempDir("", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Delete the temporary directory after the test
+	defer os.RemoveAll(tmpDir)
+
+	// Change the working directory to the temporary directory
+	os.Chdir(tmpDir)
+
+	// Try to load a non-existent config file
+	_, err = LoadConfig("non_existent_file.json")
+	if err == nil {
+		t.Errorf("Expected error, got nil")
+	}
+
+	// The test will succeed if there is any error (not just a 'file does not exist' error)
 }
