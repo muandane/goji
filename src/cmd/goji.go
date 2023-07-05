@@ -74,6 +74,7 @@ func main() {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
+		fmt.Println("Git commit output: ", string(output))
 		return
 	}
 	fmt.Printf("Git commit output: %s\n", string(output))
@@ -98,6 +99,10 @@ func AddCustomCommitTypes(gitmojis []Gitmoji) []Gitmoji {
 	customGitmojis := []Gitmoji{
 		{Emoji: "✨", Code: ":sparkles:", Description: "Introduce new features.", Name: "feature"},
 		{Emoji: "🐛", Code: ":bug:", Description: "Fix a bug.", Name: "fix"},
+		{Emoji: "📚", Code: ":books:", Description: "Documentation change.", Name: "docs"},
+		{Emoji: "🎨", Code: ":art:", Description: "Improve structure/format of the code.", Name: "refactor"},
+		{Emoji: "⚡️", Code: ":zap:", Description: "Improve performance.", Name: "perf"},
+		{Emoji: "🚑️", Code: ":ambulance:", Description: "Critical hotfix.", Name: "hotfix"},
 		{Emoji: "🚧", Code: ":construction:", Description: "Work in progress.", Name: "wip"},
 		{Emoji: "📦", Code: ":package:", Description: "Add or update compiled files or packages.", Name: "package"},
 	}
