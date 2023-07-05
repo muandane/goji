@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/stretchr/testify/mock"
 	"goji/pkg/config"
 	"goji/pkg/models"
 	"testing"
@@ -82,81 +83,45 @@ func TestAskQuestions(t *testing.T) {
 	}
 }
 
-// func TestAskQuestions_Failure(t *testing.T) {
-// 	testCases := []struct {
-// 		Name           string
-// 		MockAnswers    []interface{}
-// 		ExpectedOutput string
-// 	}{
-// 		{
-// 			Name: "Valid commit type 'feat'",
-// 			MockAnswers: []interface{}{
-// 				"feat :sparkles:",
-// 				"core",
-// 				"Add new feature",
-// 			},
-// 			ExpectedOutput: "This will cause the test to fail",
-// 		},
-// 		{
-// 			Name: "Valid commit type 'fix'",
-// 			MockAnswers: []interface{}{
-// 				"fix :bug:",
-// 				"core",
-// 				"Fix a bug",
-// 			},
-// 			ExpectedOutput: "fix :bug: (core): Fix a bug",
-// 		},
-// 	}
+// MockAskOneFunc is a mock type for askOneFunc
+type MockAskOneFunc struct {
+	mock.Mock
+}
 
-// 	for _, tc := range testCases {
-// 		t.Run(tc.Name, func(t *testing.T) {
-// 			mockAnswers := tc.MockAnswers
+// AskOne is a mock function for askOneFunc
+func (m *MockAskOneFunc) AskOne(prompt survey.Prompt, response interface{}, options ...survey.AskOpt) error {
+	args := m.Called(prompt, response, options)
+	return args.Error(0)
+}
 
-// 			mockAskOne := func(prompt survey.Prompt, response interface{}, options ...survey.AskOpt) error {
-// 				// Simulate an error when commit type is 'feat'
-// 				if len(mockAnswers) > 0 && mockAnswers[0] == "feat :sparkles:" {
-// 					return errors.New("simulated error")
-// 				}
+func TestAskQuestions_Failure(t *testing.T) {
+	// Create a new mock for askOneFunc
+	mockAskOne := new(MockAskOneFunc)
 
-// 				if len(mockAnswers) == 0 {
-// 					return errors.New("no more answers available")
-// 				}
+	// Simulate an error in the mock function
+	mockAskOne.On("AskOne", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("simulated error"))
 
-// 				answer := mockAnswers[0]
-// 				mockAnswers = mockAnswers[1:]
-// 				switch v := response.(type) {
-// 				case *string:
-// 					*v = answer.(string)
-// 				default:
-// 					return errors.New("unsupported response type")
-// 				}
+	// Override the askOneFunc with the mock function
+	askOneFunc = mockAskOne.AskOne
 
-// 				return nil
-// 			}
+	// Restore the original askOneFunc after the test
+	defer func() {
+		askOneFunc = defaultAskOne
+	}()
 
-// 			// Override the askOneFunc with the mock function
-// 			askOneFunc = mockAskOne
+	mockConfig := &config.Config{
+		Types: []models.CommitType{
+			{Name: "feat", Emoji: ":sparkles:", Description: "A new feature"},
+			{Name: "fix", Emoji: ":bug:", Description: "Fix a bug"},
+		},
+	}
 
-// 			// Restore the original askOneFunc after the test
-// 			defer func() {
-// 				askOneFunc = defaultAskOne
-// 			}()
+	commitMessage, err := AskQuestions(mockConfig)
+	if err == nil || err.Error() != "simulated error" {
+		t.Errorf("Expected error 'simulated error', got '%v'", err)
+	}
 
-// 			mockConfig := &config.Config{
-// 				Types: []models.CommitType{
-// 					{Name: "feat", Emoji: ":sparkles:", Description: "A new feature"},
-// 					{Name: "fix", Emoji: ":bug:", Description: "Fix a bug"},
-// 				},
-// 			}
-
-// 			commitMessage, err := AskQuestions(mockConfig)
-// 			if err != nil {
-// 				t.Errorf("AskQuestions failed: %v", err)
-// 			}
-
-// 			if commitMessage != tc.ExpectedOutput {
-// 				t.Errorf("Expected commit message '%s', got '%s'", tc.ExpectedOutput, commitMessage)
-// 			}
-// 		})
-// 	}
-// }
+	if commitMessage != "" {
+		t.Errorf("Expected commit message '', got '%s'", commitMessage)
+	}
+}
