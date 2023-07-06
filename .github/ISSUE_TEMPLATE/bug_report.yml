@@ -5,28 +5,30 @@ labels: ['bug']
 body:
 - type: markdown
   attributes:
-    value: "NOTE: Each discrete (stand-alone) request should be in its own issue.  \n#magic___^_^___line\n"
+    value: "NOTE: Each discrete (stand-alone) request should be in its own issue."
 - type: textarea
   attributes:
-    label: 🐞 Describe the bug
+    label: "🐞 Describe the bug"
     description: A clear and concise description of what the bug is.
     placeholder: ex. xxxx
   validations:
     required: true
 
-- type: markdown
+- type: textarea
   attributes:
-    value: |
-      **To Reproduce**
-      Steps to reproduce the behavior:
+    label: "🔁 To Reproduce"
+    description: Steps to reproduce the behavior.
+    placeholder: |
       1. Go to '...'
       2. Click on '....'
       3. Scroll down to '....'
       4. See error
+  validations:
+    required: true
 
 - type: textarea
   attributes:
-    label: 📖 Expected behavior
+    label: "📖 Expected behavior"
     description: A clear and concise description of what you expected to happen.
     placeholder: ex. xxxx
   validations:
@@ -34,7 +36,7 @@ body:
 
 - type: textarea
   attributes:
-    label: 🌅 Screenshots
+    label: "🌅 Screenshots"
     description: If applicable, add screenshots to help explain your problem.
     placeholder: ex. xxxx
   validations:
