@@ -5,7 +5,7 @@ labels: ['bug']
 body:
 - type: markdown
   attributes:
-    value: "NOTE: Each discrete (stand-alone) request should be in its own issue.  \n#magic___^_^___line\n"
+    value: "NOTE: Each discrete (stand-alone) request should be in its own issue."
 - type: textarea
   attributes:
     label: 🐞 Describe the bug
@@ -14,15 +14,17 @@ body:
   validations:
     required: true
 
-- type: markdown
+- type: textarea
   attributes:
-    value: |
-      **To Reproduce**
-      Steps to reproduce the behavior:
+    label: To Reproduce
+    description: Steps to reproduce the behavior.
+    placeholder: |
       1. Go to '...'
       2. Click on '....'
       3. Scroll down to '....'
       4. See error
+  validations:
+    required: true
 
 - type: textarea
   attributes:

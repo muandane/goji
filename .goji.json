@@ -1,67 +1,77 @@
 {
   "Types": [
     {
-      "Emoji": "✨",
-      "Code": ":sparkles:",
-      "Description": "Introducing new features.",
-      "Name": "feature"
+      "emoji": "✨",
+      "code": ":sparkles:",
+      "description": "Introduce new features.",
+      "name": "feature"
     },
     {
-      "Emoji": "🐛",
-      "Code": ":bug:",
-      "Description": "Fixing a bug.",
-      "Name": "fix"
+      "emoji": "🐛",
+      "code": ":bug:",
+      "description": "Fix a bug.",
+      "name": "fix"
     },
     {
-      "Emoji": "📚",
-      "Code": ":books:",
-      "Description": "Documentation change.",
-      "Name": "docs"
+      "emoji": "📚",
+      "code": ":books:",
+      "description": "Documentation change.",
+      "name": "docs"
     },
     {
-      "Emoji": "🎨",
-      "Code": ":art:",
-      "Description": "Improve structure/format of the code.",
-      "Name": "refactor"
+      "emoji": "🎨",
+      "code": ":art:",
+      "description": "Improve structure/format of the code.",
+      "name": "refactor"
     },
     {
-      "Emoji": "⚡️",
-      "Code": ":zap:",
-      "Description": "Improve performance.",
-      "Name": "perf"
+      "emoji": "🧹",
+      "code": ":broom:",
+      "description": "A chore change.",
+      "name": "chore"
     },
     {
-      "Emoji": "🔥",
-      "Code": ":fire:",
-      "Description": "Remove code or files.",
-      "Name": "clean"
+      "emoji": "🧪",
+      "code": ":test_tube:",
+      "description": "Add a test.",
+      "name": "test"
     },
     {
-      "Emoji": "🚑️",
-      "Code": ":ambulance:",
-      "Description": "Critical hotfix.",
-      "Name": "hotfix"
+      "emoji": "🚑️",
+      "code": ":ambulance:",
+      "description": "Critical hotfix.",
+      "name": "hotfix"
     },
     {
-      "Emoji": "⚰️",
-      "Code": ":coffin:",
-      "Description": "Remove dead code.",
-      "Name": "deprecate"
+      "emoji": "⚰️",
+      "code": ":coffin:",
+      "description": "Remove dead code.",
+      "name": "deprecate"
     },
     {
-      "Emoji": "🧪",
-      "Code": ":test_tube:",
-      "Description": "Add a test.",
-      "Name": "test"
+      "emoji": "⚡️",
+      "code": ":zap:",
+      "description": "Improve performance.",
+      "name": "perf"
     },
     {
-      "Emoji": "🧹",
-      "Code": ":broom:",
-      "Description": "A chore change.",
-      "Name": "chore"
+      "emoji": "🚧",
+      "code": ":construction:",
+      "description": "Work in progress.",
+      "name": "wip"
+    },
+    {
+      "emoji": "📦",
+      "code": ":package:",
+      "description": "Add or update compiled files or packages.",
+      "name": "package"
     }
   ],
-  "Scopes": ["home", "accounts", "ci"],
+  "Scopes": [
+    "home",
+    "accounts",
+    "ci"
+  ],
   "Symbol": true,
   "SkipQuestions": [],
   "SubjectMaxLength": 50

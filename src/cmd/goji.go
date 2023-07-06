@@ -19,27 +19,37 @@ func init() {
 }
 
 func main() {
-	version := "0.0.1"
-	helpFlag := flag.Bool("help", false, "Display help information")
-	versionFlag := flag.Bool("version", false, "Display version information")
-	initFlag := flag.Bool("init", false, "Generate a configuration file")
+	version := "0.0.1-rc3"
+	helpFlag := flag.Bool("h", false, "Display help information")
+	flag.BoolVar(helpFlag, "help", false, "display help")
+	versionFlag := flag.Bool("v", false, "Display version information")
+	flag.BoolVar(versionFlag, "version", false, "display help")
+	initFlag := flag.Bool("i", false, "Generate a configuration file")
+	flag.BoolVar(initFlag, "init", false, "display help")
 
 	flag.Parse()
 	if *helpFlag {
+		fmt.Println("goji is a cli tool to generate conventional commits with emojis.")
+		fmt.Println()
+		fmt.Println("Usage:")
+		fmt.Println(" goji [flag]")
+		fmt.Println()
 		fmt.Println("Help information:")
-		fmt.Println("-h --help: Display help information")
-		fmt.Println("-v --version: Display version information")
-		fmt.Println("-i --init: Generate a configuration file")
+		fmt.Println(" -h --help: Display help information")
+		fmt.Println(" -v --version: Display version information")
+		fmt.Println(" -i --init: Generate a configuration file")
 		return
 	}
 
 	if *versionFlag {
-		fmt.Println("CLI version: ", version)
+		color.Set(color.FgGreen)
+		fmt.Printf("goji version: v%s\n", version)
+		color.Unset()
 		return
 	}
 
 	color.Set(color.FgGreen)
-	fmt.Println("Goji v", version, " is a cli tool to generate conventional commits with emojis.")
+	fmt.Printf("Goji v%s is a cli tool to generate conventional commits with emojis.\n", version)
 	color.Unset()
 
 	if *initFlag {
@@ -82,7 +92,6 @@ func main() {
 
 type Gitmoji struct {
 	Emoji       string `json:"emoji"`
-	Entity      string `json:"entity"`
 	Code        string `json:"code"`
 	Description string `json:"description"`
 	Name        string `json:"name"`
@@ -101,8 +110,11 @@ func AddCustomCommitTypes(gitmojis []Gitmoji) []Gitmoji {
 		{Emoji: "🐛", Code: ":bug:", Description: "Fix a bug.", Name: "fix"},
 		{Emoji: "📚", Code: ":books:", Description: "Documentation change.", Name: "docs"},
 		{Emoji: "🎨", Code: ":art:", Description: "Improve structure/format of the code.", Name: "refactor"},
-		{Emoji: "⚡️", Code: ":zap:", Description: "Improve performance.", Name: "perf"},
+		{Emoji: "🧹", Code: ":broom:", Description: "A chore change.", Name: "chore"},
+		{Emoji: "🧪", Code: ":test_tube:", Description: "Add a test.", Name: "test"},
 		{Emoji: "🚑️", Code: ":ambulance:", Description: "Critical hotfix.", Name: "hotfix"},
+		{Emoji: "⚰️", Code: ":coffin:", Description: "Remove dead code.", Name: "deprecate"},
+		{Emoji: "⚡️", Code: ":zap:", Description: "Improve performance.", Name: "perf"},
 		{Emoji: "🚧", Code: ":construction:", Description: "Work in progress.", Name: "wip"},
 		{Emoji: "📦", Code: ":package:", Description: "Add or update compiled files or packages.", Name: "package"},
 	}
