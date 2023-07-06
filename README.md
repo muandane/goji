@@ -66,20 +66,24 @@ You can customize the `.goji.json` generated file to add or change the scopes, t
   "Types": [
     //***
     {
-      "Emoji": "✨",
-      "Code": ":sparkles:",
-      "Description": "Introducing new features.",
-      "Name": "feature"
+      "emoji": "✨",
+      "code": ":sparkles:",
+      "description": "Introducing new features.",
+      "name": "feature"
     },
     {
-      "Emoji": "🐛",
-      "Code": ":bug:",
-      "Description": "Fixing a bug.",
-      "Name": "fix"
+      "emoji": "🐛",
+      "code": ":bug:",
+      "description": "Fixing a bug.",
+      "name": "fix"
     }
     //***
   ],
-  "Scopes": ["home", "accounts", "ci"],
+  "Scopes": [
+    "home",
+    "accounts",
+    "ci"
+  ],
   "Symbol": true,
   "SkipQuestions": [],
   "SubjectMaxLength": 50
