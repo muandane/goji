@@ -29,10 +29,12 @@ func main() {
 
 	flag.Parse()
 	if *helpFlag {
-		fmt.Println("goji is a cli tool to generate conventional commits with emojis.")
+		color.Set(color.FgGreen)
+		fmt.Printf("goji v%s is a cli tool to generate conventional commits with emojis.\n", version)
+		color.Unset()
 		fmt.Println()
 		fmt.Println("Usage:")
-		fmt.Println(" goji [flag]")
+		fmt.Println(" goji")
 		fmt.Println()
 		fmt.Println("Help information:")
 		fmt.Println(" -h --help: Display help information")
