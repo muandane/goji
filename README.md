@@ -47,7 +47,7 @@ goji --version
 
 Simply run `goji` in your terminal to start the interactive commit process:
 
-![Goji gif](examples/goji-demo.gif)
+![Goji gif](examples/goji.gif)
 
 ## Customization
 
