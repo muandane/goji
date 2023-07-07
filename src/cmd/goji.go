@@ -19,18 +19,6 @@ func init() {
 }
 
 func main() {
-	type Config struct {
-		Types []struct {
-			Emoji       string `json:"emoji"`
-			Code        string `json:"code"`
-			Description string `json:"description"`
-			Name        string `json:"name"`
-		} `json:"Types"`
-		Scopes           []string `json:"Scopes"`
-		Symbol           bool     `json:"Symbol"`
-		SkipQuestions    []string `json:"SkipQuestions"`
-		SubjectMaxLength int      `json:"SubjectMaxLength"`
-	}
 
 	version := "0.0.1-rc3"
 	helpFlag := flag.Bool("h", false, "Display help information")
