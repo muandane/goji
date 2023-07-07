@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/stretchr/testify/mock"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -9,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/mock"
 )
 
 func TestLoadConfig(t *testing.T) {
@@ -272,5 +273,4 @@ func TestLoadConfig_Failure1(t *testing.T) {
 		t.Errorf("Expected error, got nil")
 	}
 
-	// The test will succeed if there is any error (not just a 'file does not exist' error)
 }

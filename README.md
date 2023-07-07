@@ -90,6 +90,10 @@ You can customize the `.goji.json` generated file to add or change the scopes, t
 }
 ```
 
+You can skip questions by adding them in `"SkipQuestions"`
+
+Only `"Scopes"` question can be skipped since it's optional according to the [Commit Spec](https://www.conventionalcommits.org/en/v1.0.0/)
+
 ## License
 
 Apache 2.0 license [Zine El Abidine Moualhi](https://www.linkedin.com/in/zinemoualhi/)
