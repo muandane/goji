@@ -33,12 +33,15 @@ func AskQuestions(config *config.Config) (string, error) {
 		}
 	}
 
-	promptScope := &survey.Input{
-		Message: "Enter the scope of the change:",
-	}
-	err = askOneFunc(promptScope, &commitScope)
-	if err != nil {
-		return "", err
+	// Only ask for commitScope if not in SkipQuestions
+	if !isInSkipQuestions("Scopes", config.SkipQuestions) {
+		promptScope := &survey.Input{
+			Message: "Enter the scope of the change:",
+		}
+		err = askOneFunc(promptScope, &commitScope)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	promptSubject := &survey.Input{
@@ -49,6 +52,21 @@ func AskQuestions(config *config.Config) (string, error) {
 		return "", err
 	}
 
-	commitMessage := fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
+	var commitMessage string
+	if commitScope == "" {
+		commitMessage = fmt.Sprintf("%s: %s", commitType, commitSubject)
+	} else {
+		commitMessage = fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
+	}
+
 	return commitMessage, nil
+}
+
+func isInSkipQuestions(value string, list []string) bool {
+	for _, v := range list {
+		if v == value {
+			return true
+		}
+	}
+	return false
 }
