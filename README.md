@@ -69,7 +69,7 @@ You can customize the `.goji.json` generated file to add or change the scopes, t
       "emoji": "✨",
       "code": ":sparkles:",
       "description": "Introducing new features.",
-      "name": "feature"
+      "name": "feat"
     },
     {
       "emoji": "🐛",

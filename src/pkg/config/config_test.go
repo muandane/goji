@@ -1,7 +1,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -256,7 +255,7 @@ func (m *MockExec) Command(name string, arg ...string) *exec.Cmd {
 }
 func TestLoadConfig_Failure1(t *testing.T) {
 	// Create a temporary directory for the test
-	tmpDir, err := ioutil.TempDir("", "test")
+	tmpDir, err := os.MkdirTemp("", "test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -266,7 +265,6 @@ func TestLoadConfig_Failure1(t *testing.T) {
 
 	// Change the working directory to the temporary directory
 	os.Chdir(tmpDir)
-
 	// Try to load a non-existent config file
 	_, err = LoadConfig("non_existent_file.json")
 	if err == nil {
