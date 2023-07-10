@@ -2,11 +2,13 @@ package utils
 
 import (
 	"errors"
-	"github.com/AlecAivazis/survey/v2"
-	"github.com/stretchr/testify/mock"
 	"goji/pkg/config"
 	"goji/pkg/models"
 	"testing"
+
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestAskQuestions(t *testing.T) {
@@ -123,5 +125,21 @@ func TestAskQuestions_Failure(t *testing.T) {
 
 	if commitMessage != "" {
 		t.Errorf("Expected commit message '', got '%s'", commitMessage)
+	}
+}
+func TestIsInSkipQuestions(t *testing.T) {
+	testCases := []struct {
+		skipQuestions []string
+		value         string
+		expected      bool
+	}{
+		{[]string{"types", "scopes", "message"}, "scopes", true},
+		{[]string{"types", "scopes", "message"}, "notInList", false},
+		{[]string{}, "scopes", false},
+	}
+
+	for _, tc := range testCases {
+		result := isInSkipQuestions(tc.value, tc.skipQuestions)
+		assert.Equal(t, tc.expected, result)
 	}
 }

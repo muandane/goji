@@ -1,14 +1,14 @@
 package config
 
 import (
-	"github.com/stretchr/testify/mock"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/mock"
 )
 
 func TestLoadConfig(t *testing.T) {
@@ -255,7 +255,7 @@ func (m *MockExec) Command(name string, arg ...string) *exec.Cmd {
 }
 func TestLoadConfig_Failure1(t *testing.T) {
 	// Create a temporary directory for the test
-	tmpDir, err := ioutil.TempDir("", "test")
+	tmpDir, err := os.MkdirTemp("", "test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -265,12 +265,10 @@ func TestLoadConfig_Failure1(t *testing.T) {
 
 	// Change the working directory to the temporary directory
 	os.Chdir(tmpDir)
-
 	// Try to load a non-existent config file
 	_, err = LoadConfig("non_existent_file.json")
 	if err == nil {
 		t.Errorf("Expected error, got nil")
 	}
 
-	// The test will succeed if there is any error (not just a 'file does not exist' error)
 }

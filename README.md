@@ -69,7 +69,7 @@ You can customize the `.goji.json` generated file to add or change the scopes, t
       "emoji": "✨",
       "code": ":sparkles:",
       "description": "Introducing new features.",
-      "name": "feature"
+      "name": "feat"
     },
     {
       "emoji": "🐛",
@@ -89,6 +89,10 @@ You can customize the `.goji.json` generated file to add or change the scopes, t
   "SubjectMaxLength": 50
 }
 ```
+
+You can skip questions by adding them in `"SkipQuestions"`
+
+Only `"Scopes"` question can be skipped since it's optional according to the [Commit Spec](https://www.conventionalcommits.org/en/v1.0.0/)
 
 ## License
 
