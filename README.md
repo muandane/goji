@@ -108,4 +108,5 @@ Apache 2.0 license [Zine El Abidine Moualhi](https://www.linkedin.com/in/zinemou
 ## Acknowledgements
 
 Thanks to [@Simplifi-ED](https://www.simplified.fr) & @IT Challenge in letting me work on this open source side project and to my mentor [@EtienneDeneuve](https://github.com/EtienneDeneuve) for the help with learning Go lang.
+
 <img align="center" src="public/logo.svg"  alt="IT Challenge" width="200"/>
