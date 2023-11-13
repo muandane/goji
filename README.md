@@ -30,15 +30,14 @@ for selecting the type of change, scope, and description of your commit message.
 **Homebrew**
 
 ```bash
-brew tap muandane/gitmoji
-brew install goji
+brew install muandane/goji
 ```
 
 **Build locally**
 
 ```bash
 git clone https://github.com/muandane/goji.git && cd goji
-go build ./src/cmd/goji.go
+go build ./src/
 mv goji /usr/local/bin
 goji --version 
 ```
