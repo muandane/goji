@@ -1,6 +1,6 @@
 builds:
 - binary: goji
-  main: ./cmd
+  main: ./
   goos:
   - darwin
   - linux
@@ -12,7 +12,7 @@ builds:
   flags:
   - -mod=vendor
   ldflags:
-  - -s -w -X main.version={{.Version}}
+  - -s -w -X cmd.version={{.Version}}
 
 release:
   prerelease: auto
