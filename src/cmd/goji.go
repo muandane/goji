@@ -23,6 +23,8 @@ var (
 )
 
 func main() {
+
+  
 	helpFlag := flag.Bool("h", false, "Display help information")
 	flag.BoolVar(helpFlag, "help", false, "display help")
 	versionFlag := flag.Bool("v", false, "Display version information")
@@ -163,7 +165,7 @@ type initConfig struct {
 
 func AddCustomCommitTypes(gitmojis []Gitmoji) []Gitmoji {
 	customGitmojis := []Gitmoji{
-		{Emoji: "✨", Code: ":sparkles:", Description: "Introduce new features.", Name: "feature"},
+		{Emoji: "✨", Code: ":sparkles:", Description: "Introduce new features.", Name: "feat"},
 		{Emoji: "🐛", Code: ":bug:", Description: "Fix a bug.", Name: "fix"},
 		{Emoji: "📚", Code: ":books:", Description: "Documentation change.", Name: "docs"},
 		{Emoji: "🎨", Code: ":art:", Description: "Improve structure/format of the code.", Name: "refactor"},
