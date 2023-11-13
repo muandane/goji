@@ -1,6 +1,6 @@
 before:
   hooks:
-  - ./scripts/completions.sh
+  - ../scripts/completions.sh
 builds:
 - binary: goji
   main: src/
