@@ -17,6 +17,7 @@ import (
 )
 
 var (
+	version     = ""
 	initFlag    bool
 	versionFlag bool
 	typeFlag    string
