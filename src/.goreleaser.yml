@@ -22,10 +22,10 @@ universal_binaries:
 
 brews:
 - name: goji
-  homepage: "https://github.com/muandane/homebrew-gitmoji"
+  homepage: "https://github.com/muandane/homebrew-muandane"
   repository:
     owner: muandane
-    name: homebrew-gitmoji
+    name: homebrew-muandane
   folder: Formula
   commit_author:
     name: muandane
