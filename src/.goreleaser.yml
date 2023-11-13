@@ -23,9 +23,10 @@ universal_binaries:
 brews:
 - name: goji
   homepage: "https://github.com/muandane/homebrew-gitmoji"
-  tap:
+  repository:
     owner: muandane
     name: homebrew-gitmoji
+  folder: Formula
   commit_author:
     name: muandane
     email: zmoualhi@outlook.com
