@@ -109,4 +109,6 @@ Apache 2.0 license [Zine El Abidine Moualhi](https://www.linkedin.com/in/zinemou
 
 Thanks to [@Simplifi-ED](https://www.simplified.fr) & @IT Challenge in letting me work on this open source side project and to my mentor [@EtienneDeneuve](https://github.com/EtienneDeneuve) for the help with learning Go lang.
 
-![it-challenge](public/logo.svg)
+<div style="text-align: center;">
+    <img src="public/logo.svg" alt="IT Challenge" width="200"/>
+</div>
