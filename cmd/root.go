@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	version     = ""
+	version     string
 	initFlag    bool
 	versionFlag bool
 	typeFlag    string
@@ -131,7 +131,6 @@ func init() {
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")
 	rootCmd.Flags().StringVarP(&messageFlag, "message", "m", "", "Specify a commit message")
-
 }
 
 type Gitmoji struct {

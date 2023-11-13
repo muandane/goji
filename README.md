@@ -1,7 +1,7 @@
 [![codecov](https://codecov.io/gh/muandane/goji/branch/main/graph/badge.svg?token=0PYU31AH2S)](https://codecov.io/gh/muandane/goji)
 # goji
 
-<img align="right" src="examples/go-gopher.gif">
+<img align="right" src="public/go-gopher.gif">
 
 > Commitizen-like tool for formatting commit messages using emojis written in go.
 
@@ -46,7 +46,7 @@ goji --version
 
 Simply run `goji` in your terminal to start the interactive commit process:
 
-![Goji gif](examples/goji.gif)
+![Goji gif](public/goji.gif)
 
 ## Customization
 
