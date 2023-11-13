@@ -17,13 +17,13 @@ import (
 )
 
 var (
-	version     = ""
 	initFlag    bool
 	versionFlag bool
 	typeFlag    string
 	scopeFlag   string
 	messageFlag string
 )
+
 var rootCmd = &cobra.Command{
 	Use:   "goji",
 	Short: "Goji CLI",
