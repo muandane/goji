@@ -1,6 +1,9 @@
+before:
+  hooks:
+  - ./scripts/completions.sh
 builds:
 - binary: goji
-  main: ./cmd
+  main: src/
   goos:
   - darwin
   - linux
@@ -12,7 +15,7 @@ builds:
   flags:
   - -mod=vendor
   ldflags:
-  - -s -w -X main.version={{.Version}}
+  - -s -w -X cmd.version={{.Version}}
 
 release:
   prerelease: auto
@@ -30,6 +33,10 @@ brews:
   commit_author:
     name: muandane
     email: zmoualhi@outlook.com
+  extra_install: |-
+    bash_completion.install "completions/goji.bash" => "goji"
+    zsh_completion.install "completions/goji.zsh" => "_goji"
+    fish_completion.install "completions/goji.fish"
 
 checksum:
   name_template: 'checksums.txt'
