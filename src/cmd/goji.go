@@ -15,11 +15,15 @@ import (
 	"github.com/fatih/color"
 )
 
+var (
+	version = ""
+)
+
 func init() {
 }
 
 func main() {
-	version := "0.0.1-rc4"
+
 	helpFlag := flag.Bool("h", false, "Display help information")
 	flag.BoolVar(helpFlag, "help", false, "display help")
 	versionFlag := flag.Bool("v", false, "Display version information")
@@ -38,8 +42,11 @@ func main() {
 		fmt.Println()
 		fmt.Println("Help information:")
 		fmt.Println(" -h --help: Display help information")
-		fmt.Println(" -v --version: Display version information")
 		fmt.Println(" -i --init: Generate a configuration file")
+		fmt.Println(" -m --message: Specify a commit message")
+		fmt.Println(" -s --scope: Specify a custom scope")
+		fmt.Println(" -t --type: Specify the type from the config file")
+		fmt.Println(" -v --version: Display version information")
 		return
 	}
 

@@ -94,6 +94,14 @@ You can skip questions by adding them in `"SkipQuestions"`
 
 Only `"Scopes"` question can be skipped since it's optional according to the [Commit Spec](https://www.conventionalcommits.org/en/v1.0.0/)
 
+If you don't want the interactive screen you can use the flags to construct a message:
+
+```sh
+
+goji --type feat --scope home --message "Add home page"
+
+```
+
 ## License
 
 Apache 2.0 license [Zine El Abidine Moualhi](https://www.linkedin.com/in/zinemoualhi/)
