@@ -18,25 +18,14 @@ import (
 func init() {
 }
 
-var (
-	version = ""
-)
-
 func main() {
-
-  
+	version := "0.0.1-rc4"
 	helpFlag := flag.Bool("h", false, "Display help information")
 	flag.BoolVar(helpFlag, "help", false, "display help")
 	versionFlag := flag.Bool("v", false, "Display version information")
 	flag.BoolVar(versionFlag, "version", false, "display help")
 	initFlag := flag.Bool("i", false, "Generate a configuration file")
 	flag.BoolVar(initFlag, "init", false, "display help")
-	typeFlag := flag.String("t", "", "Specify the type from the config file")
-	scopeFlag := flag.String("s", "", "Specify a custom scope")
-	messageFlag := flag.String("m", "", "Specify a commit message")
-	flag.StringVar(typeFlag, "type", "", "Specify the type from the config file")
-	flag.StringVar(scopeFlag, "scope", "", "Specify a custom scope")
-	flag.StringVar(messageFlag, "message", "", "Specify a commit message")
 
 	flag.Parse()
 	if *helpFlag {
@@ -84,69 +73,23 @@ func main() {
 		return
 	}
 
-	if *typeFlag != "" && *messageFlag != "" {
-		config, err := config.LoadConfig(".goji.json")
-		if err != nil {
-			log.Fatalf(color.YellowString("Error loading config file: %v"), err)
-		}
-		var typeMatch string
-		for _, t := range config.Types {
-			if *typeFlag == t.Name {
-				typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
-				break
-			}
-		}
-
-		// If no match was found, use the type flag as is
-		if typeMatch == "" {
-			typeMatch = *typeFlag
-		}
-
-		// Construct the commit message from the flags
-		commitMessage := *messageFlag
-		if typeMatch != "" {
-			commitMessage = fmt.Sprintf("%s: %s", typeMatch, commitMessage)
-			if *scopeFlag != "" {
-				commitMessage = fmt.Sprintf("%s(%s): %s", typeMatch, *scopeFlag, *messageFlag)
-			}
-		}
-
-		// Create the git commit command with the commit message
-		cmd := exec.Command("git", "commit", "-m", commitMessage)
-
-		// Run the command and capture the output and any error
-		output, err := cmd.CombinedOutput()
-
-		// Check if the command resulted in an error
-		if err != nil {
-			// If there was an error, print it and the output from the command
-			fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
-			fmt.Println("Git commit output: ", string(output))
-			return
-		}
-
-		// If there was no error, print the output from the command
-		fmt.Printf("Git commit output: %s\n", string(output))
-	} else {
-		// If not all flags were provided, fall back to your existing interactive prompt logic
-		config, err := config.LoadConfig(".goji.json")
-		if err != nil {
-			log.Fatalf(color.YellowString("Error loading config file: %v"), err)
-		}
-
-		commitMessage, err := utils.AskQuestions(config)
-		if err != nil {
-			log.Fatalf(color.YellowString("Error asking questions: %v"), err)
-		}
-		cmd := exec.Command("git", "commit", "-m", commitMessage)
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
-			fmt.Println("Git commit output: ", string(output))
-			return
-		}
-		fmt.Printf("Git commit output: %s\n", string(output))
+	config, err := config.LoadConfig(".goji.json")
+	if err != nil {
+		log.Fatalf(color.YellowString("Error loading config file: %v"), err)
 	}
+
+	commitMessage, err := utils.AskQuestions(config)
+	if err != nil {
+		log.Fatalf(color.YellowString("Error asking questions: %v"), err)
+	}
+	cmd := exec.Command("git", "commit", "-m", commitMessage)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
+		fmt.Println("Git commit output: ", string(output))
+		return
+	}
+	fmt.Printf("Git commit output: %s\n", string(output))
 }
 
 type Gitmoji struct {
