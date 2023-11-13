@@ -2,7 +2,7 @@ name: test
 on: [pull_request]
 jobs:
   test:
-    runs-on: self-hosted
+    runs-on: ubuntu-letest
     steps:
     - name: Set up Go
       uses: actions/setup-go@v2
