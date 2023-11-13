@@ -18,9 +18,11 @@ import (
 func init() {
 }
 
-func main() {
+var (
+	version = ""
+)
 
-	version := "0.0.1-rc3"
+func main() {
 	helpFlag := flag.Bool("h", false, "Display help information")
 	flag.BoolVar(helpFlag, "help", false, "display help")
 	versionFlag := flag.Bool("v", false, "Display version information")
