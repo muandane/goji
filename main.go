@@ -1,7 +1,7 @@
 package main
 
 import (
-	"goji/cmd"
+	"github.com/muandane/goji/cmd"
 )
 
 func main() {

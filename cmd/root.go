@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"goji/pkg/config"
-	"goji/pkg/utils"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/muandane/goji/pkg/config"
+	"github.com/muandane/goji/pkg/utils"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"

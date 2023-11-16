@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 
-	"goji/pkg/config"
+	"github.com/muandane/goji/pkg/config"
 
 	"github.com/AlecAivazis/survey/v2"
 )
