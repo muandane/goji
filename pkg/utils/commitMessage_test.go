@@ -2,9 +2,11 @@ package utils
 
 import (
 	"errors"
-	"goji/pkg/config"
-	"goji/pkg/models"
 	"testing"
+
+	"github.com/muandane/goji/pkg/models"
+
+	"github.com/muandane/goji/pkg/config"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/stretchr/testify/assert"

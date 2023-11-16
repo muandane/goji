@@ -1,6 +1,6 @@
 package config
 
-import "goji/pkg/models"
+import "github.com/muandane/goji/pkg/models"
 
 type Config struct {
 	Types            []models.CommitType
