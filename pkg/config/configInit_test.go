@@ -6,25 +6,6 @@ import (
 	"testing"
 )
 
-func TestAddCustomCommitTypes(t *testing.T) {
-	gitmojis := []Gitmoji{}
-	customGitmojis := AddCustomCommitTypes(gitmojis)
-
-	if len(customGitmojis) != 11 {
-		t.Errorf("Expected 11 gitmojis, got %d", len(customGitmojis))
-	}
-}
-
-func TestGetGitRootDir(t *testing.T) {
-	gitDir, err := GetGitRootDir()
-	if err != nil {
-		t.Errorf("Error finding git root directory: %v", err)
-	}
-
-	if gitDir == "" {
-		t.Error("Expected git root directory to be non-empty")
-	}
-}
 func TestSaveGitmojisToFile(t *testing.T) {
 	gitmojis := AddCustomCommitTypes([]Gitmoji{})
 	config := initConfig{
@@ -55,6 +36,16 @@ func TestSaveGitmojisToFile(t *testing.T) {
 	// Clean up
 	os.Remove(filepath.Join(gitDir, ".goji.json"))
 }
+func TestGetGitRootDir(t *testing.T) {
+	gitDir, err := GetGitRootDir()
+	if err != nil {
+		t.Errorf("Error finding git root directory: %v", err)
+	}
+
+	if gitDir == "" {
+		t.Error("Expected git root directory to be non-empty")
+	}
+}
 
 func TestInitRepoConfig(t *testing.T) {
 	err := InitRepoConfig()
@@ -76,4 +67,13 @@ func TestInitRepoConfig(t *testing.T) {
 
 	// Clean up
 	os.Remove(filepath.Join(gitDir, ".goji.json"))
+}
+
+func TestAddCustomCommitTypes(t *testing.T) {
+	gitmojis := []Gitmoji{}
+	customGitmojis := AddCustomCommitTypes(gitmojis)
+
+	if len(customGitmojis) != 11 {
+		t.Errorf("Expected 11 gitmojis, got %d", len(customGitmojis))
+	}
 }

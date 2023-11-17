@@ -13,6 +13,15 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+type MockSurvey struct {
+	mock.Mock
+}
+
+func (m *MockSurvey) AskOne(prompt survey.Prompt, response interface{}, options ...survey.AskOpt) error {
+	args := m.Called(prompt, response, options)
+	return args.Error(0)
+}
+
 func TestAskQuestions(t *testing.T) {
 	testCases := []struct {
 		Name           string
@@ -129,6 +138,7 @@ func TestAskQuestions_Failure(t *testing.T) {
 		t.Errorf("Expected commit message '', got '%s'", commitMessage)
 	}
 }
+
 func TestIsInSkipQuestions(t *testing.T) {
 	testCases := []struct {
 		skipQuestions []string

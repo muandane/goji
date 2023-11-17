@@ -40,6 +40,7 @@ func GetGitRootDir() (string, error) {
 
 func SaveGitmojisToFile(config initConfig, filename string) error {
 	gitDir, err := GetGitRootDir()
+
 	if err != nil {
 		return err
 	}
