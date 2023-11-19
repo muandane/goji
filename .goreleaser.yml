@@ -39,10 +39,10 @@ archives:
 
 brews:
 - name: goji
-  homepage: "https://github.com/muandane/homebrew-gitmoji"
+  homepage: "https://github.com/muandane/homebrew-tap"
   repository:
     owner: muandane
-    name: homebrew-gitmoji
+    name: homebrew-tap
   folder: Formula
   dependencies:
   - name: git
