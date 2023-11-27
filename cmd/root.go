@@ -16,7 +16,6 @@ import (
 
 var (
 	version     string
-	initFlag    bool
 	versionFlag bool
 	typeFlag    string
 	scopeFlag   string
@@ -34,17 +33,6 @@ var rootCmd = &cobra.Command{
 			color.Unset()
 			return
 		}
-		if initFlag {
-			color.Set(color.FgYellow)
-			err := config.InitRepoConfig()
-			if err != nil {
-				fmt.Printf("Failed to initialize repository configuration: %v\n", err)
-				return
-			}
-			color.Unset()
-			return
-		}
-
 		color.Set(color.FgGreen)
 		fmt.Printf("Goji v%s is a cli tool to generate conventional commits with emojis.\n", version)
 		color.Unset()
@@ -116,7 +104,6 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.Flags().BoolVarP(&initFlag, "init", "i", false, "Generate a configuration file")
 	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Display version information")
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")

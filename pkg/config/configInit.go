@@ -38,14 +38,8 @@ func GetGitRootDir() (string, error) {
 	return gitDir, nil
 }
 
-func SaveGitmojisToFile(config initConfig, filename string) error {
-	gitDir, err := GetGitRootDir()
-
-	if err != nil {
-		return err
-	}
-
-	configFile := filepath.Join(gitDir, filename)
+func SaveGitmojisToFile(config initConfig, filename string, dir string) error {
+	configFile := filepath.Join(dir, filename)
 	data, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
 		return err
@@ -53,8 +47,7 @@ func SaveGitmojisToFile(config initConfig, filename string) error {
 
 	return os.WriteFile(configFile, data, 0644)
 }
-
-func InitRepoConfig() error {
+func InitRepoConfig(global bool, repo bool) error {
 	gitmojis := AddCustomCommitTypes([]Gitmoji{})
 	config := initConfig{
 		Types:            gitmojis,
@@ -64,7 +57,23 @@ func InitRepoConfig() error {
 		SubjectMaxLength: 50,
 	}
 
-	err := SaveGitmojisToFile(config, ".goji.json")
+	var dir string
+	var err error
+	if global {
+		dir, err = os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+	} else if repo {
+		dir, err = GetGitRootDir()
+		if err != nil {
+			return err
+		}
+	} else {
+		return fmt.Errorf("no flag set for location to save configuration file")
+	}
+
+	err = SaveGitmojisToFile(config, ".goji.json", dir)
 
 	if err != nil {
 		return fmt.Errorf("error saving gitmojis to file: %v", err)
