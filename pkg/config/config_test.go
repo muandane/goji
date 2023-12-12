@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -264,7 +265,11 @@ func TestLoadConfig_Failure1(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	// Change the working directory to the temporary directory
-	os.Chdir(tmpDir)
+	err = os.Chdir(tmpDir)
+	if err != nil {
+		fmt.Println("Error while changing working directory to the temporary directory:", err)
+		return
+	}
 	// Try to load a non-existent config file
 	_, err = LoadConfig("non_existent_file.json")
 	if err == nil {
