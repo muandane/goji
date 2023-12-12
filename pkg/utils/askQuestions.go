@@ -14,7 +14,7 @@ func AskQuestions(config *config.Config) (string, error) {
 	commitTypeOptions := make([]huh.Option[string], len(config.Types))
 
 	for i, ct := range config.Types {
-		commitTypeOptions[i] = huh.NewOption[string](fmt.Sprintf("%-10s %-5s %-10s", ct.Name, ct.Emoji, ct.Description), ct.Name)
+		commitTypeOptions[i] = huh.NewOption[string](fmt.Sprintf("%-10s %-5s %-10s", ct.Name, ct.Emoji, ct.Description), fmt.Sprintf("%s %s", ct.Name, ct.Emoji))
 	}
 
 	promptType := huh.NewSelect[string]().
@@ -29,7 +29,7 @@ func AskQuestions(config *config.Config) (string, error) {
 	// Only ask for commitScope if not in SkipQuestions
 	if !isInSkipQuestions("Scopes", config.SkipQuestions) {
 		promptScope := huh.NewInput().
-			Title("Enter the scope of the change:").
+			Title("What is the scope of this change? (class or file name): (press [enter] to skip)").
 			Value(&commitScope)
 
 		err = promptScope.Run()
@@ -38,8 +38,9 @@ func AskQuestions(config *config.Config) (string, error) {
 		}
 	}
 
-	promptSubject := huh.NewInput().
-		Title("Enter a short description of the change:").
+	promptSubject := huh.NewText().
+		Title("Write a short and imperative summary of the code changes: (lower case and no period)").
+		CharLimit(100).
 		Value(&commitSubject)
 
 	err = promptSubject.Run()
