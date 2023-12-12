@@ -2,11 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"os/exec"
 
 	"log"
 	"os"
-	"os/exec"
 
+	"github.com/charmbracelet/huh/spinner"
 	"github.com/muandane/goji/pkg/config"
 	"github.com/muandane/goji/pkg/utils"
 
@@ -25,7 +26,7 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "goji",
 	Short: "Goji CLI",
-	Long:  `Goji is is a cli tool to generate conventional commits with emojis`,
+	Long:  `Goji is a cli tool to generate conventional commits with emojis`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if versionFlag {
 			color.Set(color.FgGreen)
@@ -33,15 +34,15 @@ var rootCmd = &cobra.Command{
 			color.Unset()
 			return
 		}
-		color.Set(color.FgGreen)
-		fmt.Printf("Goji v%s is a cli tool to generate conventional commits with emojis.\n", version)
-		color.Unset()
 
+		config, err := config.LoadConfig(".goji.json")
+		if err != nil {
+			log.Fatalf(color.YellowString("Error loading config file: %v"), err)
+		}
+
+		var commitMessage string
 		if typeFlag != "" && messageFlag != "" {
-			config, err := config.LoadConfig(".goji.json")
-			if err != nil {
-				log.Fatalf(color.YellowString("Error loading config file: %v"), err)
-			}
+			// If all flags are provided, construct the commit message from them
 			var typeMatch string
 			for _, t := range config.Types {
 				if typeFlag == t.Name {
@@ -56,49 +57,41 @@ var rootCmd = &cobra.Command{
 			}
 
 			// Construct the commit message from the flags
-			commitMessage := messageFlag
+			commitMessage = messageFlag
 			if typeMatch != "" {
 				commitMessage = fmt.Sprintf("%s: %s", typeMatch, commitMessage)
 				if scopeFlag != "" {
 					commitMessage = fmt.Sprintf("%s(%s): %s", typeMatch, scopeFlag, messageFlag)
 				}
 			}
-
-			// Create the git commit command with the commit message
-			cmd := exec.Command("git", "commit", "-m", commitMessage)
-
-			// Run the command and capture the output and any error
-			output, err := cmd.CombinedOutput()
-
-			// Check if the command resulted in an error
-			if err != nil {
-				// If there was an error, print it and the output from the command
-				fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
-				fmt.Println("Git commit output: ", string(output))
-				return
-			}
-
-			// If there was no error, print the output from the command
-			fmt.Printf("Git commit output: %s\n", string(output))
 		} else {
-			// If not all flags were provided, fall back to your existing interactive prompt logic
-			config, err := config.LoadConfig(".goji.json")
-			if err != nil {
-				log.Fatalf(color.YellowString("Error loading config file: %v"), err)
-			}
-
-			commitMessage, err := utils.AskQuestions(config)
+			// If not all flags are provided, fall back to the interactive prompt logic
+			commitMessage, err = utils.AskQuestions(config)
 			if err != nil {
 				log.Fatalf(color.YellowString("Error asking questions: %v"), err)
 			}
-			cmd := exec.Command("git", "commit", "-m", commitMessage)
-			output, err := cmd.CombinedOutput()
-			if err != nil {
-				fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
-				fmt.Println("Git commit output: ", string(output))
-				return
-			}
-			fmt.Printf("Git commit output: %s\n", string(output))
+		}
+		// commitMessage, err := utils.AskQuestions(config)
+		// if err != nil {
+		// 	log.Fatalf(color.YellowString("Error asking questions: %v"), err)
+		// }
+
+		err = spinner.New().
+			Title("Committing...").
+			Action(func() {
+				gitCmd := exec.Command("git", "commit", "-m", commitMessage)
+				output, err := gitCmd.CombinedOutput()
+				if err != nil {
+					fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
+					fmt.Println("Git commit output: ", string(output))
+					os.Exit(1)
+				}
+				fmt.Printf("Git commit output: %s\n", string(output))
+			}).
+			Run()
+
+		if err != nil {
+			fmt.Println("Error committing: ", err)
 		}
 	},
 }
