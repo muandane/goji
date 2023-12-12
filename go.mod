@@ -3,7 +3,6 @@ module github.com/muandane/goji
 go 1.21.3
 
 require (
-	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/huh v0.1.0
 	github.com/fatih/color v1.16.0
 	github.com/spf13/cobra v1.8.0
@@ -16,6 +15,7 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/charmbracelet/bubbles v0.16.1 // indirect
+	github.com/charmbracelet/bubbletea v0.24.2 // indirect
 	github.com/charmbracelet/glamour v0.6.0 // indirect
 	github.com/charmbracelet/lipgloss v0.9.1 // indirect
 	github.com/charmbracelet/x/exp/ordered v0.0.0-20231025135604-4a717d4fb812 // indirect

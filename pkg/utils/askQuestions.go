@@ -14,9 +14,7 @@ func AskQuestions(config *config.Config) (string, error) {
 	commitTypeOptions := make([]huh.Option[string], len(config.Types))
 
 	for i, ct := range config.Types {
-		commitTypeOptions[i] = huh.NewOption(fmt.Sprintf("%-10s %-5s %-10s", ct.Name, ct.Emoji, ct.Description), ct.Name)
-		// commitTypeOptions[i] = huh.NewOption[string](fmt.Sprintf("%-10s %-5s %-10s", ct.Name, ct.Emoji, ct.Description), ct.Name)
-
+		commitTypeOptions[i] = huh.NewOption[string](fmt.Sprintf("%-10s %-5s %-10s", ct.Name, ct.Emoji, ct.Description), ct.Name)
 	}
 
 	promptType := huh.NewSelect[string]().
