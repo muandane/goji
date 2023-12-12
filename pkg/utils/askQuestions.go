@@ -3,51 +3,48 @@ package utils
 import (
 	"fmt"
 
+	"github.com/charmbracelet/huh"
 	"github.com/muandane/goji/pkg/config"
-
-	"github.com/AlecAivazis/survey/v2"
 )
 
 func AskQuestions(config *config.Config) (string, error) {
 	var commitType string
 	var commitScope string
 	var commitSubject string
+	commitTypeOptions := make([]huh.Option[string], len(config.Types))
 
-	commitTypeOptions := make([]string, len(config.Types))
 	for i, ct := range config.Types {
-		commitTypeOptions[i] = fmt.Sprintf("%-10s %-5s %-10s", ct.Name, ct.Emoji, ct.Description)
+		commitTypeOptions[i] = huh.NewOption(fmt.Sprintf("%-10s %-5s %-10s", ct.Name, ct.Emoji, ct.Description), ct.Name)
+		// commitTypeOptions[i] = huh.NewOption[string](fmt.Sprintf("%-10s %-5s %-10s", ct.Name, ct.Emoji, ct.Description), ct.Name)
+
 	}
 
-	promptType := &survey.Select{
-		Message: "Select the type of change you are committing:",
-		Options: commitTypeOptions,
-	}
-	err := askOneFunc(promptType, &commitType)
+	promptType := huh.NewSelect[string]().
+		Title("Select the type of change you are committing:").
+		Options(commitTypeOptions...).
+		Value(&commitType)
+
+	err := promptType.Run()
 	if err != nil {
 		return "", err
 	}
-	for _, ct := range config.Types {
-		if fmt.Sprintf("%-10s %-5s %-10s", ct.Name, ct.Emoji, ct.Description) == commitType {
-			commitType = fmt.Sprintf("%s %s", ct.Name, ct.Emoji)
-			break
-		}
-	}
-
 	// Only ask for commitScope if not in SkipQuestions
 	if !isInSkipQuestions("Scopes", config.SkipQuestions) {
-		promptScope := &survey.Input{
-			Message: "Enter the scope of the change:",
-		}
-		err = askOneFunc(promptScope, &commitScope)
+		promptScope := huh.NewInput().
+			Title("Enter the scope of the change:").
+			Value(&commitScope)
+
+		err = promptScope.Run()
 		if err != nil {
 			return "", err
 		}
 	}
 
-	promptSubject := &survey.Input{
-		Message: "Enter a short description of the change:",
-	}
-	err = askOneFunc(promptSubject, &commitSubject)
+	promptSubject := huh.NewInput().
+		Title("Enter a short description of the change:").
+		Value(&commitSubject)
+
+	err = promptSubject.Run()
 	if err != nil {
 		return "", err
 	}
@@ -58,7 +55,6 @@ func AskQuestions(config *config.Config) (string, error) {
 	} else {
 		commitMessage = fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
 	}
-
 	return commitMessage, nil
 }
 
