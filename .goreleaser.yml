@@ -12,8 +12,6 @@ builds:
   - arm64
   env:
   - CGO_ENABLED=0
-  flags:
-  - -mod=vendor
   ldflags:
   - -s -w -X github.com/muandane/goji/cmd.version={{.Version}}
 
