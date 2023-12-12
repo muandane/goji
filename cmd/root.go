@@ -40,10 +40,41 @@ var rootCmd = &cobra.Command{
 			log.Fatalf(color.YellowString("Error loading config file: %v"), err)
 		}
 
-		commitMessage, err := utils.AskQuestions(config)
-		if err != nil {
-			log.Fatalf(color.YellowString("Error asking questions: %v"), err)
+		var commitMessage string
+		if typeFlag != "" && messageFlag != "" {
+			// If all flags are provided, construct the commit message from them
+			var typeMatch string
+			for _, t := range config.Types {
+				if typeFlag == t.Name {
+					typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
+					break
+				}
+			}
+
+			// If no match was found, use the type flag as is
+			if typeMatch == "" {
+				typeMatch = typeFlag
+			}
+
+			// Construct the commit message from the flags
+			commitMessage = messageFlag
+			if typeMatch != "" {
+				commitMessage = fmt.Sprintf("%s: %s", typeMatch, commitMessage)
+				if scopeFlag != "" {
+					commitMessage = fmt.Sprintf("%s(%s): %s", typeMatch, scopeFlag, messageFlag)
+				}
+			}
+		} else {
+			// If not all flags are provided, fall back to the interactive prompt logic
+			commitMessage, err = utils.AskQuestions(config)
+			if err != nil {
+				log.Fatalf(color.YellowString("Error asking questions: %v"), err)
+			}
 		}
+		// commitMessage, err := utils.AskQuestions(config)
+		// if err != nil {
+		// 	log.Fatalf(color.YellowString("Error asking questions: %v"), err)
+		// }
 
 		err = spinner.New().
 			Title("Committing...").
@@ -62,15 +93,6 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			fmt.Println("Error committing: ", err)
 		}
-		// gitCmd := exec.Command("git", "commit", "-m", commitMessage)
-		// output, err := gitCmd.CombinedOutput()
-		// if err != nil {
-		// 	fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
-		// 	fmt.Println("Git commit output: ", string(output))
-		// 	return
-		// }
-
-		// fmt.Printf("Git commit output: %s\n", string(output))
 	},
 }
 
