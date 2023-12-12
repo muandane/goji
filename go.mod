@@ -4,6 +4,7 @@ go 1.21.3
 
 require (
 	github.com/charmbracelet/huh v0.1.0
+	github.com/charmbracelet/huh/spinner v0.0.0-20231211205015-d16e6dd5b842
 	github.com/fatih/color v1.16.0
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4

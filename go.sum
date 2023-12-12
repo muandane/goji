@@ -15,6 +15,8 @@ github.com/charmbracelet/glamour v0.6.0 h1:wi8fse3Y7nfcabbbDuwolqTqMQPMnVPeZhDM2
 github.com/charmbracelet/glamour v0.6.0/go.mod h1:taqWV4swIMMbWALc0m7AfE9JkPSU8om2538k9ITBxOc=
 github.com/charmbracelet/huh v0.1.0 h1:EvNILWc+x0/ohiAlGUCK2UYQMO630XZmD/eisKeUJGs=
 github.com/charmbracelet/huh v0.1.0/go.mod h1:iJAyphekFE8ANFqmj3ge0VdFoj84OxH0WWSValzDLI0=
+github.com/charmbracelet/huh/spinner v0.0.0-20231211205015-d16e6dd5b842 h1:xDlIaXaflYYO3q4GaNfX6kqu0uqdSmdTZ7R5GQb/7Zg=
+github.com/charmbracelet/huh/spinner v0.0.0-20231211205015-d16e6dd5b842/go.mod h1:8oThTkY972pvMcVAIEtWGT/u4NVV1PXHJ1rZErqNrdw=
 github.com/charmbracelet/lipgloss v0.9.1 h1:PNyd3jvaJbg4jRHKWXnCj1akQm4rh8dbEzN1p/u1KWg=
 github.com/charmbracelet/lipgloss v0.9.1/go.mod h1:1mPmG4cxScwUQALAAnacHaigiiHB9Pmr+v1VEawJl6I=
 github.com/charmbracelet/x/exp/ordered v0.0.0-20231025135604-4a717d4fb812 h1:wBbf9mGJyRlIxn7t4Ri0Ig+HLt6Cv6PC4P3AoBj6jwU=
