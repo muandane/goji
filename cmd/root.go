@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/briandowns/spinner"
 	"github.com/muandane/goji/pkg/config"
 	"github.com/muandane/goji/pkg/utils"
 
@@ -44,14 +45,33 @@ var rootCmd = &cobra.Command{
 			log.Fatalf(color.YellowString("Error asking questions: %v"), err)
 		}
 
-		gitCmd := exec.Command("git", "commit", "-m", commitMessage)
-		output, err := gitCmd.CombinedOutput()
+		err = spinner.New().
+			Title("Committing...").
+			Action(func() error {
+				gitCmd := exec.Command("git", "commit", "-m", commitMessage)
+				output, err := gitCmd.CombinedOutput()
+				if err != nil {
+					fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
+					fmt.Println("Git commit output: ", string(output))
+					return err
+				}
+				fmt.Printf("Git commit output: %s\n", string(output))
+				return nil
+			}).
+			Run()
+
 		if err != nil {
-			fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
-			fmt.Println("Git commit output: ", string(output))
-			return
+			fmt.Println("Error committing: ", err)
 		}
-		fmt.Printf("Git commit output: %s\n", string(output))
+
+		// gitCmd := exec.Command("git", "commit", "-m", commitMessage)
+		// output, err := gitCmd.CombinedOutput()
+		// if err != nil {
+		// 	fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
+		// 	fmt.Println("Git commit output: ", string(output))
+		// 	return
+		// }
+		// fmt.Printf("Git commit output: %s\n", string(output))
 	},
 }
 
