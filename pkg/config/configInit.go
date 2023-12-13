@@ -1,12 +1,12 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
+
+	"github.com/spf13/viper"
 )
 
 func AddCustomCommitTypes(gitmojis []Gitmoji) []Gitmoji {
@@ -26,6 +26,7 @@ func AddCustomCommitTypes(gitmojis []Gitmoji) []Gitmoji {
 
 	return append(gitmojis, customGitmojis...)
 }
+
 func GetGitRootDir() (string, error) {
 	gitRoot := exec.Command("git", "rev-parse", "--show-toplevel")
 	gitDirBytes, err := gitRoot.Output()
@@ -39,14 +40,31 @@ func GetGitRootDir() (string, error) {
 }
 
 func SaveGitmojisToFile(config initConfig, filename string, dir string) error {
-	configFile := filepath.Join(dir, filename)
-	data, err := json.MarshalIndent(config, "", "  ")
+	viper.Set("Types", config.Types)
+	viper.Set("Scopes", config.Scopes)
+	viper.Set("Symbol", config.Symbol)
+	viper.Set("SkipQuestions", config.SkipQuestions)
+	viper.Set("SubjectMaxLength", config.SubjectMaxLength)
+
+	viper.SetConfigName(filename) // name of config file (without extension)
+	viper.SetConfigType("json")   // specifying the config type
+	viper.AddConfigPath(dir)      // path to look for the config file in
+
+	err := viper.SafeWriteConfig()
 	if err != nil {
-		return err
+		if _, ok := err.(viper.ConfigFileAlreadyExistsError); ok {
+			err = viper.WriteConfig()
+			if err != nil {
+				return fmt.Errorf("error writing config file: %v", err)
+			}
+		} else {
+			return fmt.Errorf("error creating config file: %v", err)
+		}
 	}
 
-	return os.WriteFile(configFile, data, 0644)
+	return nil
 }
+
 func InitRepoConfig(global bool, repo bool) error {
 	gitmojis := AddCustomCommitTypes([]Gitmoji{})
 	config := initConfig{

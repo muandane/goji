@@ -35,7 +35,7 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
-		config, err := config.LoadConfig(".goji.json")
+		config, err := config.ViperConfig()
 		if err != nil {
 			log.Fatalf(color.YellowString("Error loading config file: %v"), err)
 		}
@@ -71,10 +71,6 @@ var rootCmd = &cobra.Command{
 				log.Fatalf(color.YellowString("Error asking questions: %v"), err)
 			}
 		}
-		// commitMessage, err := utils.AskQuestions(config)
-		// if err != nil {
-		// 	log.Fatalf(color.YellowString("Error asking questions: %v"), err)
-		// }
 
 		err = spinner.New().
 			Title("Committing...").
