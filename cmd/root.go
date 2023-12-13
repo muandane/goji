@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh/spinner"
 	"github.com/muandane/goji/pkg/config"
 	"github.com/muandane/goji/pkg/utils"
@@ -66,28 +67,35 @@ var rootCmd = &cobra.Command{
 			}
 		} else {
 			// If not all flags are provided, fall back to the interactive prompt logic
-			commitMessage, err = utils.AskQuestions(config)
-			if err != nil {
-				log.Fatalf(color.YellowString("Error asking questions: %v"), err)
-			}
+			go func() {
+				m := utils.NewModel(config)
+				p := tea.NewProgram(m)
+				if err := p.Start(); err != nil {
+					fmt.Println("Error starting program:", err)
+				}
+			}()
 		}
 
-		err = spinner.New().
-			Title("Committing...").
-			Action(func() {
-				gitCmd := exec.Command("git", "commit", "-m", commitMessage)
-				output, err := gitCmd.CombinedOutput()
-				if err != nil {
-					fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
-					fmt.Println("Git commit output: ", string(output))
-					os.Exit(1)
-				}
-				fmt.Printf("Git commit output: %s\n", string(output))
-			}).
-			Run()
+		if commitMessage != "" {
+			err = spinner.New().
+				Title("Committing...").
+				Action(func() {
+					gitCmd := exec.Command("git", "commit", "-m", commitMessage)
+					output, err := gitCmd.CombinedOutput()
+					if err != nil {
+						fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
+						fmt.Println("Git commit output: ", string(output))
+						os.Exit(1)
+					}
+					fmt.Printf("Git commit output: %s\n", string(output))
+				}).
+				Run()
 
-		if err != nil {
-			fmt.Println("Error committing: ", err)
+			if err != nil {
+				fmt.Println("Error committing: ", err)
+			}
+		} else {
+			fmt.Println("Error: commit message is empty")
 		}
 	},
 }
