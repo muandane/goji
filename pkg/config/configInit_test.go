@@ -26,7 +26,7 @@ func TestSaveGitmojisToFile(t *testing.T) {
 		SkipQuestions:    []string{},
 		SubjectMaxLength: 50,
 	}
-	err := SaveGitmojisToFile(config, ".goji.json", ".")
+	err := SaveGitmojisToFile(config, ".goji", ".")
 	if err != nil {
 		t.Errorf("SaveGitmojisToFile() error = %v", err)
 	}
