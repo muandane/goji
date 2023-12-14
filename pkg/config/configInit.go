@@ -91,7 +91,7 @@ func InitRepoConfig(global bool, repo bool) error {
 		return fmt.Errorf("no flag set for location to save configuration file")
 	}
 
-	err = SaveGitmojisToFile(config, ".goji.json", dir)
+	err = SaveGitmojisToFile(config, ".goji", dir)
 
 	if err != nil {
 		return fmt.Errorf("error saving gitmojis to file: %v", err)
