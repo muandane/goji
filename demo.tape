@@ -4,7 +4,7 @@ Set BorderRadius 10
 Set Framerate 60
 Set Theme "Horizon"
 Sleep 500ms
-Type@20ms "goji"
+Type@120ms "goji"
 Enter
 Sleep 1.5s
 Up
