@@ -7,48 +7,27 @@ import (
 	"github.com/muandane/goji/pkg/models"
 )
 
-type Gitmoji struct {
-	Name        string
-	Emoji       string
-	Description string
-}
-type CommitType struct {
-	Emoji       string
-	Code        string
-	Description string
-	Name        string
-}
-
 func TestAskQuestions(t *testing.T) {
-	config := &config.Config{
+	// Create a mock config for testing purposes
+	mockConfig := &config.Config{
 		Types: []models.CommitType{
-			{
-				Name:        "bug",
-				Emoji:       "🐛",
-				Description: "Fixing a bug.",
-			},
-			{
-				Name:        "feat",
-				Emoji:       "✨",
-				Description: "Introducing new features.",
-			},
+			{Name: "feat", Emoji: "✨", Description: "A new feature"},
+			{Name: "fix", Emoji: "🐛", Description: "A bug fix"},
 		},
-		SkipQuestions: []string{},
+		SkipQuestions: []string{"Scopes"},
 	}
 
-	_, err := AskQuestions(config)
+	// Call the function with mock data
+	commitMessage, err := AskQuestions(mockConfig, "feat", "", "test commit message")
+
+	// Add assertions based on expected behavior
 	if err != nil {
-		if err.Error() == "open /dev/tty: device not configured" {
-			t.Skip("Skipping test due to missing tty")
-		} else {
-			t.Errorf("AskQuestions() error = %v", err)
-		}
+		t.Errorf("AskQuestions returned an error: %v", err)
 	}
-}
 
-func TestIsInSkipQuestions(t *testing.T) {
-	list := []string{"Scopes", "Types"}
-	if !isInSkipQuestions("Scopes", list) {
-		t.Errorf("isInSkipQuestions() returned unexpected result")
+	// Example assertions for expected output format
+	expectedMessage := "feat: test commit message" // Replace with your expected message format
+	if commitMessage != expectedMessage {
+		t.Errorf("Expected commit message %s, but got %s", expectedMessage, commitMessage)
 	}
 }
