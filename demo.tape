@@ -1,5 +1,5 @@
 Set Shell zsh
-Output examples/goji-demo.gif
+Output public/goji-demo.gif
 Set BorderRadius 10
 Set Framerate 60
 Set Theme "Horizon"
