@@ -3,6 +3,7 @@
 
 <img align="right" src="public/go-gopher.gif">
 
+> [!NOTE] 
 > Commitizen-like tool for formatting commit messages using emojis written in go.
 
 **goji** is an easy-to-use commit message formatting tool, inspired by Commitizen and cz-cli, 
@@ -53,7 +54,8 @@ Simply run `goji` in your terminal to start the interactive commit process:
 By default `goji` comes ready to run out of the box and you can initialize a config file with commands. _For now customization is in the works (?)_
 
 ```sh
-goji --init
+goji --init --repo # Writes the config in the git repo's root
+goji --init --global # Writes the config to home directory
 ```
 
 **HOW TO**
