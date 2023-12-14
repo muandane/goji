@@ -20,7 +20,7 @@ Up 1
 Sleep 1s
 Enter
 Sleep 1s
-Type@500ms "./"
+Type@500ms "test"
 Enter
 Sleep 1s
 Type@40ms "goji test commit"
