@@ -35,7 +35,7 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
-		config, err := config.LoadConfig(".goji.json")
+		config, err := config.ViperConfig()
 		if err != nil {
 			log.Fatalf(color.YellowString("Error loading config file: %v"), err)
 		}

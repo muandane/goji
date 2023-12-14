@@ -30,6 +30,8 @@ func AskQuestions(config *config.Config) (string, error) {
 	if !isInSkipQuestions("Scopes", config.SkipQuestions) {
 		promptScope := huh.NewInput().
 			Title("What is the scope of this change? (class or file name): (press [enter] to skip)").
+			CharLimit(50).
+			Placeholder("Example: ci, api, parser").
 			Value(&commitScope)
 
 		err = promptScope.Run()
@@ -38,9 +40,10 @@ func AskQuestions(config *config.Config) (string, error) {
 		}
 	}
 
-	promptSubject := huh.NewText().
+	promptSubject := huh.NewInput().
 		Title("Write a short and imperative summary of the code changes: (lower case and no period)").
 		CharLimit(100).
+		Placeholder("Short description of your commit").
 		Value(&commitSubject)
 
 	err = promptSubject.Run()

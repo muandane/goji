@@ -1,45 +1,34 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"os/exec"
-	"path/filepath"
-	"strings"
+
+	"github.com/spf13/viper"
 )
 
-func LoadConfig(filename string) (*Config, error) {
-	// Get the root directory of the Git project
-	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
-	rootDirBytes, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("error finding git root directory: %v", err)
-	}
-	rootDir := string(rootDirBytes)
-	rootDir = strings.TrimSpace(rootDir) // Remove newline character at the end
+func ViperConfig() (*Config, error) {
+	viper.SetConfigName(".goji")
+	viper.SetConfigType("json")
 
-	// Try to load the config file from the root of the Git project
-	configFile := filepath.Join(rootDir, filename)
-	data, err := os.ReadFile(configFile)
+	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
+	gitDirBytes, err := cmd.Output()
 	if err != nil {
-		// If not found, try to load it from the home directory
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			return nil, fmt.Errorf("error finding home directory: %v", err)
-		}
-		configFile = filepath.Join(homeDir, filename)
-		data, err = os.ReadFile(configFile)
-		if err != nil {
-			return nil, err
-		}
+		_ = fmt.Errorf("error finding git root directory: %v", err)
+		return nil, err
+	}
+	gitDir := string(gitDirBytes)
+	viper.AddConfigPath(gitDir)
+	viper.AddConfigPath("$HOME")
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("fatal error config file: %s", err))
 	}
 
 	var config Config
-	err = json.Unmarshal(data, &config)
-	if err != nil {
-		return nil, err
+	if err := viper.Unmarshal(&config); err != nil {
+		fmt.Printf("unable to decode into struct, %v", err)
 	}
-
 	return &config, nil
 }
