@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/muandane/goji/pkg/config"
 )
 
@@ -13,8 +14,26 @@ func AskQuestions(config *config.Config) (string, error) {
 	var commitSubject string
 	commitTypeOptions := make([]huh.Option[string], len(config.Types))
 
+	nameStyle := lipgloss.NewStyle().
+		Width(15).
+		Align(lipgloss.Left)
+
+	emojiStyle := lipgloss.NewStyle().
+		Width(5).
+		PaddingRight(5).
+		Align(lipgloss.Left)
+
+	descStyle := lipgloss.NewStyle().
+		Width(45).
+		Align(lipgloss.Left)
+
 	for i, ct := range config.Types {
-		commitTypeOptions[i] = huh.NewOption[string](fmt.Sprintf("%-10s %-5s %-10s", ct.Name, ct.Emoji, ct.Description), fmt.Sprintf("%s %s", ct.Name, ct.Emoji))
+		name := nameStyle.Render(ct.Name)
+		emoji := emojiStyle.Render(ct.Emoji)
+		desc := descStyle.Render(ct.Description)
+
+		row := lipgloss.JoinHorizontal(lipgloss.Center, name, emoji, desc)
+		commitTypeOptions[i] = huh.NewOption[string](row, fmt.Sprintf("%s %s", ct.Name, ct.Emoji))
 	}
 
 	promptType := huh.NewSelect[string]().
