@@ -3,7 +3,7 @@
 
 <img align="right" src="public/go-gopher.gif">
 
-> [!NOTE] 
+> [!NOTE]
 > Commitizen-like tool for formatting commit messages using emojis written in go.
 
 **goji** is an easy-to-use commit message formatting tool, inspired by Commitizen and cz-cli, 
