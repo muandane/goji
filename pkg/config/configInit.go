@@ -77,17 +77,19 @@ func InitRepoConfig(global bool, repo bool) error {
 
 	var dir string
 	var err error
-	if global {
+
+	switch {
+	case global:
 		dir, err = os.UserHomeDir()
 		if err != nil {
 			return err
 		}
-	} else if repo {
+	case repo:
 		dir, err = GetGitRootDir()
 		if err != nil {
 			return err
 		}
-	} else {
+	default:
 		return fmt.Errorf("no flag set for location to save configuration file")
 	}
 
