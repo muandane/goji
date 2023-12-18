@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/muandane/goji/branch/main/graph/badge.svg?token=0PYU31AH2S)](https://codecov.io/gh/muandane/goji)
+[![codecov](https://codecov.io/gh/muandane/goji/branch/main/graph/badge.svg?token=0PYU31AH2S)](https://codecov.io/gh/muandane/goji) [![Go Report Card](https://goreportcard.com/badge/github.com/muandane/goji)](https://goreportcard.com/report/github.com/muandane/goji)
 # goji
 
 <img align="right" src="public/go-gopher.gif">
