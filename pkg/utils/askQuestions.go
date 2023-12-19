@@ -81,6 +81,9 @@ func AskQuestions(config *config.Config) ([]string, error) {
 		commitBody = commitDescription
 	case commitDescription == "":
 		commitMessage = fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
+	default:
+		commitMessage = fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
+		commitBody = commitDescription
 	}
 	result = append(result, commitMessage, commitBody)
 
