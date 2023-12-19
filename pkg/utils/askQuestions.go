@@ -8,11 +8,13 @@ import (
 	"github.com/muandane/goji/pkg/config"
 )
 
-func AskQuestions(config *config.Config) (string, error) {
+func AskQuestions(config *config.Config) ([]string, error) {
 	var commitType string
 	var commitScope string
 	var commitSubject string
+	var commitDescription string
 	commitTypeOptions := make([]huh.Option[string], len(config.Types))
+	var form huh.Form
 
 	nameStyle := lipgloss.NewStyle().
 		Width(15).
@@ -36,54 +38,52 @@ func AskQuestions(config *config.Config) (string, error) {
 		commitTypeOptions[i] = huh.NewOption[string](row, fmt.Sprintf("%s %s", ct.Name, ct.Emoji))
 	}
 
-	promptType := huh.NewSelect[string]().
-		Title("Select the type of change you are committing:").
-		Options(commitTypeOptions...).
-		Value(&commitType)
-
-	err := promptType.Run()
-	if err != nil {
-		return "", err
-	}
-	// Only ask for commitScope if not in SkipQuestions
-	if !isInSkipQuestions("Scopes", config.SkipQuestions) {
-		promptScope := huh.NewInput().
+	group1 := huh.NewGroup(
+		huh.NewSelect[string]().
+			Title("Select the type of change you are committing:").
+			Options(commitTypeOptions...).
+			Value(&commitType),
+		huh.NewInput().
 			Title("What is the scope of this change? (class or file name): (press [enter] to skip)").
 			CharLimit(50).
 			Placeholder("Example: ci, api, parser").
-			Value(&commitScope)
+			Value(&commitScope),
+	)
 
-		err = promptScope.Run()
-		if err != nil {
-			return "", err
-		}
-	}
+	group2 := huh.NewGroup(
+		huh.NewInput().
+			Title("Write a short and imperative summary of the code changes: (lower case and no period)").
+			CharLimit(100).
+			Placeholder("Short description of your commit").
+			Value(&commitSubject),
+		huh.NewText().
+			Title("Write a Long description of the code changes: (press [enter] to skip)").
+			CharLimit(500).
+			Placeholder("Long description of your commit").
+			Value(&commitDescription),
+	)
 
-	promptSubject := huh.NewInput().
-		Title("Write a short and imperative summary of the code changes: (lower case and no period)").
-		CharLimit(100).
-		Placeholder("Short description of your commit").
-		Value(&commitSubject)
+	form = *huh.NewForm(group1, group2)
+	err := form.Run()
 
-	err = promptSubject.Run()
 	if err != nil {
-		return "", err
+		return []string{}, err
 	}
 
 	var commitMessage string
-	if commitScope == "" {
+	var commitBody string
+	var result []string
+	switch {
+	case commitScope == "" && commitDescription == "":
 		commitMessage = fmt.Sprintf("%s: %s", commitType, commitSubject)
-	} else {
+	case commitScope == "":
+		commitMessage = fmt.Sprintf("%s: %s", commitType, commitSubject)
+		commitBody = commitDescription
+	case commitDescription == "":
 		commitMessage = fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
 	}
-	return commitMessage, nil
-}
+	result = append(result, commitMessage, commitBody)
 
-func isInSkipQuestions(value string, list []string) bool {
-	for _, v := range list {
-		if v == value {
-			return true
-		}
-	}
-	return false
+	return result, nil
+
 }

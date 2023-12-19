@@ -41,6 +41,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		var commitMessage string
+		var commitBody string
 		if typeFlag != "" && messageFlag != "" {
 			// If all flags are provided, construct the commit message from them
 			var typeMatch string
@@ -66,20 +67,21 @@ var rootCmd = &cobra.Command{
 			}
 		} else {
 			// If not all flags are provided, fall back to the interactive prompt logic
-			commitMessage, err = utils.AskQuestions(config)
+			commitMessages, err := utils.AskQuestions(config)
 			if err != nil {
 				log.Fatalf(color.YellowString("Error asking questions: %v"), err)
 			}
+			commitMessage = commitMessages[0]
+			commitBody = commitMessages[1]
 		}
-		// commitMessage, err := utils.AskQuestions(config)
-		// if err != nil {
-		// 	log.Fatalf(color.YellowString("Error asking questions: %v"), err)
-		// }
+		if commitMessage == "" {
+			log.Fatalf(color.YellowString("Error: Commit message cannot be empty"))
+		}
 
 		err = spinner.New().
 			Title("Committing...").
 			Action(func() {
-				gitCmd := exec.Command("git", "commit", "-m", commitMessage)
+				gitCmd := exec.Command("git", "commit", "-m", commitMessage, "-m", commitBody)
 				output, err := gitCmd.CombinedOutput()
 				if err != nil {
 					fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
