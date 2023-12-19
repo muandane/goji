@@ -54,8 +54,8 @@ Simply run `goji` in your terminal to start the interactive commit process:
 By default `goji` comes ready to run out of the box and you can initialize a config file with commands. _For now customization is in the works (?)_
 
 ```sh
-goji --init --repo # Writes the config in the git repo's root
-goji --init --global # Writes the config to home directory
+goji init --repo # Writes the config in the git repo's root
+goji init --global # Writes the config to home directory
 ```
 
 **HOW TO**
