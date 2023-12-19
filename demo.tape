@@ -2,6 +2,7 @@ Set Shell zsh
 Output public/goji-demo.gif
 Set BorderRadius 10
 Set Framerate 60
+Set Width 1200
 Set Theme "Horizon"
 Sleep 500ms
 Type@120ms "goji"
