@@ -28,17 +28,27 @@ for selecting the type of change, scope, and description of your commit message.
 
 ## Install
 
-**Homebrew**
+**Homebrew (macOs/Linux)**
 
 ```bash
 brew install muandane/tap/goji
+```
+
+**Linux (or WSL)**
+
+```bash
+curl -Lso https://github.com/muandane/goji/releases/download/v0.0.5/goji_0.0.5_Linux_x86_64.tar.gz
+tar -xvf goji_0.0.5_Linux_x86_64.tar.gz
+chmod +x ./goji
+# optionnal
+mv ./goji /usr/local/bin
 ```
 
 **Build locally**
 
 ```bash
 git clone https://github.com/muandane/goji.git && cd goji
-go build -ldflags "-X goji/cmd.version=0.0.2"
+go build -ldflags "-X goji/cmd.version=0.0.5"
 mv goji /usr/local/bin
 goji --version 
 ```
@@ -48,6 +58,12 @@ goji --version
 Simply run `goji` in your terminal to start the interactive commit process:
 
 ![Goji gif](public/goji-demo.gif)
+
+If you don't want the interactive screen you can use the flags to construct a message:
+
+```sh
+goji --type feat --scope home --message "Add home page"
+```
 
 ## Customization
 
@@ -94,14 +110,6 @@ You can customize the `.goji.json` generated file to add or change the scopes, t
 You can skip questions by adding them in `"SkipQuestions"`
 
 Only `"Scopes"` question can be skipped since it's optional according to the [Commit Spec](https://www.conventionalcommits.org/en/v1.0.0/)
-
-If you don't want the interactive screen you can use the flags to construct a message:
-
-```sh
-
-goji --type feat --scope home --message "Add home page"
-
-```
 
 ## License
 
