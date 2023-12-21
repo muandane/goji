@@ -54,7 +54,7 @@ func AskQuestions(config *config.Config) ([]string, error) {
 	group2 := huh.NewGroup(
 		huh.NewInput().
 			Title("Write a short and imperative summary of the code changes: (lower case and no period)").
-			CharLimit(100).
+			CharLimit(50).
 			Placeholder("Short description of your commit").
 			Value(&commitSubject).
 			Validate(func(str string) error {
@@ -65,7 +65,7 @@ func AskQuestions(config *config.Config) ([]string, error) {
 			}),
 		huh.NewText().
 			Title("Write a Long description of the code changes: (press [enter] to skip)").
-			CharLimit(500).
+			CharLimit(80).
 			Placeholder("Long description of your commit").
 			Value(&commitDescription),
 		huh.NewConfirm().
@@ -77,7 +77,7 @@ func AskQuestions(config *config.Config) ([]string, error) {
 				}
 				return nil
 			}).
-			Affirmative("Yep").
+			Affirmative("Yes").
 			Negative("Wait, no"),
 	)
 
