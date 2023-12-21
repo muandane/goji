@@ -58,8 +58,8 @@ func AskQuestions(config *config.Config) ([]string, error) {
 			Placeholder("Short description of your commit").
 			Value(&commitSubject).
 			Validate(func(str string) error {
-				if str == "" {
-					return errors.New("sorry, subject can't be empty")
+				if len(str) == 0 {
+					return errors.New("Sorry, subject can't be empty.")
 				}
 				return nil
 			}),
