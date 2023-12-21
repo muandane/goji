@@ -17,6 +17,7 @@ func ViperConfig() (*Config, error) {
 		_ = fmt.Errorf("error finding git root directory: %v", err)
 		return nil, err
 	}
+
 	gitDir := string(gitDirBytes)
 	viper.AddConfigPath(gitDir)
 	viper.AddConfigPath("$HOME")
