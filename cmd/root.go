@@ -34,7 +34,10 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
-		config.GitRepo()
+		_, err := config.GitRepo()
+		if err != nil {
+			log.Fatalf("Error: %v", err)
+		}
 
 		config, err := config.ViperConfig()
 		if err != nil {

@@ -38,7 +38,7 @@ brew install muandane/tap/goji
 
 ```bash
 git clone https://github.com/muandane/goji.git && cd goji
-go build -ldflags "-X goji/cmd.version=0.0.2"
+go build -ldflags "-s -w -X goji/cmd.version=0.0.2"
 mv goji /usr/local/bin
 goji --version 
 ```

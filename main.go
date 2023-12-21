@@ -1,4 +1,4 @@
-// Entrypoint to goji the conventional commit message generator
+// Goji the conventional commit message generator
 package main
 
 import (
