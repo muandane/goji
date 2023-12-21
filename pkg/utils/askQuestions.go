@@ -59,7 +59,7 @@ func AskQuestions(config *config.Config) ([]string, error) {
 			Value(&commitSubject).
 			Validate(func(str string) error {
 				if str == "" {
-					return errors.New("Sorry, we don’t serve customers named Frank.")
+					return errors.New("sorry, subject can't be empty")
 				}
 				return nil
 			}),
