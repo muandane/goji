@@ -68,6 +68,17 @@ func AskQuestions(config *config.Config) ([]string, error) {
 			CharLimit(500).
 			Placeholder("Long description of your commit").
 			Value(&commitDescription),
+		huh.NewConfirm().
+			Key("done").
+			Title("Commit Changes ?").
+			Validate(func(v bool) error {
+				if !v {
+					return fmt.Errorf("Welp, finish up then")
+				}
+				return nil
+			}).
+			Affirmative("Yep").
+			Negative("Wait, no"),
 	)
 
 	form = *huh.NewForm(group1, group2)
