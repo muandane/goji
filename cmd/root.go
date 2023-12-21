@@ -9,7 +9,6 @@ import (
 	"github.com/charmbracelet/huh/spinner"
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
-	"github.com/go-git/go-git/v5"
 	"github.com/muandane/goji/pkg/config"
 	"github.com/muandane/goji/pkg/utils"
 	"github.com/spf13/cobra"
@@ -35,34 +34,7 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
-		revParse := exec.Command("git", "rev-parse", "--show-toplevel")
-		repoDir, err := revParse.Output()
-		if err != nil {
-			log.Fatalf("Error finding git root directory: %v", err)
-		}
-
-		repoPath := string(repoDir)
-
-		repo, err := git.PlainOpen(repoPath)
-		if err != nil {
-			fmt.Printf("Failed to open repo: %v", err)
-			return
-		}
-		w, err := repo.Worktree()
-		if err != nil {
-			fmt.Printf("Failed to get worktree: %v", err)
-			return
-		}
-		status, err := w.Status()
-		if err != nil {
-			fmt.Printf("Failed to get status: %v", err)
-			return
-		}
-		if status.IsClean() {
-			fmt.Println("Working directory is clean")
-		} else {
-			fmt.Println("Working directory has changes")
-		}
+		config.GitRepo()
 
 		config, err := config.ViperConfig()
 		if err != nil {
