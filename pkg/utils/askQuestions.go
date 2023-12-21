@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/charmbracelet/huh"
@@ -55,7 +56,13 @@ func AskQuestions(config *config.Config) ([]string, error) {
 			Title("Write a short and imperative summary of the code changes: (lower case and no period)").
 			CharLimit(100).
 			Placeholder("Short description of your commit").
-			Value(&commitSubject),
+			Value(&commitSubject).
+			Validate(func(str string) error {
+				if str == "" {
+					return errors.New("Sorry, we don’t serve customers named Frank.")
+				}
+				return nil
+			}),
 		huh.NewText().
 			Title("Write a Long description of the code changes: (press [enter] to skip)").
 			CharLimit(500).
