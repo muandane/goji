@@ -1,41 +1,69 @@
-package utils
+// package utils
+
+// import (
+// 	"reflect"
+// 	"testing"
+
+// 	"github.com/muandane/goji/pkg/config"
+// )
 
 // func TestAskQuestions(t *testing.T) {
 // 	type args struct {
-// 		config *config.Config
+// 		commitType        string
+// 		commitScope       string
+// 		commitSubject     string
+// 		commitDescription string
 // 	}
 // 	tests := []struct {
-// 		name    string
-// 		args    args
-// 		want    string
-// 		wantErr bool
+// 		name string
+// 		args args
+// 		want []string
 // 	}{
 // 		{
-// 			name: "Test Case 1",
+// 			name: "both scope and description are filled",
 // 			args: args{
-// 				config: &config.Config{
-// 					Types: []models.CommitType{
-// 						{
-// 							Name:        "fix",
-// 							Description: "Fix a bug",
-// 							Emoji:       "🐛",
-// 						},
-// 					},
-// 					SkipQuestions: []string{},
-// 				},
+// 				commitType:        "feat",
+// 				commitScope:       "login",
+// 				commitSubject:     "add login functionality",
+// 				commitDescription: "added login, signup and forgot password functionalities",
 // 			},
-// 			want:    "fix: A bug was fixed",
-// 			wantErr: false,
+// 			want: []string{"feat (login): add login functionality", "added login, signup and forgot password functionalities"},
+// 		},
+// 		{
+// 			name: "only description is filled",
+// 			args: args{
+// 				commitType:        "feat",
+// 				commitScope:       "",
+// 				commitSubject:     "add login functionality",
+// 				commitDescription: "added login, signup and forgot password functionalities",
+// 			},
+// 			want: []string{"feat: add login functionality", "added login, signup and forgot password functionalities"},
+// 		},
+// 		{
+// 			name: "only scope is filled",
+// 			args: args{
+// 				commitType:        "feat",
+// 				commitScope:       "login",
+// 				commitSubject:     "add login functionality",
+// 				commitDescription: "",
+// 			},
+// 			want: []string{"feat (login): add login functionality"},
+// 		},
+// 		{
+// 			name: "neither scope nor description is filled",
+// 			args: args{
+// 				commitType:        "feat",
+// 				commitScope:       "",
+// 				commitSubject:     "add login functionality",
+// 				commitDescription: "",
+// 			},
+// 			want: []string{"feat: add login functionality"},
 // 		},
 // 	}
 // 	for _, tt := range tests {
 // 		t.Run(tt.name, func(t *testing.T) {
-// 			got, err := AskQuestions(tt.args.config)
-// 			if (err != nil) != tt.wantErr {
-// 				t.Errorf("AskQuestions() error = %v, wantErr %v", err, tt.wantErr)
-// 				return
-// 			}
-// 			if got != tt.want {
+// 			got, _ := AskQuestions(&config.Config{CommitType: tt.args.commitType, CommitScope: tt.args.commitScope, CommitSubject: tt.args.commitSubject, CommitDescription: tt.args.commitDescription})
+// 			if !reflect.DeepEqual(got, tt.want) {
 // 				t.Errorf("AskQuestions() = %v, want %v", got, tt.want)
 // 			}
 // 		})
