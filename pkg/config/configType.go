@@ -3,12 +3,16 @@ package config
 import "github.com/muandane/goji/pkg/models"
 
 type Config struct {
-	Types            []models.CommitType
-	Scopes           []string
-	Symbol           bool
-	SkipQuestions    []string
-	Questions        map[string]string
-	SubjectMaxLength int
+	Types             []models.CommitType
+	Scopes            []string
+	Symbol            bool
+	SkipQuestions     []string
+	Questions         map[string]string
+	SubjectMaxLength  int
+	CommitType        string
+	CommitScope       string
+	CommitSubject     string
+	CommitDescription string
 }
 
 type Gitmoji struct {

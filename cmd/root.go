@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"os/exec"
 
-	"log"
 	"os"
 
 	"github.com/charmbracelet/huh/spinner"
+	"github.com/charmbracelet/log"
+	"github.com/fatih/color"
 	"github.com/muandane/goji/pkg/config"
 	"github.com/muandane/goji/pkg/utils"
-
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -35,9 +34,14 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
+		_, err := config.GitRepo()
+		if err != nil {
+			log.Fatalf("Error: %v", err)
+		}
+
 		config, err := config.ViperConfig()
 		if err != nil {
-			log.Fatalf(color.YellowString("Error loading config file: %v"), err)
+			log.Fatalf("Error loading config file: %v", err)
 		}
 
 		var commitMessage string
@@ -69,13 +73,13 @@ var rootCmd = &cobra.Command{
 			// If not all flags are provided, fall back to the interactive prompt logic
 			commitMessages, err := utils.AskQuestions(config)
 			if err != nil {
-				log.Fatalf(color.YellowString("Error asking questions: %v"), err)
+				log.Fatalf("Error asking questions: %v", err)
 			}
 			commitMessage = commitMessages[0]
 			commitBody = commitMessages[1]
 		}
 		if commitMessage == "" {
-			log.Fatalf(color.YellowString("Error: Commit message cannot be empty"))
+			log.Fatalf("Error: Commit message cannot be empty")
 		}
 
 		err = spinner.New().
@@ -84,7 +88,7 @@ var rootCmd = &cobra.Command{
 				gitCmd := exec.Command("git", "commit", "-m", commitMessage, "-m", commitBody)
 				output, err := gitCmd.CombinedOutput()
 				if err != nil {
-					fmt.Printf(color.MagentaString("Error executing git commit: %v\n"), err)
+					fmt.Printf("Error executing git commit: %v\n", err)
 					fmt.Println("Git commit output: ", string(output))
 					os.Exit(1)
 				}

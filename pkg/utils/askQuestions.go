@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/charmbracelet/huh"
@@ -53,14 +54,31 @@ func AskQuestions(config *config.Config) ([]string, error) {
 	group2 := huh.NewGroup(
 		huh.NewInput().
 			Title("Write a short and imperative summary of the code changes: (lower case and no period)").
-			CharLimit(100).
+			CharLimit(50).
 			Placeholder("Short description of your commit").
-			Value(&commitSubject),
+			Value(&commitSubject).
+			Validate(func(str string) error {
+				if len(str) == 0 {
+					return errors.New("Sorry, subject can't be empty.")
+				}
+				return nil
+			}),
 		huh.NewText().
 			Title("Write a Long description of the code changes: (press [enter] to skip)").
-			CharLimit(500).
+			CharLimit(80).
 			Placeholder("Long description of your commit").
 			Value(&commitDescription),
+		huh.NewConfirm().
+			Key("done").
+			Title("Commit Changes ?").
+			Validate(func(v bool) error {
+				if !v {
+					return fmt.Errorf("Welp, finish up then")
+				}
+				return nil
+			}).
+			Affirmative("Yes").
+			Negative("Wait, no"),
 	)
 
 	form = *huh.NewForm(group1, group2)
@@ -72,21 +90,24 @@ func AskQuestions(config *config.Config) ([]string, error) {
 
 	var commitMessage string
 	var commitBody string
-	var result []string
 	switch {
-	case commitScope == "" && commitDescription == "":
-		commitMessage = fmt.Sprintf("%s: %s", commitType, commitSubject)
-	case commitScope == "":
+	case commitScope != "" && commitDescription != "":
+		commitMessage = fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
+		commitBody = commitDescription
+	case commitDescription != "":
 		commitMessage = fmt.Sprintf("%s: %s", commitType, commitSubject)
 		commitBody = commitDescription
-	case commitDescription == "":
+	case commitScope != "":
 		commitMessage = fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
 	default:
-		commitMessage = fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
-		commitBody = commitDescription
+		commitMessage = fmt.Sprintf("%s: %s", commitType, commitSubject)
 	}
+
+	var result []string
 	result = append(result, commitMessage, commitBody)
 
-	return result, nil
+	// logging the results for debugging purposes
+	// log.Infof("result: %s", result)
 
+	return result, nil
 }
