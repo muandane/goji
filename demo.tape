@@ -28,4 +28,6 @@ Type@400ms "goji test commit"
 Enter
 Type@400ms "longer commit description"
 Enter
+Left
+Enter
 Sleep 1s
