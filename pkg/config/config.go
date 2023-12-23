@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os/exec"
 
 	"github.com/spf13/viper"
@@ -14,7 +13,6 @@ func ViperConfig() (*Config, error) {
 	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
 	gitDirBytes, err := cmd.Output()
 	if err != nil {
-		_ = fmt.Errorf("error finding git root directory: %v", err)
 		return nil, err
 	}
 
@@ -24,12 +22,13 @@ func ViperConfig() (*Config, error) {
 
 	err = viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("fatal error config file: %s", err))
+		return nil, err
 	}
 
 	var config Config
 	if err := viper.Unmarshal(&config); err != nil {
-		fmt.Printf("unable to decode into struct, %v", err)
+		return nil, err
 	}
+
 	return &config, nil
 }
