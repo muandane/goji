@@ -24,10 +24,13 @@ Sleep 1s
 Type@500ms "test"
 Enter
 Sleep 1s
-Type@400ms "goji test commit"
+Type@200ms "goji test commit"
 Enter
-Type@400ms "longer commit description"
+Type@200ms "longer commit description"
 Enter
-Left@100ms
+Sleep 200ms
+Left
+Sleep 200ms
 Enter@100ms
+Sleep 200ms
 Sleep 1s
