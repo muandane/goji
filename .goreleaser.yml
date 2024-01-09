@@ -1,6 +1,12 @@
 before:
   hooks:
+  - go mod tidy
+  - rm -rf manpages
+  - mkdir manpages
+  - sh -c 'go run {{ with .Var.main }}{{ . }}{{ else }}.{{ end }} man | gzip -c >./manpages/{{ .ProjectName }}.1.gz'
   - ./scripts/completions.sh
+
+
 builds:
 - binary: goji
   main: ./
@@ -33,6 +39,7 @@ archives:
   files:
   - README.md
   - LICENSE
+  - manpages/*
   - completions/*
 
 brews:
@@ -51,6 +58,7 @@ brews:
     bash_completion.install "completions/goji.bash" => "goji"
     zsh_completion.install "completions/goji.zsh" => "_goji"
     fish_completion.install "completions/goji.fish"
+    man1.install "manpages/{{ .ProjectName }}.1.gz"
 
 checksum:
   name_template: 'checksums.txt'
