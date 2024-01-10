@@ -15,14 +15,16 @@ import (
 const specialChar = "%"
 
 var manDescription = `
-% GOJI(1) Goji Version 1.0 | Goji CLI Documentation
+Goji CLI Documentation
 
 # NAME
 goji - A CLI tool for generating conventional commits with emojis.
 
 # SYNOPSIS
 **goji** [**--help**|**-h**]
+
 **goji init** [**--global**|**--repo**]
+
 **goji** [**--type** <type>] [**--message** <message>] [**--scope** <scope>]
 
 # DESCRIPTION
@@ -98,7 +100,7 @@ var manCmd = &cobra.Command{
 				WithLongDescription(sanitizeSpecial(manDescription)).
 				WithSection("Bugs", sanitizeSpecial(manBugs)).
 				WithSection("Author", sanitizeSpecial(manAuthor)).
-				WithSection("Copyright", "Copyright (C) 2024 Your Name")
+				WithSection("Copyright", "Copyright (C) 2024 Moualhi Zine El Abidine")
 
 			fmt.Println(manPage.Build(roff.NewDocument()))
 			return nil
