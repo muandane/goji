@@ -16,7 +16,7 @@ func AskQuestions(config *config.Config) ([]string, error) {
 	var commitDescription string
 	commitTypeOptions := make([]huh.Option[string], len(config.Types))
 	var form huh.Form
-
+	var height int = 8
 	nameStyle := lipgloss.NewStyle().
 		Width(15).
 		Align(lipgloss.Left)
@@ -43,10 +43,12 @@ func AskQuestions(config *config.Config) ([]string, error) {
 		huh.NewSelect[string]().
 			Title("Select the type of change you are committing:").
 			Options(commitTypeOptions...).
+			Height(height).
 			Value(&commitType),
 		huh.NewInput().
 			Title("What is the scope of this change? (class or file name): (press [enter] to skip)").
 			CharLimit(50).
+			Suggestions(config.Scopes).
 			Placeholder("Example: ci, api, parser").
 			Value(&commitScope),
 	)
@@ -54,7 +56,7 @@ func AskQuestions(config *config.Config) ([]string, error) {
 	group2 := huh.NewGroup(
 		huh.NewInput().
 			Title("Write a short and imperative summary of the code changes: (lower case and no period)").
-			CharLimit(50).
+			CharLimit(70).
 			Placeholder("Short description of your commit").
 			Value(&commitSubject).
 			Validate(func(str string) error {
@@ -65,9 +67,10 @@ func AskQuestions(config *config.Config) ([]string, error) {
 			}),
 		huh.NewText().
 			Title("Write a Long description of the code changes: (press [enter] to skip)").
-			CharLimit(80).
+			CharLimit(config.SubjectMaxLength).
 			Placeholder("Long description of your commit").
-			Value(&commitDescription),
+			Value(&commitDescription).
+			WithHeight(4),
 		huh.NewConfirm().
 			Key("done").
 			Title("Commit Changes ?").
