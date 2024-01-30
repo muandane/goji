@@ -17,6 +17,7 @@ import (
 var (
 	version     string
 	versionFlag bool
+	signFlag    bool
 	typeFlag    string
 	scopeFlag   string
 	messageFlag string
@@ -85,7 +86,14 @@ var rootCmd = &cobra.Command{
 		err = spinner.New().
 			Title("Committing...").
 			Action(func() {
-				gitCmd := exec.Command("git", "commit", "-m", commitMessage, "-m", commitBody)
+				args := []string{"commit", "-m", commitMessage, "-m", commitBody}
+
+				if signFlag {
+					args = append(args, "--signoff")
+				}
+
+				gitCmd := exec.Command("git", args...)
+
 				output, err := gitCmd.CombinedOutput()
 				if err != nil {
 					fmt.Printf("Error executing git commit: %v\n", err)
@@ -104,6 +112,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Display version information")
+	rootCmd.Flags().BoolVarP(&signFlag, "sign-off", "S", false, "add a Signed-off-by trailer")
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")
 	rootCmd.Flags().StringVarP(&messageFlag, "message", "m", "", "Specify a commit message")
