@@ -3,9 +3,7 @@ variables:
 before:
   hooks:
   - go mod tidy
-  - rm -rf manpages
-  - mkdir manpages
-  - sh -c 'go run {{ with .Var.main }}{{ . }}{{ else }}.{{ end }} man | gzip -c >./manpages/{{ .ProjectName }}.1.gz'
+  - ./scripts/manpages.sh
   - ./scripts/completions.sh
 
 
@@ -60,7 +58,7 @@ brews:
     bash_completion.install "completions/goji.bash" => "goji"
     zsh_completion.install "completions/goji.zsh" => "_goji"
     fish_completion.install "completions/goji.fish"
-    man1.install "manpages/{{ .ProjectName }}.1.gz"
+    man1.install "manpages/goji.1.gz"
 
 checksum:
   name_template: 'checksums.txt'
