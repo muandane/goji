@@ -3,11 +3,10 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
-	"regexp"
 	"strings"
 
+	"github.com/leodido/go-conventionalcommits/parser"
 	"github.com/spf13/cobra"
 )
 
@@ -24,15 +23,21 @@ var checkCmd = &cobra.Command{
 
 		commitMessage := strings.Split(string(out), "\n")[0]
 		fmt.Println(commitMessage)
-		// Define the regex pattern for a conventional commit message
-		// Include all commit types: feat, fix, docs, style, refactor, test, chore, build, ci ...
-		re := regexp.MustCompile(`^[\w\s]*?(feat|fix|docs|style|refactor|test|chore|build|ci|perf|improvement|package)(\([\w\s]*\))?[: ].+$`)
-		if !re.MatchString(commitMessage) {
-			fmt.Println("Error: Your commit message does not follow the conventional commit format.")
-			os.Exit(1)
+		_, err = parser.NewMachine().Parse([]byte(commitMessage))
+		if err != nil {
+			fmt.Println("Commit is not conventional")
 		} else {
-			fmt.Println("Success: Your commit message follows the conventional commit format.")
+			fmt.Println("Commit is conventional")
 		}
+		// // Define the regex pattern for a conventional commit message
+		// // Include all commit types: feat, fix, docs, style, refactor, test, chore, build, ci ...
+		// re := regexp.MustCompile(`^[\w\s]*?(feat|fix|docs|style|refactor|test|chore|build|ci|perf|improvement|package)(\([\w\s]*\))?[: ].+$`)
+		// if !re.MatchString(commitMessage) {
+		// 	fmt.Println("Error: Your commit message does not follow the conventional commit format.")
+		// 	os.Exit(1)
+		// } else {
+		// 	fmt.Println("Success: Your commit message follows the conventional commit format.")
+		// }
 	},
 }
 
