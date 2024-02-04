@@ -1,6 +1,3 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -25,9 +22,11 @@ var checkCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		commitMessage := strings.TrimSpace(string(out))
-
-		re := regexp.MustCompile(`^(feat|fix|docs|style|refactor|test|chore)\((.*)\): (.*)$`)
+		commitMessage := strings.Split(string(out), "\n")[0]
+		fmt.Println(commitMessage)
+		// Define the regex pattern for a conventional commit message
+		// Include all commit types: feat, fix, docs, style, refactor, test, chore, build, ci ...
+		re := regexp.MustCompile(`^[\w\s]*?(feat|fix|docs|style|refactor|test|chore|build|ci|perf|improvement|package)(\([\w\s]*\))?[: ].+$`)
 		if !re.MatchString(commitMessage) {
 			fmt.Println("Error: Your commit message does not follow the conventional commit format.")
 			os.Exit(1)
