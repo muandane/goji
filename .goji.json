@@ -9,18 +9,6 @@
   "symbol": true,
   "types": [
     {
-      "emoji": "✨",
-      "code": ":sparkles:",
-      "description": "Introduce new features.",
-      "name": "feat"
-    },
-    {
-      "emoji": "🐛",
-      "code": ":bug:",
-      "description": "Fix a bug.",
-      "name": "fix"
-    },
-    {
       "emoji": "📚",
       "code": ":books:",
       "description": "Documentation change.",
