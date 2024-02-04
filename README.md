@@ -6,8 +6,8 @@
 > [!NOTE]
 > Commitizen-like tool for formatting commit messages using emojis written in go.
 
-**goji** is an easy-to-use commit message formatting tool, inspired by Commitizen and cz-cli, 
-that helps you create conventional commits with emojis with streamlined [git] commit process by providing a user-friendly TUI 
+**goji** is an easy-to-use commit message formatting tool, inspired by Commitizen and cz-cli,
+that helps you create conventional commits with emojis with streamlined [git] commit process by providing a user-friendly TUI
 for selecting the type of change, scope, and description of your commit message..
 
 ```sh
@@ -17,6 +17,8 @@ for selecting the type of change, scope, and description of your commit message.
   docs      📚  Documentation change.
   refactor  🎨  Improve structure/format of the code.
   clean     🔥  Remove code or files.
+? What is the scope of this change? (class or file name): (press [enter] to skip)  
+> 
 ```
 
 ## Features
@@ -37,18 +39,19 @@ brew install muandane/tap/goji
 **Linux (or WSL)**
 
 ```bash
-curl -Lso https://github.com/muandane/goji/releases/download/v0.0.5/goji_0.0.5_Linux_x86_64.tar.gz
-tar -xvf goji_0.0.5_Linux_x86_64.tar.gz
+VERSION=$(curl --silent "https://api.github.com/repos/muandane/goji/releases/latest" | jq .tag_name -r) 
+curl -Lso goji.tar.gz https://github.com/muandane/goji/releases/download/$VERSION/goji_${VERSION}_Linux_x86_64.tar.gz
+tar -xvzf goji.tar.gz
 chmod +x ./goji
 # optionnal
-mv ./goji /usr/local/bin
+sudo mv ./goji /usr/local/bin/
 ```
 
 **Build locally**
 
 ```bash
 git clone https://github.com/muandane/goji.git && cd goji
-go build -ldflags "-s -w -X goji/cmd.version=0.0.5"
+go build -ldflags "-s -w -X goji/cmd.version=0.0.8"
 mv goji /usr/local/bin
 goji --version 
 ```
@@ -62,7 +65,7 @@ Simply run `goji` in your terminal to start the interactive commit process:
 If you don't want the interactive screen you can use the flags to construct a message:
 
 ```sh
-goji --type feat --scope home --message "Add home page"
+goji --type feat --scope home --message "Add home page" --sign-off 
 ```
 
 ## Customization
