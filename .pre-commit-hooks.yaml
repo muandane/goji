@@ -1,0 +1,11 @@
+- id: goji-check
+  name: goji check
+  description: >
+    Check whether the current commit message follows commiting rules. Allow empty commit messages by default, because they typically indicate to Git that the commit should be aborted.
+  entry: Goji Check
+  args: []
+  stages: [commit-msg]
+  language: system
+  types: [go]
+  verbose: true
+  minimum_pre_commit_version: "1.4.3"
