@@ -1,13 +1,19 @@
 #!/bin/sh
 
-# The first argument is the path to the temporary file that contains the commit message.
-COMMIT_MSG_FILE=$1
+# Path to your Goji binary
+GOJI_BINARY=$(go run . check)
 
-# Run your 'goji check' command against the commit message.
-if ! go run . check "$COMMIT_MSG_FILE"; then
-  # If 'goji check' returns a non-zero exit code, abort the commit.
-  echo "Aborting commit due to failed 'goji check'"
+# Get the commit message
+COMMIT_MSG=$(git log --format=%B -n 1 $1)
+
+# Run Goji with the commit message as argument
+RESULT=$(go run . check "$COMMIT_MSG")
+
+# Exit with non-zero status if Goji indicates a failed check
+if [ $? -ne 0 ]; then
+  echo "Commit message did not pass Goji check:"
+  echo "$RESULT"
   exit 1
 fi
-# If everything is OK, allow the commit to proceed.
+# Otherwise, allow the commit to proceed
 exit 0
