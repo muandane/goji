@@ -13,9 +13,8 @@ repos:
 - repo: local
   hooks:
   - id: goji-check
-    name: Goji Check
-    entry: goji check
-    language: system
-    stages: [commit-msg]
-    types: [go]
-    verbose: true
+    name: goji check
+    description: >
+      Check whether the current commit message follows commiting rules. Allow empty commit messages by default, because they typically indicate to Git that the commit should be aborted.
+    entry: scripts/goji-check.sh
+    language: script

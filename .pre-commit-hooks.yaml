@@ -6,6 +6,5 @@
   args: []
   stages: [commit-msg]
   language: system
-  types: [go]
   verbose: true
   minimum_pre_commit_version: "1.4.3"
