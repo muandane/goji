@@ -17,8 +17,8 @@ for selecting the type of change, scope, and description of your commit message.
   docs      📚  Documentation change.
   refactor  🎨  Improve structure/format of the code.
   clean     🔥  Remove code or files.
-? What is the scope of this change? (class or file name): (press [enter] to skip)  
-> 
+? What is the scope of this change? (class or file name): (press [enter] to skip)
+>
 ```
 
 ## Features
@@ -39,7 +39,7 @@ brew install muandane/tap/goji
 **Linux (or WSL)**
 
 ```bash
-VERSION=$(curl --silent "https://api.github.com/repos/muandane/goji/releases/latest" | jq .tag_name -r) 
+VERSION=$(curl --silent "https://api.github.com/repos/muandane/goji/releases/latest" | jq .tag_name -r)
 curl -Lso goji.tar.gz https://github.com/muandane/goji/releases/download/$VERSION/goji_${VERSION}_Linux_x86_64.tar.gz
 tar -xvzf goji.tar.gz
 chmod +x ./goji
@@ -53,7 +53,7 @@ sudo mv ./goji /usr/local/bin/
 git clone https://github.com/muandane/goji.git && cd goji
 go build -ldflags "-s -w -X goji/cmd.version=0.0.8"
 mv goji /usr/local/bin
-goji --version 
+goji --version
 ```
 
 ## Usage
@@ -65,7 +65,7 @@ Simply run `goji` in your terminal to start the interactive commit process:
 If you don't want the interactive screen you can use the flags to construct a message:
 
 ```sh
-goji --type feat --scope home --message "Add home page" --sign-off 
+goji --type feat --scope home --message "Add home page" --sign-off
 ```
 
 ## Customization
@@ -123,3 +123,5 @@ Apache 2.0 license [Zine El Abidine Moualhi](https://www.linkedin.com/in/zinemou
 Thanks to [@Simplifi-ED](https://www.simplified.fr) & @IT Challenge in letting me work on this open source side project and to my mentor [@EtienneDeneuve](https://github.com/EtienneDeneuve) for the help with learning Go lang.
 
 <img align="center" src="public/logo.svg"  alt="IT Challenge" width="200"/>
+
+<!-- adding pre-commit hook doc -->
