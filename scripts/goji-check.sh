@@ -9,6 +9,5 @@ if ! go run . check "$COMMIT_MSG_FILE"; then
   echo "Aborting commit due to failed 'goji check'"
   exit 1
 fi
-
 # If everything is OK, allow the commit to proceed.
 exit 0
