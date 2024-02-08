@@ -24,7 +24,7 @@ var checkCmd = &cobra.Command{
 		}
 
 		commitMessage = strings.Split(string(os.Args[2]), "\n")[0]
-		fmt.Println(commitMessage)
+		// fmt.Println(commitMessage)
 		// Define the regex pattern for a conventional commit message
 		// Include all commit types: feat, fix, docs, style, refactor, test, chore, build, ci ...
 		re := regexp.MustCompile(`^[\w\s]*?(feat|fix|docs|style|refactor|test|chore|build|ci|perf|improvement|package)(\([\w\s]*\))?[: ].+$`)
