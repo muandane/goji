@@ -1,6 +1,6 @@
 module github.com/muandane/goji
 
-go 1.21.6
+go 1.21.7
 
 require (
 	github.com/charmbracelet/glamour v0.6.0

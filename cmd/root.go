@@ -82,29 +82,19 @@ var rootCmd = &cobra.Command{
 		if commitMessage == "" {
 			log.Fatalf("Error: Commit message cannot be empty")
 		}
+		var gitCommitError error
+		action := func() {
+			gitCommitError = executeGitCommit(commitMessage, commitBody, signFlag)
+		}
 
 		err = spinner.New().
 			Title("Committing...").
-			Action(func() {
-				args := []string{"commit", "-m", commitMessage, "-m", commitBody}
-
-				if signFlag {
-					args = append(args, "--signoff")
-				}
-
-				gitCmd := exec.Command("git", args...)
-
-				output, err := gitCmd.CombinedOutput()
-				if err != nil {
-					fmt.Printf("Error executing git commit: %v\n", err)
-					fmt.Println("Git commit output: ", string(output))
-					os.Exit(1)
-				}
-				fmt.Printf("Git commit output: %s\n", string(output))
-			}).
+			Action(action).
 			Run()
-
-		if err != nil {
+		if gitCommitError != nil {
+			fmt.Printf("\nError committing changes: %v\n", gitCommitError)
+			fmt.Println("Check the output above for details.")
+		} else if err != nil {
 			fmt.Println("Error committing: ", err)
 		}
 	},
@@ -123,4 +113,21 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func executeGitCommit(commitMessage, commitBody string, signOff bool) error {
+	args := []string{"commit", "-m", commitMessage, "-m", commitBody}
+
+	if signOff {
+		args = append(args, "--signoff")
+	}
+
+	gitCmd := exec.Command("git", args...)
+
+	output, err := gitCmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error executing git commit: %v\noutput: %s", err, output)
+	}
+	fmt.Printf("Git commit output: %s\n", string(output))
+	return nil
 }
