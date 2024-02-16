@@ -124,4 +124,4 @@ Thanks to [@Simplifi-ED](https://www.simplified.fr) & @IT Challenge in letting m
 
 <img align="center" src="public/logo.svg"  alt="IT Challenge" width="200"/>
 
-<!-- adding pre-commit hook doc -->
+<!-- adding pre-commit hook doc for goji check -->
