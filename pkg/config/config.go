@@ -3,9 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -14,15 +12,11 @@ func ViperConfig() (*Config, error) {
 	viper.SetConfigName(".goji")
 	viper.SetConfigType("json")
 
-	cmd := exec.Command("git", "rev-parse", "--show-toplevel")
-	gitDirBytes, err := cmd.Output()
+	gitDir, err := GetGitRootDir()
 	if err != nil {
 		return nil, err
 	}
-
-	gitDir := strings.TrimSpace(string(gitDirBytes))
 	homeDir, _ := os.UserHomeDir()
-
 	_, err = os.Stat(filepath.Join(gitDir, ".goji.json"))
 	if err == nil {
 		viper.AddConfigPath(gitDir)
