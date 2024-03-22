@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
 func GitRepo() (string, error) {
@@ -34,7 +36,9 @@ func (c *Config) GitCommit(repoPath, message, description string) error {
 
 	// Commit the changes
 	_, err = wt.Commit(fmt.Sprintf("%s\n\n%s", message, description), &git.CommitOptions{
-
+		Committer: &object.Signature{
+			When: time.Now(),
+		},
 		// Parents:           []plumbing.Hash{},
 	})
 
