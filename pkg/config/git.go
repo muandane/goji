@@ -34,7 +34,7 @@ func (c *Config) GitCommit(repoPath, message, description string) error {
 
 	// Commit the changes
 	_, err = wt.Commit(fmt.Sprintf("%s\n\n%s", message, description), &git.CommitOptions{
-		All: true,
+		// All: true,
 	})
 
 	return err
