@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	"github.com/go-git/go-git/plumbing"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
@@ -39,7 +40,7 @@ func (c *Config) GitCommit(repoPath, message, description string) error {
 		Committer: &object.Signature{
 			When: time.Now(),
 		},
-		// Parents:           []plumbing.Hash{},
+		Parents: []plumbing.Hash{},
 	})
 
 	return err
