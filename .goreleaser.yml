@@ -10,10 +10,19 @@ builds:
   main: ./
   goos:
   - darwin
+  - windows
   - linux
   goarch:
   - amd64
   - arm64
+  - arm
+  goarm:
+    - "7"
+  ignore:
+    - goos: windows
+      goarch: arm64
+    - goos: windows
+      goarm: "7"
   env:
   - CGO_ENABLED=0
   ldflags:
@@ -57,6 +66,24 @@ brews:
     zsh_completion.install "completions/goji.zsh" => "_goji"
     fish_completion.install "completions/goji.fish"
     man1.install "manpages/goji.1.gz"
+winget:
+  - publisher: muandane
+    license: "Apache-2.0 license"
+    copyright: Muandane
+    homepage: "https://github.com/muandane/goji"
+    short_description: "Commitizen-like Emoji Commit Tool written in Go"
+    repository:
+      owner: "muandane"
+      name: winget-pkgs
+      branch: "{{.ProjectName}}-{{.Version}}"
+      # pull_request:
+      #   enabled: true
+      #   draft: false
+      #   check_boxes: true
+      #   base:
+      #     owner: microsoft
+      #     name: winget-pkgs
+      #     branch: master
 
 checksum:
   name_template: 'checksums.txt'
