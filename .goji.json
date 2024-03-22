@@ -4,7 +4,7 @@
     "accounts",
     "ci"
   ],
-  "signoff": false,
+  "signoff": true,
   "skipquestions": null,
   "subjectmaxlength": 50,
   "symbol": true,
