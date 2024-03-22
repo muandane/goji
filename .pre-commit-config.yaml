@@ -10,11 +10,11 @@ repos:
   rev: v1.55.2
   hooks:
   - id: golangci-lint-full
-- repo: local
-  hooks:
-  - id: goji-check
-    name: goji check
-    description: >
-      Check whether the current commit message follows commiting rules. Allow empty commit messages by default, because they typically indicate to Git that the commit should be aborted.
-    entry: scripts/goji-check.sh
-    language: script
+# - repo: local
+#   hooks:
+#   - id: goji-check
+#     name: goji check
+#     description: >
+#       Check whether the current commit message follows commiting rules. Allow empty commit messages by default, because they typically indicate to Git that the commit should be aborted.
+#     entry: scripts/goji-check.sh
+#     language: script

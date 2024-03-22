@@ -46,7 +46,6 @@ var rootCmd = &cobra.Command{
 
 		var commitMessage string
 		var commitBody string
-		var signOff bool
 		if typeFlag != "" && messageFlag != "" {
 			// If all flags are provided, construct the commit message from them
 			var typeMatch string
@@ -70,10 +69,9 @@ var rootCmd = &cobra.Command{
 					commitMessage = fmt.Sprintf("%s(%s): %s", typeMatch, scopeFlag, messageFlag)
 				}
 			}
-			signOff = config.SignOff
 		} else {
 			// If not all flags are provided, fall back to the interactive prompt logic
-			signOff = config.SignOff
+
 			// fmt.Printf("Enter commit message:%v", signOff)
 			commitMessages, err := utils.AskQuestions(config)
 			if err != nil {
@@ -87,7 +85,8 @@ var rootCmd = &cobra.Command{
 		}
 		var gitCommitError error
 		action := func() {
-			gitCommitError = executeGitCommit(commitMessage, commitBody, signOff)
+			signOff := config.SignOff
+			gitCommitError = commit(commitMessage, commitBody, signOff)
 		}
 
 		err = spinner.New().
@@ -98,7 +97,7 @@ var rootCmd = &cobra.Command{
 			fmt.Printf("\nError committing changes: %v\n", gitCommitError)
 			fmt.Println("Check the output above for details.")
 		} else if err != nil {
-			fmt.Println("Error committing: ", err)
+			fmt.Printf("Error committing: %s", err)
 		}
 	},
 }
@@ -118,7 +117,7 @@ func Execute() {
 	}
 }
 
-func executeGitCommit(commitMessage, commitBody string, signOff bool) error {
+func commit(commitMessage, commitBody string, signOff bool) error {
 	args := []string{"commit", "-m", commitMessage, "-m", commitBody}
 
 	if signOff {
