@@ -17,3 +17,24 @@ func GitRepo() (string, error) {
 
 	return repoDir, nil
 }
+
+// func (c *Config) GitCommit(repoPath, message, description string) error {
+// 	// Open the repository
+// 	repo, err := git.PlainOpen(repoPath)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	// Get the working tree
+// 	wt, err := repo.Worktree()
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	// Commit the changes
+// 	_, err = wt.Commit(fmt.Sprintf("%s\n\n%s", message, description), &git.CommitOptions{
+// 		Parents: []plumbing.Hash{},
+// 	})
+
+// 	return err
+// }

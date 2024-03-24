@@ -9,6 +9,7 @@ type Config struct {
 	SkipQuestions     []string
 	Questions         map[string]string
 	SubjectMaxLength  int
+	SignOff           bool
 	CommitType        string
 	CommitScope       string
 	CommitSubject     string
@@ -27,4 +28,5 @@ type initConfig struct {
 	Symbol           bool      `json:"Symbol"`
 	SkipQuestions    []string  `json:"SkipQuestions"`
 	SubjectMaxLength int       `json:"SubjectMaxLength"`
+	SignOff          bool      `json:"SignOff"`
 }

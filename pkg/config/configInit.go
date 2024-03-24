@@ -10,7 +10,7 @@ import (
 )
 
 func AddCustomCommitTypes(gitmojis []Gitmoji) []Gitmoji {
-	customGitmojis := []Gitmoji{
+	custom := []Gitmoji{
 		{Emoji: "✨", Code: ":sparkles:", Description: "Introduce new features.", Name: "feat"},
 		{Emoji: "🐛", Code: ":bug:", Description: "Fix a bug.", Name: "fix"},
 		{Emoji: "📚", Code: ":books:", Description: "Documentation change.", Name: "docs"},
@@ -24,7 +24,7 @@ func AddCustomCommitTypes(gitmojis []Gitmoji) []Gitmoji {
 		{Emoji: "📦", Code: ":package:", Description: "Add or update compiled files or packages.", Name: "package"},
 	}
 
-	return append(gitmojis, customGitmojis...)
+	return append(gitmojis, custom...)
 }
 
 func GetGitRootDir() (string, error) {
@@ -39,66 +39,54 @@ func GetGitRootDir() (string, error) {
 	return gitDir, nil
 }
 
-func SaveGitmojisToFile(config initConfig, filename string, dir string) error {
-	viper.Set("Types", config.Types)
-	viper.Set("Scopes", config.Scopes)
-	viper.Set("Symbol", config.Symbol)
-	viper.Set("SkipQuestions", config.SkipQuestions)
-	viper.Set("SubjectMaxLength", config.SubjectMaxLength)
+func SaveConfigToFile(config initConfig, file, dir string) error {
+	viper.Set("types", config.Types)
+	viper.Set("scopes", config.Scopes)
+	viper.Set("symbol", config.Symbol)
+	viper.Set("skipQuestions", config.SkipQuestions)
+	viper.Set("subjectMaxLength", config.SubjectMaxLength)
+	viper.Set("signOff", config.SignOff)
 
-	viper.SetConfigName(filename) // name of config file (without extension)
-	viper.SetConfigType("json")   // specifying the config type
-	viper.AddConfigPath(dir)      // path to look for the config file in
+	viper.SetConfigName(file)
+	viper.SetConfigType("json")
+	viper.AddConfigPath(dir)
 
-	err := viper.SafeWriteConfig()
-	if err != nil {
-		if _, ok := err.(viper.ConfigFileAlreadyExistsError); ok {
-			err = viper.WriteConfig()
-			if err != nil {
-				return fmt.Errorf("error writing config file: %v", err)
-			}
-		} else {
-			return fmt.Errorf("error creating config file: %v", err)
-		}
+	if err := viper.WriteConfig(); err != nil {
+		return fmt.Errorf("error writing config file: %v", err)
 	}
 
 	return nil
 }
 
-func InitRepoConfig(global bool, repo bool) error {
+func InitRepoConfig(global, repo bool) error {
 	gitmojis := AddCustomCommitTypes([]Gitmoji{})
 	config := initConfig{
 		Types:            gitmojis,
 		Scopes:           []string{"home", "accounts", "ci"},
 		Symbol:           true,
-		SkipQuestions:    []string{},
+		SkipQuestions:    nil,
 		SubjectMaxLength: 50,
+		SignOff:          true,
 	}
 
-	var dir string
+	var location string
 	var err error
 
 	switch {
 	case global:
-		dir, err = os.UserHomeDir()
-		if err != nil {
-			return err
-		}
+		location, err = os.UserHomeDir()
 	case repo:
-		dir, err = GetGitRootDir()
-		if err != nil {
-			return err
-		}
+		location, err = GetGitRootDir()
 	default:
 		return fmt.Errorf("no flag set for location to save configuration file")
 	}
 
-	err = SaveGitmojisToFile(config, ".goji", dir)
-
 	if err != nil {
+		return err
+	}
+
+	if err = SaveConfigToFile(config, ".goji", location); err != nil {
 		return fmt.Errorf("error saving gitmojis to file: %v", err)
-	} else {
-		fmt.Println("Gitmojis saved to .goji.json 🎊")
 	}
 
 	return nil
