@@ -11,7 +11,7 @@ func GitRepo() (string, error) {
 	revParse := exec.Command("git", "rev-parse", "--show-toplevel")
 	repoDirBytes, err := revParse.Output()
 	if err != nil {
-		log.Fatalf("Error finding git root directory: %v", err)
+		log.Fatalf("Error finding git root directory")
 	}
 	repoDir := strings.TrimRight(string(repoDirBytes), "\n")
 

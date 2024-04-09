@@ -39,7 +39,7 @@ var checkCmd = &cobra.Command{
 		}
 
 		// Define the regex pattern for a conventional commit message
-		re := regexp.MustCompile(`^[\w\s]*?(feat|fix|docs|style|refactor|test|chore|build|ci|perf|improvement|package)(\([\w\s]*\))?[:  ].+$`)
+		re := regexp.MustCompile(`\A[\w\s]*?(feat|fix|docs|style|refactor|test|chore|build|ci|perf|improvement|package)(\([\w\s]*\))?[:  ].+\z`)
 		if !re.MatchString(commitMessage) {
 			fmt.Printf("Error: Your commit message does not follow the conventional commit format. %s", commitMessage)
 			os.Exit(1)
