@@ -22,7 +22,7 @@ var checkCmd = &cobra.Command{
 		fromFile, _ := cmd.Flags().GetBool("from-file")
 		config, err := config.ViperConfig()
 		if err != nil {
-			log.Fatalf("Error loading config file: %v", err)
+			log.Fatalf("Error loading config file.")
 		}
 		if fromFile {
 			// Read commit message from file
@@ -71,7 +71,7 @@ var checkCmd = &cobra.Command{
 		}
 
 		// Validate the type
-		typeRegex := regexp.MustCompile(`^[\w\s]*?(` + typePattern + `)$`)
+		typeRegex := regexp.MustCompile(`\A[\w\s]*?(` + typePattern + `)\z`)
 		if !typeRegex.MatchString(typeScope[0]) {
 			fmt.Println("Error: Commit message type is invalid.")
 			return
