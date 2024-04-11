@@ -31,6 +31,7 @@ var checkCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			commitMessage = strings.Split(string(os.Args[3]), "\n")[0]
+			fmt.Println(commitMessage)
 			// commitMessage = strings.TrimSpace(string(content))
 		} else {
 			// Get the last commit message

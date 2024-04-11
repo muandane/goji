@@ -4,7 +4,7 @@
 GOJI_BINARY=$(go run . check)
 
 # Get the commit message
-COMMIT_MSG=$(git log --format=%B -n 1 $1)
+COMMIT_MSG=$(git log --format=%B -1 $1)
 
 # Run Goji with the commit message as argument
 RESULT=$(goji check --from-file "$COMMIT_MSG")

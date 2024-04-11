@@ -51,7 +51,11 @@ var rootCmd = &cobra.Command{
 			var typeMatch string
 			for _, t := range config.Types {
 				if typeFlag == t.Name {
-					typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
+					if config.NoEmoji {
+						typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
+					} else {
+						typeMatch = fmt.Sprintf(t.Name)
+					}
 					break
 				}
 			}
@@ -118,13 +122,11 @@ func Execute() {
 	}
 }
 
-func commit(commitMessage, commitBody string, signOff bool) error {
-	args := []string{"commit", "-m", commitMessage, "-m", commitBody}
-
-	if signOff {
+func commit(message, body string, sign bool) error {
+	args := []string{"commit", "-m", message, "-m", body}
+	if sign {
 		args = append(args, "--signoff")
 	}
-
 	gitCmd := exec.Command("git", args...)
 
 	output, err := gitCmd.CombinedOutput()

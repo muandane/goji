@@ -36,7 +36,12 @@ func AskQuestions(config *config.Config) ([]string, error) {
 		desc := descStyle.Render(ct.Description)
 
 		row := lipgloss.JoinHorizontal(lipgloss.Center, name, emoji, desc)
-		commitTypeOptions[i] = huh.NewOption[string](row, fmt.Sprintf("%s %s", ct.Name, ct.Emoji))
+		commitTypeOptions[i] = huh.NewOption[string](row, fmt.Sprintf("%s %s", ct.Name, func() string {
+			if config.NoEmoji {
+				return ct.Emoji
+			}
+			return ""
+		}()))
 	}
 
 	group1 := huh.NewGroup(
@@ -61,7 +66,7 @@ func AskQuestions(config *config.Config) ([]string, error) {
 			Value(&commitSubject).
 			Validate(func(str string) error {
 				if len(str) == 0 {
-					return errors.New("Sorry, subject can't be empty.")
+					return errors.New("sorry, subject can't be empty")
 				}
 				return nil
 			}),
@@ -76,7 +81,7 @@ func AskQuestions(config *config.Config) ([]string, error) {
 			Title("Commit Changes ?").
 			Validate(func(v bool) error {
 				if !v {
-					return fmt.Errorf("Welp, finish up then")
+					return fmt.Errorf("welp, finish up then")
 				}
 				return nil
 			}).
