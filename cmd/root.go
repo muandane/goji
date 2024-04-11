@@ -123,7 +123,6 @@ func Execute() {
 }
 
 func commit(message, body string, sign bool) error {
-	fmt.Printf("Git commit output: %s\n", message)
 	args := []string{"commit", "-m", message, "-m", body}
 	if sign {
 		args = append(args, "--signoff")

@@ -42,7 +42,6 @@ func GetGitRootDir() (string, error) {
 func SaveConfigToFile(config initConfig, file, dir string) error {
 	viper.Set("types", config.Types)
 	viper.Set("scopes", config.Scopes)
-	viper.Set("symbol", config.Symbol)
 	viper.Set("skipQuestions", config.SkipQuestions)
 	viper.Set("subjectMaxLength", config.SubjectMaxLength)
 	viper.Set("signOff", config.SignOff)
@@ -64,7 +63,6 @@ func InitRepoConfig(global, repo bool) error {
 	config := initConfig{
 		Types:            gitmojis,
 		Scopes:           []string{"home", "accounts", "ci"},
-		Symbol:           true,
 		SkipQuestions:    nil,
 		SubjectMaxLength: 100,
 		SignOff:          true,

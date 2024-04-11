@@ -89,7 +89,7 @@ You can customize the `.goji.json` generated file to add or change the scopes, t
 
 ```json
 {
-  "Types": [
+  "types": [
     //***
     {
       "emoji": "✨",
@@ -105,20 +105,32 @@ You can customize the `.goji.json` generated file to add or change the scopes, t
     }
     //***
   ],
-  "Scopes": [
+  "scopes": [
     "home",
     "accounts",
     "ci"
   ],
-  "Symbol": true,
-  "SkipQuestions": [],
-  "SubjectMaxLength": 50
+  "noemoji": true,
+  "skipquestions": [],
+  "subjectmaxlength": 50,
+  "signoff": true
 }
 ```
 
-You can skip questions by adding them in `"SkipQuestions"`
-
 Only `"Scopes"` question can be skipped since it's optional according to the [Commit Spec](https://www.conventionalcommits.org/en/v1.0.0/)
+
+
+### Configuration options
+
+| Option | Type | Description |
+| ------ | ---- | ----------- |
+| `types` | Array of objects | Types for the commit messages (emoji, code, description, name) |
+| `scopes` | Array of strings | Optional scopes for the commit messages (you can auto-complete with ctrl+e) |
+| `noemoji` | Boolean | Creates commit message with emojis in types |
+| `subjectmaxlength` | Number | Maximum length for the description message |
+| `signoff` | Boolean | Add a sign off to the end of the commit message |
+| `skipquestions` | Array of strings | Skip prompting for these questions (Unimplemented)|
+
 
 ## License
 
