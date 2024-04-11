@@ -23,22 +23,22 @@ for selecting the type of change, scope, and description of your commit message.
 
 ## Features
 
-- Interactive CLI for choosing commit types, scopes, and descriptions
-- Predefined commit types with corresponding emojis
-- Customizable commit types and scopes through a JSON configuration file
+- Interactive and Non-interactive CLI with sensible defaults for choosing commit types, scopes, and descriptions and signing off commits.
+- Predefined commit types with corresponding emojis.
+- Customizable commit types and scopes through a JSON configuration file.
 - Supports Git out of the box
 
 ## Install
 
 **Homebrew (macOs/Linux)**
 
-```bash
+```sh
 brew install muandane/tap/goji
 ```
 
 **Linux (or WSL)**
 
-```bash
+```sh
 VERSION=$(curl --silent "https://api.github.com/repos/muandane/goji/releases/latest" | jq .tag_name -r)
 curl -Lso goji.tar.gz https://github.com/muandane/goji/releases/download/$VERSION/goji_${VERSION}_Linux_x86_64.tar.gz
 tar -xvzf goji.tar.gz
@@ -47,9 +47,15 @@ chmod +x ./goji
 sudo mv ./goji /usr/local/bin/
 ```
 
+**Windows (winget)**
+
+```sh
+winget install muandane.goji
+```
+
 **Build locally**
 
-```bash
+```sh
 git clone https://github.com/muandane/goji.git && cd goji
 go build -ldflags "-s -w -X goji/cmd.version=0.0.8"
 mv goji /usr/local/bin
@@ -65,7 +71,7 @@ Simply run `goji` in your terminal to start the interactive commit process:
 If you don't want the interactive screen you can use the flags to construct a message:
 
 ```sh
-goji --type feat --scope home --message "Add home page" --sign-off
+goji --type feat --scope home --message "Add home page"
 ```
 
 ## Customization

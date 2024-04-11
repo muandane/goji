@@ -7,7 +7,7 @@
   ],
   "signoff": true,
   "skipquestions": null,
-  "subjectmaxlength": 100,
+  "subjectmaxlength": 500,
   "symbol": true,
   "types": [
     {
