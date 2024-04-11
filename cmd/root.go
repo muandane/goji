@@ -122,6 +122,7 @@ func Execute() {
 	}
 }
 
+// commit cmd
 func commit(message, body string, sign bool) error {
 	args := []string{"commit", "-m", message, "-m", body}
 	if sign {

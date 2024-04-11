@@ -1,20 +1,20 @@
-# repos:
-# - repo: https://github.com/pre-commit/pre-commit-hooks
-#   rev: v4.5.0
-#   hooks:
-#   - id: trailing-whitespace
-#   - id: end-of-file-fixer
-#   - id: check-yaml
-#   - id: check-added-large-files
-# - repo: https://github.com/golangci/golangci-lint
-#   rev: v1.55.2
-#   hooks:
-#   - id: golangci-lint-full
-# - repo: local
-#   hooks:
-#   - id: goji-check
-#     name: goji check
-#     description: >
-#       Check whether the current commit message follows commiting rules. Allow empty commit messages by default, because they typically indicate to Git that the commit should be aborted.
-#     entry: scripts/goji-check.sh
-#     language: script
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-yaml
+  - id: check-added-large-files
+- repo: https://github.com/golangci/golangci-lint
+  rev: v1.55.2
+  hooks:
+  - id: golangci-lint-full
+- repo: local
+  hooks:
+  - id: goji-check
+    name: goji check
+    description: >
+      Check whether the current commit message follows commiting rules. Allow empty commit messages by default, because they typically indicate to Git that the commit should be aborted.
+    entry: scripts/goji-check.sh
+    language: script
