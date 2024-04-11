@@ -90,6 +90,7 @@ var rootCmd = &cobra.Command{
 		var gitCommitError error
 		action := func() {
 			signOff := config.SignOff
+			fmt.Println(commitMessage)
 			gitCommitError = commit(commitMessage, commitBody, signOff)
 			// gitCommitError = config.GitCommit(".", commitMessage, commitBody)
 		}
