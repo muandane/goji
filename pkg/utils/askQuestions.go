@@ -35,14 +35,13 @@ func AskQuestions(config *config.Config) ([]string, error) {
 		emoji := emojiStyle.Render(ct.Emoji)
 		desc := descStyle.Render(ct.Description)
 
-		if config.NoEmoji {
-			commitType = fmt.Sprintf("%s %s", ct.Name, ct.Emoji)
-		} else {
-			commitType = ct.Name
-		}
-
 		row := lipgloss.JoinHorizontal(lipgloss.Center, name, emoji, desc)
-		commitTypeOptions[i] = huh.NewOption(row, commitType)
+		commitTypeOptions[i] = huh.NewOption[string](row, fmt.Sprintf("%s %s", ct.Name, func() string {
+			if !config.NoEmoji {
+				return ct.Emoji
+			}
+			return ""
+		}()))
 	}
 
 	group1 := huh.NewGroup(
