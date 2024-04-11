@@ -128,9 +128,10 @@ func commit(message, body string, sign bool) error {
 		args = append(args, "--signoff")
 	}
 	gitCmd := exec.Command("git", args...)
-	output, _ := gitCmd.CombinedOutput()
-	if err := gitCmd.Run(); err != nil {
-		return fmt.Errorf("error executing git commit: %w", err)
+
+	output, err := gitCmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error executing git commit: %v\noutput: %s", err, output)
 	}
 	fmt.Printf("Git commit output: %s\n", string(output))
 	return nil
