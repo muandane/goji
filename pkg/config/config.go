@@ -17,13 +17,12 @@ func ViperConfig() (*Config, error) {
 		return nil, err
 	}
 	homeDir, _ := os.UserHomeDir()
-	_, err = os.Stat(filepath.Join(gitDir, ".goji.json"))
-	if err == nil {
+	if _, err = os.Stat(filepath.Join(gitDir, ".goji.json")); err == nil {
 		viper.AddConfigPath(gitDir)
-	} else if os.IsNotExist(err) {
-		viper.AddConfigPath(homeDir)
+		// fmt.Printf("using repo conf") // used for debug
 	} else {
-		return nil, err
+		viper.AddConfigPath(homeDir)
+		// fmt.Printf("using home conf") // used for debug
 	}
 
 	err = viper.ReadInConfig()
