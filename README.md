@@ -119,7 +119,6 @@ You can customize the `.goji.json` generated file to add or change the scopes, t
 
 Only `"Scopes"` question can be skipped since it's optional according to the [Commit Spec](https://www.conventionalcommits.org/en/v1.0.0/)
 
-
 ### Configuration options
 
 | Option | Type | Description |
@@ -130,7 +129,6 @@ Only `"Scopes"` question can be skipped since it's optional according to the [Co
 | `subjectmaxlength` | Number | Maximum length for the description message |
 | `signoff` | Boolean | Add a sign off to the end of the commit message |
 | `skipquestions` | Array of strings | Skip prompting for these questions (Unimplemented)|
-
 
 ## License
 
