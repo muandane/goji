@@ -122,14 +122,14 @@ func Execute() {
 	}
 }
 
-// commit cmd
 func commit(message, body string, sign bool) error {
 	args := []string{"commit", "-m", message, "-m", body}
 	if sign {
 		args = append(args, "--signoff")
 	}
 	cmd := exec.Command("git", args...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("error executing git commit: %w", err)
+	}
+	return nil
 }
