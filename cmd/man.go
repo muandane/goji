@@ -118,9 +118,13 @@ func markdownManual() string {
 	)
 }
 
-func sanitizeMarkdown(s string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(
-		s, "<", "&lt;"), ">", "&gt;"), specialChar, "`")
+func sanitizeMarkdown(input string) string {
+	escaped := strings.NewReplacer(
+		"<", "&lt;",
+		">", "&gt;",
+		"`", "&#96;", // backtick
+	).Replace(input)
+	return strings.ReplaceAll(escaped, specialChar, "`")
 }
 
 func sanitizeSpecial(s string) string {

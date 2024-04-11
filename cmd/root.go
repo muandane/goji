@@ -17,7 +17,6 @@ import (
 var (
 	version     string
 	versionFlag bool
-	signFlag    bool
 	typeFlag    string
 	scopeFlag   string
 	messageFlag string
@@ -72,6 +71,8 @@ var rootCmd = &cobra.Command{
 			}
 		} else {
 			// If not all flags are provided, fall back to the interactive prompt logic
+
+			// fmt.Printf("Enter commit message:%v", signOff)
 			commitMessages, err := utils.AskQuestions(config)
 			if err != nil {
 				log.Fatalf("Error asking questions: %v", err)
@@ -84,7 +85,9 @@ var rootCmd = &cobra.Command{
 		}
 		var gitCommitError error
 		action := func() {
-			gitCommitError = executeGitCommit(commitMessage, commitBody, signFlag)
+			signOff := config.SignOff
+			gitCommitError = commit(commitMessage, commitBody, signOff)
+			// gitCommitError = config.GitCommit(".", commitMessage, commitBody)
 		}
 
 		err = spinner.New().
@@ -95,14 +98,14 @@ var rootCmd = &cobra.Command{
 			fmt.Printf("\nError committing changes: %v\n", gitCommitError)
 			fmt.Println("Check the output above for details.")
 		} else if err != nil {
-			fmt.Println("Error committing: ", err)
+			fmt.Printf("Error committing: %s", err)
 		}
 	},
 }
 
 func init() {
 	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Display version information")
-	rootCmd.Flags().BoolVarP(&signFlag, "sign-off", "S", false, "add a Signed-off-by trailer")
+	// rootCmd.Flags().BoolVarP(&signFlag, "sign-off", "S", false, "add a Signed-off-by trailer")
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")
 	rootCmd.Flags().StringVarP(&messageFlag, "message", "m", "", "Specify a commit message")
@@ -115,7 +118,7 @@ func Execute() {
 	}
 }
 
-func executeGitCommit(commitMessage, commitBody string, signOff bool) error {
+func commit(commitMessage, commitBody string, signOff bool) error {
 	args := []string{"commit", "-m", commitMessage, "-m", commitBody}
 
 	if signOff {
