@@ -74,6 +74,28 @@ If you don't want the interactive screen you can use the flags to construct a me
 goji --type feat --scope home --message "Add home page"
 ```
 
+
+## Check command
+
+To check if a commit message is conventional run:
+
+```sh
+goji check
+```
+
+To use the check command, add the following to your pre-commit hook in your git repository:
+
+```yaml
+- repo: https://github.com/muandane/goji
+  rev: v0.0.8
+  hooks:
+  - id: goji-check
+    name: goji check
+    description: >
+      Check whether the current commit message follows commiting rules. Allow empty commit messages by default, because they typically indicate to Git that the commit should be aborted.
+```
+
+
 ## Customization
 
 By default `goji` comes ready to run out of the box and you can initialize a config file with commands. _For now customization is in the works (?)_
