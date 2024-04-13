@@ -36,12 +36,12 @@ var rootCmd = &cobra.Command{
 
 		_, err := config.GitRepo()
 		if err != nil {
-			log.Fatalf("Error: %v", err)
+			log.Fatalf("Error: %s", err.Error())
 		}
 
 		config, err := config.ViperConfig()
 		if err != nil {
-			log.Fatalf("Error loading config file: %v", err)
+			log.Fatalf("Error loading config file: %s", err.Error())
 		}
 
 		var commitMessage string
@@ -79,7 +79,7 @@ var rootCmd = &cobra.Command{
 			// fmt.Printf("Enter commit message:%v", signOff)
 			commitMessages, err := utils.AskQuestions(config)
 			if err != nil {
-				log.Fatalf("Error asking questions: %v", err)
+				log.Fatalf("Error asking questions: %s", err.Error())
 			}
 			commitMessage = commitMessages[0]
 			commitBody = commitMessages[1]
