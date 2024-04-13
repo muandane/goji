@@ -100,13 +100,13 @@ func AskQuestions(config *config.Config) ([]string, error) {
 	var commitBody string
 	switch {
 	case commitScope != "" && commitDescription != "":
-		commitMessage = fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
+		commitMessage = fmt.Sprintf("%s(%s): %s", commitType, commitScope, commitSubject)
 		commitBody = commitDescription
 	case commitDescription != "":
 		commitMessage = fmt.Sprintf("%s: %s", commitType, commitSubject)
 		commitBody = commitDescription
 	case commitScope != "":
-		commitMessage = fmt.Sprintf("%s (%s): %s", commitType, commitScope, commitSubject)
+		commitMessage = fmt.Sprintf("%s(%s): %s", commitType, commitScope, commitSubject)
 	default:
 		commitMessage = fmt.Sprintf("%s: %s", commitType, commitSubject)
 	}
