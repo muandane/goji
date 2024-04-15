@@ -74,7 +74,6 @@ If you don't want the interactive screen you can use the flags to construct a me
 goji --type feat --scope home --message "Add home page"
 ```
 
-
 ## Check command
 
 To check if a commit message is conventional run:
@@ -94,7 +93,6 @@ To use the check command, add the following to your pre-commit hook in your git 
     description: >
       Check whether the current commit message follows commiting rules. Allow empty commit messages by default, because they typically indicate to Git that the commit should be aborted.
 ```
-
 
 ## Customization
 
@@ -132,7 +130,7 @@ You can customize the `.goji.json` generated file to add or change the scopes, t
     "accounts",
     "ci"
   ],
-  "noemoji": true,
+  "noemoji": false,
   "skipquestions": [],
   "subjectmaxlength": 50,
   "signoff": true
