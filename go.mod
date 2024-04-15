@@ -3,6 +3,7 @@ module github.com/muandane/goji
 go 1.22.2
 
 require (
+	github.com/alecthomas/assert/v2 v2.2.1
 	github.com/charmbracelet/glamour v0.7.0
 	github.com/charmbracelet/huh v0.3.0
 	github.com/charmbracelet/huh/spinner v0.0.0-20240404200615-66118a2cb3cf
@@ -18,6 +19,7 @@ require (
 
 require (
 	github.com/alecthomas/chroma/v2 v2.8.0 // indirect
+	github.com/alecthomas/repr v0.2.0 // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
@@ -31,6 +33,7 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect

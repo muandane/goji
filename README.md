@@ -159,5 +159,3 @@ Apache 2.0 license [Zine El Abidine Moualhi](https://www.linkedin.com/in/zinemou
 Thanks to [@Simplifi-ED](https://www.simplified.fr) & @IT Challenge in letting me work on this open source side project and to my mentor [@EtienneDeneuve](https://github.com/EtienneDeneuve) for the help with learning Go lang.
 
 <img align="center" src="public/logo.svg"  alt="IT Challenge" width="200"/>
-
-<!-- adding pre-commit hook doc for goji check -->
