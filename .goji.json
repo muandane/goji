@@ -7,7 +7,7 @@
   ],
   "signoff": true,
   "skipquestions": null,
-  "subjectmaxlength": 500,
+  "subjectmaxlength": 100,
   "types": [
     {
       "emoji": "✨",

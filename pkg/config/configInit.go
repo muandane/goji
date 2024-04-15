@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -51,7 +52,7 @@ func SaveConfigToFile(config initConfig, file, dir string) error {
 	viper.SetConfigType("json")
 	viper.AddConfigPath(dir)
 
-	if err := viper.WriteConfig(); err != nil {
+	if err := viper.WriteConfigAs(path.Join(dir, file+".json")); err != nil {
 		return fmt.Errorf("error writing config file: %v", err)
 	}
 
@@ -66,7 +67,7 @@ func InitRepoConfig(global, repo bool) error {
 		SkipQuestions:    nil,
 		SubjectMaxLength: 100,
 		SignOff:          true,
-		NoEmoji:          true,
+		NoEmoji:          false,
 	}
 
 	var location string

@@ -51,7 +51,7 @@ var rootCmd = &cobra.Command{
 			var typeMatch string
 			for _, t := range config.Types {
 				if typeFlag == t.Name {
-					if config.NoEmoji {
+					if !config.NoEmoji {
 						typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
 					} else {
 						typeMatch = fmt.Sprintf(t.Name)
