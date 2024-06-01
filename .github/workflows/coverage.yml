@@ -5,11 +5,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Set up Go
-      uses: actions/setup-go@v5.0.0
+      uses: actions/setup-go@v5.0.1
       with:
         go-version: '1.22.1'
     - name: Check out code
-      uses: actions/checkout@v4.1.1
+      uses: actions/checkout@v4.1.6
     - name: Set up Git
       run: |
         git config --local user.email "action@github.com"
@@ -17,7 +17,7 @@ jobs:
     - name: Test and generate coverage report
       run: go test -coverprofile=coverage.out ./...
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v4.1.0
+      uses: codecov/codecov-action@v4.4.1
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         file: coverage.out
