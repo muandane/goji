@@ -48,13 +48,13 @@ var rootCmd = &cobra.Command{
 		var commitBody string
 		if typeFlag != "" && messageFlag != "" {
 			// If all flags are provided, construct the commit message from them
-			var typeMatch string
+			typeMatch := ""
 			for _, t := range config.Types {
 				if typeFlag == t.Name {
 					if !config.NoEmoji {
 						typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
 					} else {
-						typeMatch = fmt.Sprintf(t.Name)
+						typeMatch = t.Name
 					}
 					break
 				}
