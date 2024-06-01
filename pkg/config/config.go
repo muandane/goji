@@ -19,7 +19,6 @@ func ViperConfig() (*Config, error) {
 	homeDir, _ := os.UserHomeDir()
 	if _, err = os.Stat(filepath.Join(gitDir, ".goji.json")); err == nil {
 		viper.AddConfigPath(gitDir)
-		fmt.Printf("using repo conf") // used for debug
 	} else {
 		viper.AddConfigPath(homeDir)
 		// fmt.Printf("using home conf") // used for debug

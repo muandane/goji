@@ -23,10 +23,10 @@ type Gitmoji struct {
 	Name        string `json:"name"`
 }
 type initConfig struct {
-	Types            []Gitmoji `json:"Types"`
-	Scopes           []string  `json:"Scopes"`
-	SkipQuestions    []string  `json:"SkipQuestions"`
-	SubjectMaxLength int       `json:"SubjectMaxLength"`
-	SignOff          bool      `json:"SignOff"`
-	NoEmoji          bool      `json:"NoEmoji"`
+	Types            []Gitmoji `json:"types"`
+	Scopes           []string  `json:"scopes"`
+	SkipQuestions    []string  `json:"skipQuestions"`
+	SubjectMaxLength int       `json:"subjectMaxLength"`
+	SignOff          bool      `json:"signOff"`
+	NoEmoji          bool      `json:"noEmoji"`
 }
