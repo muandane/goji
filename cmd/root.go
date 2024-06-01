@@ -48,13 +48,13 @@ var rootCmd = &cobra.Command{
 		var commitBody string
 		if typeFlag != "" && messageFlag != "" {
 			// If all flags are provided, construct the commit message from them
-			var typeMatch string
+			typeMatch := ""
 			for _, t := range config.Types {
 				if typeFlag == t.Name {
 					if !config.NoEmoji {
 						typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
 					} else {
-						typeMatch = fmt.Sprintf(t.Name)
+						typeMatch = t.Name
 					}
 					break
 				}
@@ -109,7 +109,6 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Display version information")
-	// rootCmd.Flags().BoolVarP(&signFlag, "sign-off", "S", false, "add a Signed-off-by trailer")
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")
 	rootCmd.Flags().StringVarP(&messageFlag, "message", "m", "", "Specify a commit message")
@@ -122,6 +121,15 @@ func Execute() {
 	}
 }
 
+// commit executes a git commit with the given message and body.
+//
+// Parameters:
+// - message: the commit message.
+// - body: the commit body.
+// - sign: a boolean indicating whether to add a Signed-off-by trailer.
+//
+// Returns:
+// - error: an error if the git commit execution fails.
 func commit(message, body string, sign bool) error {
 	args := []string{"commit", "-m", message, "-m", body}
 	if sign {
