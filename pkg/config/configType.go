@@ -28,5 +28,5 @@ type initConfig struct {
 	SkipQuestions    []string  `json:"skipQuestions"`
 	SubjectMaxLength int       `json:"subjectMaxLength"`
 	SignOff          bool      `json:"signOff"`
-	NoEmoji          bool      `json:"noEmoji"`
+	NoEmoji          bool      `json:"noemoji"`
 }

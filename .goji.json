@@ -1,5 +1,5 @@
 {
-  "noemojis": true,
+  "noemoji": true,
   "scopes": [
     "home",
     "accounts",

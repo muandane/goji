@@ -46,7 +46,7 @@ func SaveConfigToFile(config initConfig, file, dir string) error {
 	viper.Set("skipQuestions", config.SkipQuestions)
 	viper.Set("subjectMaxLength", config.SubjectMaxLength)
 	viper.Set("signOff", config.SignOff)
-	viper.Set("noEmojis", config.NoEmoji)
+	viper.Set("noemoji", config.NoEmoji)
 
 	viper.SetConfigName(file)
 	viper.SetConfigType("json")
