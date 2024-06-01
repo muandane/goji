@@ -60,10 +60,10 @@ var rootCmd = &cobra.Command{
 				}
 			}
 
-			// // If no match was found, use the type flag as is
-			// if typeMatch == "" {
-			// 	typeMatch = typeFlag
-			// }
+			// If no match was found, use the type flag as is
+			if typeMatch == "" {
+				typeMatch = typeFlag
+			}
 
 			// Construct the commit message from the flags
 			commitMessage = messageFlag
