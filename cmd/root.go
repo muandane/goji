@@ -90,7 +90,7 @@ var rootCmd = &cobra.Command{
 		var gitCommitError error
 		action := func() {
 			signOff := config.SignOff
-			gitCommitError = commit(commitMessage, commitBody, signOff)
+			gitCommitError = commit(commitMessage, commitBody, signOff, "--no-verify")
 		}
 
 		err = spinner.New().
