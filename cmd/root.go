@@ -15,11 +15,12 @@ import (
 )
 
 var (
-	version     string
-	versionFlag bool
-	typeFlag    string
-	scopeFlag   string
-	messageFlag string
+	version      string
+	versionFlag  bool
+	noVerifyFlag bool
+	typeFlag     string
+	scopeFlag    string
+	messageFlag  string
 )
 
 var rootCmd = &cobra.Command{
@@ -90,7 +91,11 @@ var rootCmd = &cobra.Command{
 		var gitCommitError error
 		action := func() {
 			signOff := config.SignOff
-			gitCommitError = commit(commitMessage, commitBody, signOff, "--no-verify")
+			if !noVerifyFlag {
+				gitCommitError = commit(commitMessage, commitBody, signOff, "--no-verify")
+			} else {
+				gitCommitError = commit(commitMessage, commitBody, signOff)
+			}
 		}
 
 		err = spinner.New().
@@ -108,6 +113,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Display version information")
+	rootCmd.Flags().BoolVarP(&noVerifyFlag, "no-verify", "n", false, "bypass pre-commit and commit-msg hooks")
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")
 	rootCmd.Flags().StringVarP(&messageFlag, "message", "m", "", "Specify a commit message")
@@ -144,9 +150,8 @@ func commit(message, body string, sign bool, extraArgs ...string) error {
 
 	output, err := gitCmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf("Git commit output:\n%s\n", string(output))
-		return fmt.Errorf("error executing git commit: %v", err)
+		return fmt.Errorf("error executing git commit: %v\noutput: %s", err, output)
 	}
-	fmt.Printf("Git commit output:\n%s", string(output))
+	fmt.Printf("Git commit output: %s\n", string(output))
 	return nil
 }
