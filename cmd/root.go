@@ -130,17 +130,15 @@ func Execute() {
 //
 // Returns:
 // - error: an error if the git commit execution fails.
+
 func commit(message, body string, sign bool) error {
-	args := []string{"commit", "-m", message, "-m", body}
+	args := []string{"commit", "-q", "-m", message, "-m", body}
 	if sign {
 		args = append(args, "--signoff")
 	}
-	gitCmd := exec.Command("git", args...)
-
-	output, err := gitCmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("error executing git commit: %v\noutput: %s", err, output)
-	}
-	fmt.Printf("Git commit output: %s\n", string(output))
-	return nil
+	cmd := exec.Command("git", args...)
+	cmd.Stdin = nil
+	cmd.Stdout = nil
+	cmd.Stderr = nil
+	return cmd.Run()
 }
