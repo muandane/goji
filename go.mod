@@ -4,6 +4,7 @@ go 1.22.4
 
 require (
 	github.com/alecthomas/assert/v2 v2.2.1
+	github.com/alessio/shellescape v1.4.2
 	github.com/charmbracelet/glamour v0.7.0
 	github.com/charmbracelet/huh v0.4.2
 	github.com/charmbracelet/huh/spinner v0.0.0-20240404200615-66118a2cb3cf

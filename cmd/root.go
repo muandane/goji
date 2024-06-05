@@ -6,6 +6,7 @@ import (
 
 	"os"
 
+	"github.com/alessio/shellescape"
 	"github.com/charmbracelet/huh/spinner"
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
@@ -91,10 +92,14 @@ var rootCmd = &cobra.Command{
 		var gitCommitError error
 		action := func() {
 			signOff := config.SignOff
-			if !noVerifyFlag {
-				commit(commitMessage, commitBody, signOff)
-			} else {
-				commit(commitMessage, commitBody, signOff, "--no-verify")
+			var extraArgs []string
+			if noVerifyFlag {
+				extraArgs = append(extraArgs, "--no-verify")
+			}
+			command, commandString := buildCommitCommand(commitMessage, commitBody, signOff, extraArgs)
+			fmt.Printf("Executing command: %s\n", commandString)
+			if err := commit(command); err != nil {
+				log.Fatalf("Error committing changes: %v\n", err)
 			}
 		}
 
@@ -136,23 +141,23 @@ func Execute() {
 // Returns:
 // - error: an error if the git commit execution fails.
 
-func commit(message, body string, sign bool, extraArgs ...string) {
-	args := []string{"commit", "-m", message}
+func buildCommitCommand(message string, body string, sign bool, extraArgs []string) ([]string, string) {
+	if sign {
+		extraArgs = append(extraArgs, "--signoff")
+	}
+	args := append([]string{"commit", "-m", message}, extraArgs...)
 	if body != "" {
 		args = append(args, "-m", body)
 	}
-	if sign {
-		args = append(args, "--signoff")
-	}
-	args = append(args, extraArgs...)
+	return args, fmt.Sprintf("git %v", shellescape.QuoteCommand(args))
+}
 
-	gitCmd := exec.Command("git", args...)
+// commit commits the changes to git
+func commit(command []string) error {
+	cmd := exec.Command("git", command...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	output, err := gitCmd.CombinedOutput()
-
-	if err != nil {
-		fmt.Printf("Error executing git commit: %v\n", err)
-	} else {
-		fmt.Printf("Git commit output:\n%s\n", string(output))
-	}
+	return cmd.Run()
 }
