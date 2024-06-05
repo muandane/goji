@@ -1,11 +1,11 @@
 {
-  "noemoji": true,
+  "noemoji": false,
   "scopes": [
     "home",
     "accounts",
     "ci"
   ],
-  "signoff": false,
+  "signoff": true,
   "skipquestions": null,
   "subjectmaxlength": 100,
   "types": [
