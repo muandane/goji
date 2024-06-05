@@ -92,9 +92,9 @@ var rootCmd = &cobra.Command{
 		action := func() {
 			signOff := config.SignOff
 			if !noVerifyFlag {
-				gitCommitError = commit(commitMessage, commitBody, signOff, "--no-verify")
-			} else {
 				gitCommitError = commit(commitMessage, commitBody, signOff)
+			} else {
+				gitCommitError = commit(commitMessage, commitBody, signOff, "--no-verify")
 			}
 		}
 
