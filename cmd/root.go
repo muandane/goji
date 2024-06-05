@@ -147,6 +147,6 @@ func commit(message, body string, sign bool, extraArgs ...string) error {
 		fmt.Printf("Git commit output:\n%s\n", string(output))
 		return fmt.Errorf("error executing git commit: %v", err)
 	}
-	fmt.Printf("Git commit output:\n%s\n", string(output))
+	fmt.Printf("Git commit output:\n%s", string(output))
 	return nil
 }
