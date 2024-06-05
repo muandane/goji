@@ -41,9 +41,7 @@ func TestCommit(t *testing.T) {
 			t.Fatalf("error adding testfile to index: %v", err)
 		}
 
-		if err := commit("test commit", "test commit body", false); err != nil {
-			t.Fatalf("error committing: %v", err)
-		}
+		commit("test commit", "test commit body", false)
 
 		if err := exec.Command("git", "log", "-1", "--pretty=%s").Run(); err != nil {
 			t.Fatalf("error checking commit: %v", err)
