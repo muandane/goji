@@ -1,8 +1,9 @@
 module github.com/muandane/goji
 
-go 1.22.2
+go 1.22.4
 
 require (
+	github.com/alessio/shellescape v1.4.2
 	github.com/alecthomas/assert/v2 v2.10.0
 	github.com/charmbracelet/glamour v0.7.0
 	github.com/charmbracelet/huh v0.4.2

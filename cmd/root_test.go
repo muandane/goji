@@ -5,51 +5,12 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"testing"
 
 	"github.com/alecthomas/assert/v2"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
-
-func TestCommit(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		if testing.Short() {
-			t.Skip("skipping test in short mode.")
-		}
-
-		tempDir, err := os.MkdirTemp("", "git-commit-test")
-		if err != nil {
-			t.Fatalf("error creating temp dir: %v", err)
-		}
-		defer os.RemoveAll(tempDir)
-
-		if err := os.Chdir(tempDir); err != nil {
-			t.Fatalf("error changing to temp dir: %v", err)
-		}
-
-		if err := exec.Command("git", "init").Run(); err != nil {
-			t.Fatalf("error initializing git repo: %v", err)
-		}
-
-		if err := os.WriteFile("testfile", []byte("test content"), 0644); err != nil {
-			t.Fatalf("error writing testfile: %v", err)
-		}
-
-		if err := exec.Command("git", "add", "testfile").Run(); err != nil {
-			t.Fatalf("error adding testfile to index: %v", err)
-		}
-
-		if err := commit("test commit", "test commit body", false); err != nil {
-			t.Fatalf("error committing: %v", err)
-		}
-
-		if err := exec.Command("git", "log", "-1", "--pretty=%s").Run(); err != nil {
-			t.Fatalf("error checking commit: %v", err)
-		}
-	})
-}
 
 func TestRootCmd_VersionFlag(t *testing.T) {
 

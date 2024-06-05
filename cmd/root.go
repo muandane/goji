@@ -6,6 +6,7 @@ import (
 
 	"os"
 
+	"github.com/alessio/shellescape"
 	"github.com/charmbracelet/huh/spinner"
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
@@ -15,11 +16,12 @@ import (
 )
 
 var (
-	version     string
-	versionFlag bool
-	typeFlag    string
-	scopeFlag   string
-	messageFlag string
+	version      string
+	versionFlag  bool
+	noVerifyFlag bool
+	typeFlag     string
+	scopeFlag    string
+	messageFlag  string
 )
 
 var rootCmd = &cobra.Command{
@@ -90,8 +92,15 @@ var rootCmd = &cobra.Command{
 		var gitCommitError error
 		action := func() {
 			signOff := config.SignOff
-			gitCommitError = commit(commitMessage, commitBody, signOff)
-			// gitCommitError = config.GitCommit(".", commitMessage, commitBody)
+			var extraArgs []string
+			if noVerifyFlag {
+				extraArgs = append(extraArgs, "--no-verify")
+			}
+			command, commandString := buildCommitCommand(commitMessage, commitBody, signOff, extraArgs)
+			fmt.Printf("Executing command: %s\n", commandString)
+			if err := commit(command); err != nil {
+				log.Fatalf("Error committing changes: %v\n", err)
+			}
 		}
 
 		err = spinner.New().
@@ -107,11 +116,24 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+// init initializes the flags for the root command.
+//
+// This function sets up the flags for the root command, which are used to specify the type, scope, message,
+// and options for the command. The flags are defined using the `rootCmd.Flags()` method.
+//
+// - `typeFlag` is a string flag that specifies the type from the config file.
+// - `scopeFlag` is a string flag that specifies a custom scope.
+// - `messageFlag` is a string flag that specifies a commit message.
+// - `noVerifyFlag` is a boolean flag that bypasses pre-commit and commit-msg hooks.
+// - `versionFlag` is a boolean flag that displays version information.
+//
+// There are no parameters or return values for this function.
 func init() {
-	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Display version information")
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")
 	rootCmd.Flags().StringVarP(&messageFlag, "message", "m", "", "Specify a commit message")
+	rootCmd.Flags().BoolVarP(&noVerifyFlag, "no-verify", "n", false, "bypass pre-commit and commit-msg hooks")
+	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Display version information")
 }
 
 func Execute() {
@@ -130,17 +152,23 @@ func Execute() {
 //
 // Returns:
 // - error: an error if the git commit execution fails.
-func commit(message, body string, sign bool) error {
-	args := []string{"commit", "-m", message, "-m", body}
+func buildCommitCommand(message string, body string, sign bool, extraArgs []string) ([]string, string) {
 	if sign {
-		args = append(args, "--signoff")
+		extraArgs = append(extraArgs, "--signoff")
 	}
-	gitCmd := exec.Command("git", args...)
+	args := append([]string{"commit", "-m", message}, extraArgs...)
+	if body != "" {
+		args = append(args, "-m", body)
+	}
+	return args, fmt.Sprintf("git %v", shellescape.QuoteCommand(args))
+}
 
-	output, err := gitCmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("error executing git commit: %v\noutput: %s", err, output)
-	}
-	fmt.Printf("Git commit output: %s\n", string(output))
-	return nil
+// commit commits the changes to git
+func commit(command []string) error {
+	cmd := exec.Command("git", command...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run()
 }
