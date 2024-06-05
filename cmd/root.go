@@ -117,11 +117,11 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Display version information")
-	rootCmd.Flags().BoolVarP(&noVerifyFlag, "no-verify", "n", false, "bypass pre-commit and commit-msg hooks")
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")
 	rootCmd.Flags().StringVarP(&messageFlag, "message", "m", "", "Specify a commit message")
+	rootCmd.Flags().BoolVarP(&noVerifyFlag, "no-verify", "n", false, "bypass pre-commit and commit-msg hooks")
+	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Display version information")
 }
 
 func Execute() {
