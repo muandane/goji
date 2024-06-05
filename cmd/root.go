@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"os/exec"
 
@@ -91,7 +90,7 @@ var rootCmd = &cobra.Command{
 		var gitCommitError error
 		action := func() {
 			signOff := config.SignOff
-			gitCommitError = commit(commitMessage, commitBody, signOff)
+			gitCommitError = commit(commitMessage, commitBody, signOff, "--no-verify")
 		}
 
 		err = spinner.New().
@@ -131,23 +130,22 @@ func Execute() {
 // Returns:
 // - error: an error if the git commit execution fails.
 
-func commit(message, body string, sign bool) error {
-	args := []string{"commit"}
+func commit(message, body string, sign bool, extraArgs ...string) error {
+	args := []string{"commit", "-m", message}
+	if body != "" {
+		args = append(args, "-m", body)
+	}
 	if sign {
 		args = append(args, "--signoff")
 	}
-	if message != "" {
-		args = append(args, "-m", message)
-		if body != "" {
-			args = append(args, "-m", body)
-		}
-	}
+	args = append(args, extraArgs...)
 
-	cmd := exec.Command("git", args...)
-	output, err := cmd.CombinedOutput()
-	output = bytes.TrimSpace(output)
+	gitCmd := exec.Command("git", args...)
+
+	output, err := gitCmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error executing git commit: %s", string(output))
+		fmt.Printf("Git commit output:\n%s\n", string(output))
+		return fmt.Errorf("error executing git commit: %v", err)
 	}
 	fmt.Printf("Git commit output:\n%s\n", string(output))
 	return nil
