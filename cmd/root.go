@@ -92,9 +92,9 @@ var rootCmd = &cobra.Command{
 		action := func() {
 			signOff := config.SignOff
 			if !noVerifyFlag {
-				gitCommitError = commit(commitMessage, commitBody, signOff)
+				commit(commitMessage, commitBody, signOff)
 			} else {
-				gitCommitError = commit(commitMessage, commitBody, signOff, "--no-verify")
+				commit(commitMessage, commitBody, signOff, "--no-verify")
 			}
 		}
 
@@ -136,7 +136,7 @@ func Execute() {
 // Returns:
 // - error: an error if the git commit execution fails.
 
-func commit(message, body string, sign bool, extraArgs ...string) error {
+func commit(message, body string, sign bool, extraArgs ...string) {
 	args := []string{"commit", "-m", message}
 	if body != "" {
 		args = append(args, "-m", body)
@@ -149,9 +149,10 @@ func commit(message, body string, sign bool, extraArgs ...string) error {
 	gitCmd := exec.Command("git", args...)
 
 	output, err := gitCmd.CombinedOutput()
+
 	if err != nil {
-		return fmt.Errorf("error executing git commit: %v\noutput: %s", err, output)
+		fmt.Printf("Error executing git commit: %v\n", err)
+	} else {
+		fmt.Printf("Git commit output:\n%s\n", string(output))
 	}
-	fmt.Printf("Git commit output: %s\n", string(output))
-	return nil
 }
