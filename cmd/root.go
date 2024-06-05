@@ -91,7 +91,6 @@ var rootCmd = &cobra.Command{
 		action := func() {
 			signOff := config.SignOff
 			gitCommitError = commit(commitMessage, commitBody, signOff)
-			// gitCommitError = config.GitCommit(".", commitMessage, commitBody)
 		}
 
 		err = spinner.New().
@@ -132,13 +131,20 @@ func Execute() {
 // - error: an error if the git commit execution fails.
 
 func commit(message, body string, sign bool) error {
-	args := []string{"commit", "-q", "-m", message, "-m", body}
+	args := []string{"commit", "-m", message}
+	if body != "" {
+		args = append(args, "-m", body)
+	}
 	if sign {
 		args = append(args, "--signoff")
 	}
-	cmd := exec.Command("git", args...)
-	cmd.Stdin = nil
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	return cmd.Run()
+	gitCmd := exec.Command("git", args...)
+
+	output, err := gitCmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("Git commit output: ", string(output))
+		return fmt.Errorf("error executing git commit: %v", err)
+	}
+	fmt.Printf("Git commit output: %s\n", string(output))
+	return nil
 }
