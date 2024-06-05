@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"os/exec"
 
@@ -131,20 +132,23 @@ func Execute() {
 // - error: an error if the git commit execution fails.
 
 func commit(message, body string, sign bool) error {
-	args := []string{"commit", "-m", message}
-	if body != "" {
-		args = append(args, "-m", body)
-	}
+	args := []string{"commit"}
 	if sign {
 		args = append(args, "--signoff")
 	}
-	gitCmd := exec.Command("git", args...)
-
-	output, err := gitCmd.CombinedOutput()
-	if err != nil {
-		fmt.Printf("Git commit output:\n%s\n", string(output))
-		return fmt.Errorf("error executing git commit: %v", err)
+	if message != "" {
+		args = append(args, "-m", message)
+		if body != "" {
+			args = append(args, "-m", body)
+		}
 	}
-	fmt.Print(string(output))
+
+	cmd := exec.Command("git", args...)
+	output, err := cmd.CombinedOutput()
+	output = bytes.TrimSpace(output)
+	if err != nil {
+		return fmt.Errorf("error executing git commit: %s", string(output))
+	}
+	fmt.Printf("Git commit output:\n%s\n", string(output))
 	return nil
 }
