@@ -116,6 +116,18 @@ var rootCmd = &cobra.Command{
 	},
 }
 
+// init initializes the flags for the root command.
+//
+// This function sets up the flags for the root command, which are used to specify the type, scope, message,
+// and options for the command. The flags are defined using the `rootCmd.Flags()` method.
+//
+// - `typeFlag` is a string flag that specifies the type from the config file.
+// - `scopeFlag` is a string flag that specifies a custom scope.
+// - `messageFlag` is a string flag that specifies a commit message.
+// - `noVerifyFlag` is a boolean flag that bypasses pre-commit and commit-msg hooks.
+// - `versionFlag` is a boolean flag that displays version information.
+//
+// There are no parameters or return values for this function.
 func init() {
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")
@@ -140,7 +152,6 @@ func Execute() {
 //
 // Returns:
 // - error: an error if the git commit execution fails.
-
 func buildCommitCommand(message string, body string, sign bool, extraArgs []string) ([]string, string) {
 	if sign {
 		extraArgs = append(extraArgs, "--signoff")
