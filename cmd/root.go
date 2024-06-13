@@ -1,16 +1,13 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"os/exec"
-	"regexp"
 
 	"os"
 
 	"github.com/alessio/shellescape"
 	"github.com/charmbracelet/huh/spinner"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
 	"github.com/muandane/goji/pkg/config"
@@ -100,14 +97,9 @@ var rootCmd = &cobra.Command{
 				extraArgs = append(extraArgs, "--no-verify")
 			}
 			command, commandString := buildCommitCommand(commitMessage, commitBody, signOff, extraArgs)
-			textStyle := lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#00FF00")).
-				Background(lipgloss.Color("#000000")).
-				Bold(true)
-			prettyContent := textStyle.Render(fmt.Sprintf("Executing command: %s", commandString))
-			fmt.Println(prettyContent)
+			fmt.Println("Executing command:", commandString)
 			if err := commit(command); err != nil {
-				log.Fatalf("Error committing changes: %q", err)
+				log.Fatalf("Error committing changes: %v\n", err)
 			}
 		}
 
@@ -116,7 +108,7 @@ var rootCmd = &cobra.Command{
 			Action(action).
 			Run()
 		if gitCommitError != nil {
-			fmt.Println("Error committing changes:", gitCommitError)
+			fmt.Println("\nError committing changes:", gitCommitError)
 			fmt.Println("Check the output above for details.")
 		} else if err != nil {
 			fmt.Println("Error committing:", err)
@@ -176,37 +168,10 @@ func commit(command []string) error {
 	cmd := exec.Command("git", command...)
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
 
-	// Capture Stdout
-	var stdout bytes.Buffer
-	cmd.Stdout = &stdout
-
-	err := cmd.Run()
-
-	if err != nil {
-		return err
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("command execution failed: %w", err)
 	}
-
-	// Sanitize the output by removing ANSI escape codes
-	sanitizedOutput := sanitizeOutput(stdout.String())
-
-	// // Define a style for the text
-	// textStyle := lipgloss.NewStyle().
-	// 	Foreground(lipgloss.Color("#00FF00")).
-	// 	Background(lipgloss.Color("#000000")).
-	// 	Bold(true)
-
-	// // Apply the style to the sanitized output
-	// formattedOutput := textStyle.Render(sanitizedOutput)
-
-	// Print the styled output
-	log.Info(sanitizedOutput)
-
 	return nil
-}
-
-// sanitizeOutput removes ANSI escape codes from the input string
-func sanitizeOutput(input string) string {
-	re := regexp.MustCompile(`\x1B(?:[@-Z\\]^_]|[0-?]*[ -/]*[@-~])`)
-	return re.ReplaceAllString(input, "")
 }
