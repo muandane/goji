@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"bytes"
+	"bufio"
 	"fmt"
+	"io"
 	"os/exec"
 	"strings"
 
@@ -167,16 +168,45 @@ func buildCommitCommand(message string, body string, sign bool, extraArgs []stri
 
 // commit commits the changes to git
 func commit(command []string) error {
-	cmd := exec.Command("git", command...)
-	cmd.Stdin = os.Stdin
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
+	// Print the command for debugging
+	fmt.Println("Executing command:", strings.Join(append([]string{"git"}, command...), " "))
 
-	if err := cmd.Run(); err != nil {
+	cmd := exec.Command("git", command...)
+
+	// Create pipes to capture stdout and stderr
+	stdoutPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		return fmt.Errorf("failed to get stdout pipe: %w", err)
+	}
+	stderrPipe, err := cmd.StderrPipe()
+	if err != nil {
+		return fmt.Errorf("failed to get stderr pipe: %w", err)
+	}
+
+	// Start the command
+	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("command execution failed: %w", err)
 	}
-	fmt.Println("stdout:", strings.TrimSpace(stdout.String()))
-	fmt.Println("stderr:", strings.TrimSpace(stderr.String()))
+
+	// Function to read and print output line-by-line
+	printOutput := func(pipe io.Reader, prefix string) {
+		scanner := bufio.NewScanner(pipe)
+		for scanner.Scan() {
+			fmt.Println(prefix, scanner.Text())
+		}
+		if err := scanner.Err(); err != nil {
+			fmt.Println("Error reading from pipe:", err)
+		}
+	}
+
+	// Read and print stdout and stderr
+	go printOutput(stdoutPipe, "stdout:")
+	go printOutput(stderrPipe, "stderr:")
+
+	// Wait for the command to finish
+	if err := cmd.Wait(); err != nil {
+		return fmt.Errorf("command execution failed: %w", err)
+	}
+
 	return nil
 }
