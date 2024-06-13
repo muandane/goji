@@ -188,6 +188,7 @@ func commit(command []string) error {
 
 	// Define a style for the text
 	textStyle := lipgloss.NewStyle().
+		Align(lipgloss.Left).
 		Foreground(lipgloss.Color("#00FF00")).
 		Background(lipgloss.Color("#000000")).
 		Bold(true)
