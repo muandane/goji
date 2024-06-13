@@ -200,7 +200,7 @@ func commit(command []string) error {
 	// formattedOutput := textStyle.Render(sanitizedOutput)
 
 	// Print the styled output
-	log.Info("output: %v", sanitizedOutput)
+	log.Info(sanitizedOutput)
 
 	return nil
 }
