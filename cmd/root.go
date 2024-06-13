@@ -190,17 +190,17 @@ func commit(command []string) error {
 	// Sanitize the output by removing ANSI escape codes
 	sanitizedOutput := sanitizeOutput(stdout.String())
 
-	// Define a style for the text
-	textStyle := lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#00FF00")).
-		Background(lipgloss.Color("#000000")).
-		Bold(true)
+	// // Define a style for the text
+	// textStyle := lipgloss.NewStyle().
+	// 	Foreground(lipgloss.Color("#00FF00")).
+	// 	Background(lipgloss.Color("#000000")).
+	// 	Bold(true)
 
-	// Apply the style to the sanitized output
-	formattedOutput := textStyle.Render(sanitizedOutput)
+	// // Apply the style to the sanitized output
+	// formattedOutput := textStyle.Render(sanitizedOutput)
 
 	// Print the styled output
-	log.Info(formattedOutput)
+	log.Info("output: %v", sanitizedOutput)
 
 	return nil
 }
