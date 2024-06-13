@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
+	"regexp"
 
 	"os"
 
@@ -187,14 +188,17 @@ func commit(command []string) error {
 	}
 
 	// Define a style for the text
+	re := regexp.MustCompile(`\x1B(?:[@-Z\\]^_]|[0-?]*[ -/]*[@-~])`)
+	cleanOutput := re.ReplaceAllString(stdout.String(), "")
+
+	// Define a style for the text
 	textStyle := lipgloss.NewStyle().
-		Align(lipgloss.Left).
 		Foreground(lipgloss.Color("#00FF00")).
 		Background(lipgloss.Color("#000000")).
 		Bold(true)
 
-	// Apply the style to the captured Stdout
-	formattedOutput := textStyle.Render(stdout.String())
+	// Apply the style to the cleaned output
+	formattedOutput := textStyle.Render(cleanOutput)
 
 	// Print the styled output
 	fmt.Println(formattedOutput)
