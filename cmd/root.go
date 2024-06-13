@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"os/exec"
 
@@ -167,11 +168,14 @@ func buildCommitCommand(message string, body string, sign bool, extraArgs []stri
 func commit(command []string) error {
 	cmd := exec.Command("git", command...)
 	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-	// cmd.Stdout = os.Stdout
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("command execution failed: %w", err)
 	}
+	fmt.Println("stdout:", stdout.String())
+	fmt.Println("stderr:", stderr.String())
 	return nil
 }
