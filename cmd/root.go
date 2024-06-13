@@ -107,7 +107,6 @@ var rootCmd = &cobra.Command{
 			contentStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFFFF")).Background(lipgloss.Color("#0000FF"))
 			prettyContent := borderStyle.Render(contentStyle.Render(fmt.Sprintf("Executing command: %s", commandString)))
 			fmt.Println(prettyContent)
-
 			if err := commit(command); err != nil {
 				log.Fatalf("Error committing changes: %q", err)
 			}
