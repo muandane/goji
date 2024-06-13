@@ -8,6 +8,7 @@ import (
 
 	"github.com/alessio/shellescape"
 	"github.com/charmbracelet/huh/spinner"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
 	"github.com/muandane/goji/pkg/config"
@@ -97,9 +98,18 @@ var rootCmd = &cobra.Command{
 				extraArgs = append(extraArgs, "--no-verify")
 			}
 			command, commandString := buildCommitCommand(commitMessage, commitBody, signOff, extraArgs)
-			fmt.Printf("Executing command: %s\n", commandString)
+			borderStyle := lipgloss.NewStyle().
+				BorderStyle(lipgloss.RoundedBorder()).
+				BorderForeground(lipgloss.Color("228")).
+				BorderBackground(lipgloss.Color("63")).
+				BorderTop(true).
+				BorderLeft(true)
+			contentStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFFFF")).Background(lipgloss.Color("#0000FF"))
+			prettyContent := borderStyle.Render(contentStyle.Render(fmt.Sprintf("Executing command: %s", commandString)))
+			fmt.Println(prettyContent)
+
 			if err := commit(command); err != nil {
-				log.Fatalf("Error committing changes: %v\n", err)
+				log.Fatalf("Error committing changes: %q", err)
 			}
 		}
 
@@ -108,10 +118,10 @@ var rootCmd = &cobra.Command{
 			Action(action).
 			Run()
 		if gitCommitError != nil {
-			fmt.Printf("\nError committing changes: %v\n", gitCommitError)
+			fmt.Println("Error committing changes:", gitCommitError)
 			fmt.Println("Check the output above for details.")
 		} else if err != nil {
-			fmt.Printf("Error committing: %s", err)
+			fmt.Println("Error committing:", err)
 		}
 	},
 }
