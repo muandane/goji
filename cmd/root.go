@@ -197,7 +197,7 @@ func commit(command []string) error {
 	formattedOutput := textStyle.Render(stdout.String())
 
 	// Print the styled output
-	fmt.Print(formattedOutput)
+	fmt.Println(formattedOutput)
 
 	return nil
 }
