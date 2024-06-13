@@ -104,7 +104,7 @@ var rootCmd = &cobra.Command{
 				BorderBackground(lipgloss.Color("63")).
 				BorderTop(true).
 				BorderLeft(true)
-			contentStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFFFF")).Background(lipgloss.Color("#0000FF"))
+			contentStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFFFF")).Background(lipgloss.Color("#0000FF")).Width(24).Align(lipgloss.Left)
 			prettyContent := borderStyle.Render(contentStyle.Render(fmt.Sprintf("Executing command: %s", commandString)))
 			fmt.Println(prettyContent)
 			if err := commit(command); err != nil {
