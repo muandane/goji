@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
+	"strings"
 
 	"os"
 
@@ -175,7 +176,7 @@ func commit(command []string) error {
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("command execution failed: %w", err)
 	}
-	fmt.Println("stdout:", stdout.String())
-	fmt.Println("stderr:", stderr.String())
+	fmt.Println("stdout:", strings.TrimSpace(stdout.String()))
+	fmt.Println("stderr:", strings.TrimSpace(stderr.String()))
 	return nil
 }
