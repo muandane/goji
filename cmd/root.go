@@ -168,7 +168,7 @@ func commit(command []string) error {
 	cmd := exec.Command("git", command...)
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
+	// cmd.Stdout = os.Stdout
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("command execution failed: %w", err)
