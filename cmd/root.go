@@ -187,9 +187,8 @@ func commit(command []string) error {
 		return err
 	}
 
-	// Define a style for the text
-	re := regexp.MustCompile(`\x1B(?:[@-Z\\]^_]|[0-?]*[ -/]*[@-~])`)
-	cleanOutput := re.ReplaceAllString(stdout.String(), "")
+	// Sanitize the output by removing ANSI escape codes
+	sanitizedOutput := sanitizeOutput(stdout.String())
 
 	// Define a style for the text
 	textStyle := lipgloss.NewStyle().
@@ -197,11 +196,17 @@ func commit(command []string) error {
 		Background(lipgloss.Color("#000000")).
 		Bold(true)
 
-	// Apply the style to the cleaned output
-	formattedOutput := textStyle.Render(cleanOutput)
+	// Apply the style to the sanitized output
+	formattedOutput := textStyle.Render(sanitizedOutput)
 
 	// Print the styled output
-	fmt.Println(formattedOutput)
+	fmt.Print(formattedOutput)
 
 	return nil
+}
+
+// sanitizeOutput removes ANSI escape codes from the input string
+func sanitizeOutput(input string) string {
+	re := regexp.MustCompile(`\x1B(?:[@-Z\\]^_]|[0-?]*[ -/]*[@-~])`)
+	return re.ReplaceAllString(input, "")
 }
