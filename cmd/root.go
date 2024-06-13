@@ -98,14 +98,11 @@ var rootCmd = &cobra.Command{
 				extraArgs = append(extraArgs, "--no-verify")
 			}
 			command, commandString := buildCommitCommand(commitMessage, commitBody, signOff, extraArgs)
-			borderStyle := lipgloss.NewStyle().
-				BorderStyle(lipgloss.RoundedBorder()).
-				BorderForeground(lipgloss.Color("228")).
-				BorderBackground(lipgloss.Color("63")).
-				BorderTop(true).
-				BorderLeft(true)
-			contentStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFFFF")).Background(lipgloss.Color("#0000FF")).Width(24).Align(lipgloss.Left)
-			prettyContent := borderStyle.Render(contentStyle.Render(fmt.Sprintf("Executing command: %s", commandString)))
+			textStyle := lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#00FF00")).
+				Background(lipgloss.Color("#000000")).
+				Bold(true)
+			prettyContent := textStyle.Render(fmt.Sprintf("Executing command: %s", commandString))
 			fmt.Println(prettyContent)
 			if err := commit(command); err != nil {
 				log.Fatalf("Error committing changes: %q", err)
