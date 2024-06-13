@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"os/exec"
 
@@ -171,29 +172,31 @@ func buildCommitCommand(message string, body string, sign bool, extraArgs []stri
 
 // commit commits the changes to git
 func commit(command []string) error {
-	// Define styles for success and error messages
-	successStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00")).Bold(true)
-	errorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FF0000")).Bold(true)
-
-	// Construct the full git command string for display purposes
-	fullCommand := append([]string{"git"}, command...)
-	commandString := fmt.Sprintf("%s", fullCommand)
-
-	// Print a styled message indicating the command execution
-	fmt.Println(successStyle.Render(fmt.Sprintf("Executing command: %s", commandString)))
-
-	// Execute the git command
-	cmd := exec.Command(fullCommand[0], fullCommand[1:]...)
+	cmd := exec.Command("git", command...)
 	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
+	// Capture Stdout
+	var stdout bytes.Buffer
+	cmd.Stdout = &stdout
+
 	err := cmd.Run()
+
 	if err != nil {
-		// Print a styled error message if the command fails
-		fmt.Println(errorStyle.Render(fmt.Sprintf("Error executing command: %s", err)))
 		return err
 	}
+
+	// Define a style for the text
+	textStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#00FF00")).
+		Background(lipgloss.Color("#000000")).
+		Bold(true)
+
+	// Apply the style to the captured Stdout
+	formattedOutput := textStyle.Render(stdout.String())
+
+	// Print the styled output
+	fmt.Print(formattedOutput)
 
 	return nil
 }
