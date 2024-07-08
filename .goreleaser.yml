@@ -57,7 +57,8 @@ brews:
   repository:
     owner: muandane
     name: homebrew-tap
-  folder: Formula
+  description: "Commitizen-like Emoji Commit Tool written in Go"
+  directory: Formula
   dependencies:
   - name: git
   commit_author:
@@ -68,6 +69,7 @@ brews:
     zsh_completion.install "completions/goji.zsh" => "_goji"
     fish_completion.install "completions/goji.fish"
     man1.install "manpages/goji.1.gz"
+
 winget:
   - publisher: muandane
     license: "Apache-2.0 license"
@@ -81,7 +83,6 @@ winget:
       pull_request:
         enabled: true
         draft: true
-        check_boxes: true
         base:
           owner: microsoft
           name: winget-pkgs
