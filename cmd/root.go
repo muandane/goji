@@ -4,10 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"strings"
-
-	"os"
 
 	"github.com/alessio/shellescape"
 	"github.com/charmbracelet/huh/spinner"
@@ -25,6 +24,8 @@ var (
 	typeFlag     string
 	scopeFlag    string
 	messageFlag  string
+	addFlag      bool
+	amendFlag    bool
 )
 
 var rootCmd = &cobra.Command{
@@ -99,7 +100,18 @@ var rootCmd = &cobra.Command{
 			if noVerifyFlag {
 				extraArgs = append(extraArgs, "--no-verify")
 			}
-			command, commandString := buildCommitCommand(commitMessage, commitBody, signOff, extraArgs)
+			if addFlag { // Append -a flag if addFlag is true
+				extraArgs = append(extraArgs, "-a")
+			}
+			if amendFlag { // Append --amend flag if amendFlag is true
+				extraArgs = append(extraArgs, "--amend")
+			}
+			command, commandString := buildCommitCommand(
+				commitMessage,
+				commitBody,
+				signOff,
+				extraArgs,
+			)
 			fmt.Println("Executing command:", commandString)
 			if err := commit(command); err != nil {
 				log.Fatalf("Error committing changes: %v\n", err)
@@ -135,8 +147,13 @@ func init() {
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")
 	rootCmd.Flags().StringVarP(&messageFlag, "message", "m", "", "Specify a commit message")
-	rootCmd.Flags().BoolVarP(&noVerifyFlag, "no-verify", "n", false, "bypass pre-commit and commit-msg hooks")
+	rootCmd.Flags().
+		BoolVarP(&noVerifyFlag, "no-verify", "n", false, "bypass pre-commit and commit-msg hooks")
 	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Display version information")
+	rootCmd.Flags().
+		BoolVarP(&addFlag, "add", "a", false, "Automatically stage files that have been modified and deleted")
+	rootCmd.Flags().
+		BoolVar(&amendFlag, "amend", false, "Change last commit")
 }
 
 func Execute() {
@@ -155,7 +172,12 @@ func Execute() {
 //
 // Returns:
 // - error: an error if the git commit execution fails.
-func buildCommitCommand(message string, body string, sign bool, extraArgs []string) ([]string, string) {
+func buildCommitCommand(
+	message string,
+	body string,
+	sign bool,
+	extraArgs []string,
+) ([]string, string) {
 	if sign {
 		extraArgs = append(extraArgs, "--signoff")
 	}
