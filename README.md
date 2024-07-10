@@ -1,4 +1,5 @@
 [![codecov](https://codecov.io/gh/muandane/goji/branch/main/graph/badge.svg?token=0PYU31AH2S)](https://codecov.io/gh/muandane/goji) [![Go Report Card](https://goreportcard.com/badge/github.com/muandane/goji)](https://goreportcard.com/report/github.com/muandane/goji)
+
 # goji
 
 <img align="right" src="public/go-gopher.gif">
@@ -62,6 +63,13 @@ mv goji /usr/local/bin
 goji --version
 ```
 
+**Build with Nix**
+
+```sh
+git clone https://github.com/muandane/goji.git && cd goji
+nix-build -E 'with import <nixpkgs> {}; callPackage ./default.nix {}'
+```
+
 ## Usage
 
 Simply run `goji` in your terminal to start the interactive commit process:
@@ -88,10 +96,10 @@ To use the check command, add the following to your pre-commit hook in your git 
 - repo: https://github.com/muandane/goji
   rev: v0.0.8
   hooks:
-  - id: goji-check
-    name: goji check
-    description: >
-      Check whether the current commit message follows commiting rules. Allow empty commit messages by default, because they typically indicate to Git that the commit should be aborted.
+    - id: goji-check
+      name: goji check
+      description: >
+        Check whether the current commit message follows commiting rules. Allow empty commit messages by default, because they typically indicate to Git that the commit should be aborted.
 ```
 
 ## Customization
@@ -125,11 +133,7 @@ You can customize the `.goji.json` generated file to add or change the scopes, t
     }
     //***
   ],
-  "scopes": [
-    "home",
-    "accounts",
-    "ci"
-  ],
+  "scopes": ["home", "accounts", "ci"],
   "noemoji": false,
   "skipquestions": [],
   "subjectmaxlength": 50,
@@ -141,14 +145,14 @@ Only `"Scopes"` question can be skipped since it's optional according to the [Co
 
 ### Configuration options
 
-| Option | Type | Description |
-| ------ | ---- | ----------- |
-| `types` | Array of objects | Types for the commit messages (emoji, code, description, name) |
-| `scopes` | Array of strings | Optional scopes for the commit messages (you can auto-complete with ctrl+e) |
-| `noemoji` | Boolean | Creates commit message with emojis in types |
-| `subjectmaxlength` | Number | Maximum length for the description message |
-| `signoff` | Boolean | Add a sign off to the end of the commit message |
-| `skipquestions` | Array of strings | Skip prompting for these questions (Unimplemented)|
+| Option             | Type             | Description                                                                 |
+| ------------------ | ---------------- | --------------------------------------------------------------------------- |
+| `types`            | Array of objects | Types for the commit messages (emoji, code, description, name)              |
+| `scopes`           | Array of strings | Optional scopes for the commit messages (you can auto-complete with ctrl+e) |
+| `noemoji`          | Boolean          | Creates commit message with emojis in types                                 |
+| `subjectmaxlength` | Number           | Maximum length for the description message                                  |
+| `signoff`          | Boolean          | Add a sign off to the end of the commit message                             |
+| `skipquestions`    | Array of strings | Skip prompting for these questions (Unimplemented)                          |
 
 ## License
 
