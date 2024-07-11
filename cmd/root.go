@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
-	"github.com/alessio/shellescape"
 	"github.com/charmbracelet/huh/spinner"
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
@@ -103,13 +103,13 @@ var rootCmd = &cobra.Command{
 			if amendFlag { // Append --amend flag if amendFlag is true
 				extraArgs = append(extraArgs, "--amend")
 			}
-			command, commandString := buildCommitCommand(
+			command := buildCommitCommand(
 				commitMessage,
 				commitBody,
 				signOff,
 				extraArgs,
 			)
-			fmt.Println("Executing command:", commandString)
+			fmt.Println("Executing command:", strings.Join(append([]string{"git"}, command...), " "))
 			if err := commit(command); err != nil {
 				log.Fatalf("Error committing changes: %v\n", err)
 			}
@@ -169,20 +169,15 @@ func Execute() {
 //
 // Returns:
 // - error: an error if the git commit execution fails.
-func buildCommitCommand(
-	message string,
-	body string,
-	sign bool,
-	extraArgs []string,
-) ([]string, string) {
-	if sign {
-		extraArgs = append(extraArgs, "--signoff")
-	}
-	args := append([]string{"commit", "-m", message}, extraArgs...)
+func buildCommitCommand(message string, body string, sign bool, extraArgs []string) []string {
+	args := []string{"commit", "-m", message}
 	if body != "" {
 		args = append(args, "-m", body)
 	}
-	return args, fmt.Sprintf("git %v", shellescape.QuoteCommand(args))
+	if sign {
+		args = append(args, "--signoff")
+	}
+	return append(args, extraArgs...)
 }
 
 // commit commits the changes to git
