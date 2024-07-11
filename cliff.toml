@@ -1,6 +1,5 @@
 # git-cliff ~ configuration file
 # https://git-cliff.org/docs/configuration
-
 [changelog]
 # changelog header
 header = """
