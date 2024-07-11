@@ -113,8 +113,5 @@ func AskQuestions(config *config.Config) ([]string, error) {
 	var result []string
 	result = append(result, commitMessage, commitBody)
 
-	// logging the results for debugging purposes
-	// log.Infof("result: %s", result)
-
 	return result, nil
 }
