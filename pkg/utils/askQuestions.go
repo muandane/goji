@@ -18,7 +18,6 @@ func AskQuestions(config *config.Config) ([]string, error) {
 	var commitDescription string
 	commitTypeOptions := make([]huh.Option[string], len(config.Types))
 	var form huh.Form
-	var height int = 8
 	nameStyle := lipgloss.NewStyle().
 		Width(15).
 		Align(lipgloss.Left)
@@ -36,7 +35,6 @@ func AskQuestions(config *config.Config) ([]string, error) {
 		name := nameStyle.Render(ct.Name)
 		emoji := emojiStyle.Render(ct.Emoji)
 		desc := descStyle.Render(ct.Description)
-
 		row := lipgloss.JoinHorizontal(lipgloss.Center, name, emoji, desc)
 		commitTypeOptions[i] = huh.NewOption[string](row, fmt.Sprintf("%s %s", ct.Name, func() string {
 			if !config.NoEmoji {
@@ -50,7 +48,7 @@ func AskQuestions(config *config.Config) ([]string, error) {
 		huh.NewSelect[string]().
 			Title("Select the type of change you are committing:").
 			Options(commitTypeOptions...).
-			Height(height).
+			Height(8).
 			Value(&commitType),
 		huh.NewInput().
 			Title("What is the scope of this change? (class or file name): (press [enter] to skip)").
@@ -93,7 +91,6 @@ func AskQuestions(config *config.Config) ([]string, error) {
 
 	form = *huh.NewForm(group1, group2)
 	err := form.Run()
-
 	if err != nil {
 		log.Fatal(err)
 	}
