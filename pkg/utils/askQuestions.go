@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/charmbracelet/log"
+
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muandane/goji/pkg/config"
@@ -93,7 +95,7 @@ func AskQuestions(config *config.Config) ([]string, error) {
 	err := form.Run()
 
 	if err != nil {
-		return []string{}, err
+		log.Fatal(err)
 	}
 
 	var commitMessage string

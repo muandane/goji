@@ -20,8 +20,8 @@ github.com/charmbracelet/bubbletea v0.26.5 h1:90pqTPElAReb/qQUgSMUresTkfwVr0Wx+z
 github.com/charmbracelet/bubbletea v0.26.5/go.mod h1:dz8CWPlfCCGLFbBlTY4N7bjLiyOGDJEnd2Muu7pOWhk=
 github.com/charmbracelet/glamour v0.7.0 h1:2BtKGZ4iVJCDfMF229EzbeR1QRKLWztO9dMtjmqZSng=
 github.com/charmbracelet/glamour v0.7.0/go.mod h1:jUMh5MeihljJPQbJ/wf4ldw2+yBP59+ctV36jASy7ps=
-github.com/charmbracelet/huh v0.4.2 h1:5wLkwrA58XDAfEZsJzNQlfJ+K8N9+wYwvR5FOM7jXFM=
-github.com/charmbracelet/huh v0.4.2/go.mod h1:g9OXBgtY3zRV4ahnVih9bZE+1yGYN+y2C9Q6L2P+WM0=
+github.com/charmbracelet/huh v0.5.0 h1:gJ5m0Ho1zj0tx4kNmU9+XiVVYm0GcvrS1VO74cvto3o=
+github.com/charmbracelet/huh v0.5.0/go.mod h1:gs7b2brpzXkY0PBWUqJrlzvOowTCL0vNAR6OTItc+kA=
 github.com/charmbracelet/huh/spinner v0.0.0-20240618200428-90406d79077d h1:OpthCCWiHBSx6LTAYGGkN9OeuJrKzjobe0q12wO6BX0=
 github.com/charmbracelet/huh/spinner v0.0.0-20240618200428-90406d79077d/go.mod h1:CrXBZnOWs3zpyppOZZS7lu2CpLq2jx6U5chL/frRG/E=
 github.com/charmbracelet/lipgloss v0.11.0 h1:UoAcbQ6Qml8hDwSWs0Y1cB5TEQuZkDPH/ZqwWWYTG4g=
@@ -93,6 +93,8 @@ github.com/mattn/go-runewidth v0.0.15 h1:UNAjwbU9l54TA3KzvqLGxwWjHmMgBUVhBiTjelZ
 github.com/mattn/go-runewidth v0.0.15/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
 github.com/microcosm-cc/bluemonday v1.0.26 h1:xbqSvqzQMeEHCqMi64VAs4d8uy6Mequs3rQ0k/Khz58=
 github.com/microcosm-cc/bluemonday v1.0.26/go.mod h1:JyzOCs9gkyQyjs+6h10UEVSe02CGwkhd72Xdqh78TWs=
+github.com/mitchellh/hashstructure/v2 v2.0.2 h1:vGKWl0YJqUNxE8d+h8f6NJLcCJrgbhC4NcD46KavDd4=
+github.com/mitchellh/hashstructure/v2 v2.0.2/go.mod h1:MG3aRVU/N29oo/V/IhBX8GR/zz4kQkprJgF2EVszyDE=
 github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 h1:ZK8zHtRHOkbHy6Mmr5D264iyp3TiX5OmNcI5cIARiQI=
