@@ -24,12 +24,12 @@ github.com/charmbracelet/huh v0.4.2 h1:5wLkwrA58XDAfEZsJzNQlfJ+K8N9+wYwvR5FOM7jX
 github.com/charmbracelet/huh v0.4.2/go.mod h1:g9OXBgtY3zRV4ahnVih9bZE+1yGYN+y2C9Q6L2P+WM0=
 github.com/charmbracelet/huh/spinner v0.0.0-20240618200428-90406d79077d h1:OpthCCWiHBSx6LTAYGGkN9OeuJrKzjobe0q12wO6BX0=
 github.com/charmbracelet/huh/spinner v0.0.0-20240618200428-90406d79077d/go.mod h1:CrXBZnOWs3zpyppOZZS7lu2CpLq2jx6U5chL/frRG/E=
-github.com/charmbracelet/lipgloss v0.11.0 h1:UoAcbQ6Qml8hDwSWs0Y1cB5TEQuZkDPH/ZqwWWYTG4g=
-github.com/charmbracelet/lipgloss v0.11.0/go.mod h1:1UdRTH9gYgpcdNN5oBtjbu/IzNKtzVtb7sqN1t9LNn8=
+github.com/charmbracelet/lipgloss v0.12.1 h1:/gmzszl+pedQpjCOH+wFkZr/N90Snz40J/NR7A0zQcs=
+github.com/charmbracelet/lipgloss v0.12.1/go.mod h1:V2CiwIuhx9S1S1ZlADfOj9HmxeMAORuz5izHb0zGbB8=
 github.com/charmbracelet/log v0.4.0 h1:G9bQAcx8rWA2T3pWvx7YtPTPwgqpk7D68BX21IRW8ZM=
 github.com/charmbracelet/log v0.4.0/go.mod h1:63bXt/djrizTec0l11H20t8FDSvA4CRZJ1KH22MdptM=
-github.com/charmbracelet/x/ansi v0.1.2 h1:6+LR39uG8DE6zAmbu023YlqjJHkYXDF1z36ZwzO4xZY=
-github.com/charmbracelet/x/ansi v0.1.2/go.mod h1:dk73KoMTT5AX5BsX0KrqhsTqAnhZZoCBjs7dGWp4Ktw=
+github.com/charmbracelet/x/ansi v0.1.4 h1:IEU3D6+dWwPSgZ6HBH+v6oUuZ/nVawMiWj5831KfiLM=
+github.com/charmbracelet/x/ansi v0.1.4/go.mod h1:dk73KoMTT5AX5BsX0KrqhsTqAnhZZoCBjs7dGWp4Ktw=
 github.com/charmbracelet/x/exp/strings v0.0.0-20240621151055-6ef6757dbe52 h1:bx1UR4Nie1F6heTU58eddlvTk/DHO+MxLDRcl7j+Ego=
 github.com/charmbracelet/x/exp/strings v0.0.0-20240621151055-6ef6757dbe52/go.mod h1:pBhA0ybfXv6hDjQUZ7hk1lVxBiUbupdw5R31yPUViVQ=
 github.com/charmbracelet/x/exp/term v0.0.0-20240524151031-ff83003bf67a h1:k/s6UoOSVynWiw7PlclyGO2VdVs5ZLbMIHiGp4shFZE=
