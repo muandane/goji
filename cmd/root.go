@@ -137,7 +137,7 @@ func executeGitCommit(message, body string, signOff bool) error {
 	if err != nil {
 		return fmt.Errorf("git command failed: %v\nOutput: %s", err, output)
 	}
-	fmt.Print(output)
+	fmt.Printf("Git command output:\n%s", output)
 
 	return nil
 }
