@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/rs/zerolog/log"
 
@@ -11,7 +12,7 @@ import (
 	"github.com/muandane/goji/pkg/config"
 )
 
-func AskQuestions(config *config.Config) ([]string, error) {
+func AskQuestions(config *config.Config, presetType, presetMessage string) ([]string, error) {
 	var commitType string
 	var commitScope string
 	var commitSubject string
@@ -42,6 +43,21 @@ func AskQuestions(config *config.Config) ([]string, error) {
 			}
 			return ""
 		}()))
+	}
+
+	// Pre-fill the type if it was provided via flag
+	if presetType != "" {
+		for _, option := range commitTypeOptions {
+			if strings.HasPrefix(option.Value, presetType) {
+				commitType = option.Value
+				break
+			}
+		}
+	}
+
+	// Pre-fill the message if it was provided via flag
+	if presetMessage != "" {
+		commitSubject = presetMessage
 	}
 
 	group1 := huh.NewGroup(

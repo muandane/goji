@@ -38,7 +38,6 @@ var rootCmd = &cobra.Command{
 
 		_, err := config.GitRepo()
 		if err != nil {
-			// log.Fatalf("Error: %s", err.Error())
 			log.Fatal().Msg(err.Error())
 		}
 
@@ -50,7 +49,7 @@ var rootCmd = &cobra.Command{
 		var commitMessage string
 		var commitBody string
 		if typeFlag != "" && messageFlag != "" {
-			// If all flags are provided, construct the commit message from them
+			// If both flags are provided, construct the commit message from them
 			typeMatch := ""
 			for _, t := range config.Types {
 				if typeFlag == t.Name {
@@ -78,9 +77,7 @@ var rootCmd = &cobra.Command{
 			}
 		} else {
 			// If not all flags are provided, fall back to the interactive prompt logic
-
-			// fmt.Printf("Enter commit message:%v", signOff)
-			commitMessages, err := utils.AskQuestions(config)
+			commitMessages, err := utils.AskQuestions(config, typeFlag, messageFlag)
 			if err != nil {
 				log.Fatal().Msg(err.Error())
 			}
@@ -88,7 +85,7 @@ var rootCmd = &cobra.Command{
 			commitBody = commitMessages[1]
 		}
 		if commitMessage == "" {
-			log.Fatal().Msg(err.Error())
+			log.Fatal().Msg("Commit message cannot be empty")
 		}
 		var gitCommitError error
 		action := func() {
@@ -97,10 +94,10 @@ var rootCmd = &cobra.Command{
 			if noVerifyFlag {
 				extraArgs = append(extraArgs, "--no-verify")
 			}
-			if addFlag { // Append -a flag if addFlag is true
+			if addFlag {
 				extraArgs = append(extraArgs, "-a")
 			}
-			if amendFlag { // Append --amend flag if amendFlag is true
+			if amendFlag {
 				extraArgs = append(extraArgs, "--amend")
 			}
 			command := buildCommitCommand(
