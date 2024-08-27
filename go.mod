@@ -6,13 +6,12 @@ require (
 	github.com/alecthomas/assert/v2 v2.10.0
 	github.com/charmbracelet/glamour v0.8.0
 	github.com/charmbracelet/huh v0.5.3
-	github.com/charmbracelet/huh/spinner v0.0.0-20240618200428-90406d79077d
 	github.com/charmbracelet/lipgloss v0.13.0
-	github.com/charmbracelet/log v0.4.0
 	github.com/fatih/color v1.17.0
 	github.com/mattn/go-isatty v0.0.20
 	github.com/muesli/mango-cobra v1.2.0
 	github.com/muesli/roff v0.1.0
+	github.com/rs/zerolog v1.33.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 )
@@ -33,7 +32,6 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
-	github.com/go-logfmt/logfmt v0.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
@@ -55,7 +53,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
-	github.com/rs/zerolog v1.33.0 // indirect
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
