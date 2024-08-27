@@ -6,11 +6,10 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/charmbracelet/huh/spinner"
-	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
 	"github.com/muandane/goji/pkg/config"
 	"github.com/muandane/goji/pkg/utils"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -39,12 +38,13 @@ var rootCmd = &cobra.Command{
 
 		_, err := config.GitRepo()
 		if err != nil {
-			log.Fatalf("Error: %s", err.Error())
+			// log.Fatalf("Error: %s", err.Error())
+			log.Fatal().Msg(err.Error())
 		}
 
 		config, err := config.ViperConfig()
 		if err != nil {
-			log.Fatalf("Error loading config file: %s", err.Error())
+			log.Fatal().Msg(err.Error())
 		}
 
 		var commitMessage string
@@ -82,13 +82,13 @@ var rootCmd = &cobra.Command{
 			// fmt.Printf("Enter commit message:%v", signOff)
 			commitMessages, err := utils.AskQuestions(config)
 			if err != nil {
-				log.Fatalf("Error asking questions: %s", err.Error())
+				log.Fatal().Msg(err.Error())
 			}
 			commitMessage = commitMessages[0]
 			commitBody = commitMessages[1]
 		}
 		if commitMessage == "" {
-			log.Fatalf("Error: Commit message cannot be empty")
+			log.Fatal().Msg(err.Error())
 		}
 		var gitCommitError error
 		action := func() {
@@ -111,14 +111,10 @@ var rootCmd = &cobra.Command{
 			)
 			fmt.Println("Executing command:", strings.Join(append([]string{"git"}, command...), " "))
 			if err := commit(command); err != nil {
-				log.Fatalf("Error committing changes: %v\n", err)
+				log.Fatal().Msg(err.Error())
 			}
 		}
-		// action()
-		err = spinner.New().
-			Title("Committing...").
-			Action(action).
-			Run()
+		action()
 		if gitCommitError != nil {
 			fmt.Println("\nError committing changes:", gitCommitError)
 			fmt.Println("Check the output above for details.")

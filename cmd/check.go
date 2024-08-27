@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/charmbracelet/log"
 	"github.com/muandane/goji/pkg/config"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +22,7 @@ var checkCmd = &cobra.Command{
 		fromFile, _ := cmd.Flags().GetBool("from-file")
 		config, err := config.ViperConfig()
 		if err != nil {
-			log.Fatalf("Error loading config file.")
+			log.Fatal().Msg("Error loading config file.")
 		}
 		if fromFile {
 			// Read commit message from file

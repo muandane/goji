@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/charmbracelet/log"
+	"github.com/rs/zerolog/log"
 
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
@@ -92,7 +92,7 @@ func AskQuestions(config *config.Config) ([]string, error) {
 	form = *huh.NewForm(group1, group2)
 	err := form.Run()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Msg(err.Error())
 	}
 
 	var commitMessage string
