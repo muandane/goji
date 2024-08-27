@@ -6,7 +6,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/charmbracelet/huh/spinner"
 	"github.com/charmbracelet/log"
 	"github.com/fatih/color"
 	"github.com/muandane/goji/pkg/config"
@@ -114,17 +113,19 @@ var rootCmd = &cobra.Command{
 				log.Fatalf("Error committing changes: %v\n", err)
 			}
 		}
-
-		err = spinner.New().
-			Title("Committing...").
-			Action(action).
-			Run()
+		fmt.Println("Committing...")
+		action()
+		// err = spinner.New().
+		// 	Title("Committing...").
+		// 	Action(action).
+		// 	Run()
 		if gitCommitError != nil {
 			fmt.Println("\nError committing changes:", gitCommitError)
 			fmt.Println("Check the output above for details.")
-		} else if err != nil {
-			fmt.Println("Error committing:", err)
 		}
+		//  else if err != nil {
+		// 	fmt.Println("Error committing:", err)
+		// }
 	},
 }
 
