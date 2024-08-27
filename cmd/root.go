@@ -9,113 +9,49 @@ import (
 	"github.com/fatih/color"
 	"github.com/muandane/goji/pkg/config"
 	"github.com/muandane/goji/pkg/utils"
-	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
 var (
-	version      string
-	versionFlag  bool
-	noVerifyFlag bool
-	typeFlag     string
-	scopeFlag    string
-	messageFlag  string
-	addFlag      bool
-	amendFlag    bool
+	gitFlags                                      []string
+	version, typeFlag, messageFlag, scopeFlag     string
+	versionFlag, noVerifyFlag, amendFlag, addFlag bool
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "goji",
 	Short: "Goji CLI",
-	Long:  `Goji is a cli tool to generate conventional commits with emojis`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Long:  `Goji is a CLI tool to generate conventional commits with emojis`,
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if versionFlag {
-			color.Set(color.FgGreen)
-			fmt.Printf("goji version: v%s\n", version)
-			color.Unset()
-			return
+			color.Green("goji version: v%s", version)
+			return nil
 		}
 
-		_, err := config.GitRepo()
+		cfg, err := config.ViperConfig()
 		if err != nil {
-			log.Fatal().Msg(err.Error())
+			return fmt.Errorf("failed to load config: %w", err)
 		}
 
-		config, err := config.ViperConfig()
-		if err != nil {
-			log.Fatal().Msg(err.Error())
-		}
+		typeFlag, _ := cmd.Flags().GetString("type")
+		messageFlag, _ := cmd.Flags().GetString("message")
 
-		var commitMessage string
-		var commitBody string
+		var commitMessage, commitBody string
 		if typeFlag != "" && messageFlag != "" {
-			// If both flags are provided, construct the commit message from them
-			typeMatch := ""
-			for _, t := range config.Types {
-				if typeFlag == t.Name {
-					if !config.NoEmoji {
-						typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
-					} else {
-						typeMatch = t.Name
-					}
-					break
-				}
-			}
-
-			// If no match was found, use the type flag as is
-			if typeMatch == "" {
-				typeMatch = typeFlag
-			}
-
-			// Construct the commit message from the flags
-			commitMessage = messageFlag
-			if typeMatch != "" {
-				commitMessage = fmt.Sprintf("%s: %s", typeMatch, commitMessage)
-				if scopeFlag != "" {
-					commitMessage = fmt.Sprintf("%s(%s): %s", typeMatch, scopeFlag, messageFlag)
-				}
-			}
+			commitMessage = constructCommitMessage(cfg, typeFlag, "", messageFlag)
 		} else {
-			// If not all flags are provided, fall back to the interactive prompt logic
-			commitMessages, err := utils.AskQuestions(config, typeFlag, messageFlag)
+			messages, err := utils.AskQuestions(cfg, typeFlag, messageFlag)
 			if err != nil {
-				log.Fatal().Msg(err.Error())
+				return fmt.Errorf("failed to get commit details: %w", err)
 			}
-			commitMessage = commitMessages[0]
-			commitBody = commitMessages[1]
+			commitMessage, commitBody = messages[0], messages[1]
 		}
+
 		if commitMessage == "" {
-			log.Fatal().Msg("Commit message cannot be empty")
+			return fmt.Errorf("commit message cannot be empty")
 		}
-		var gitCommitError error
-		action := func() {
-			signOff := config.SignOff
-			var extraArgs []string
-			if noVerifyFlag {
-				extraArgs = append(extraArgs, "--no-verify")
-			}
-			if addFlag {
-				extraArgs = append(extraArgs, "-a")
-			}
-			if amendFlag {
-				extraArgs = append(extraArgs, "--amend")
-			}
-			command := buildCommitCommand(
-				commitMessage,
-				commitBody,
-				signOff,
-				extraArgs,
-			)
-			fmt.Println("Executing command:", strings.Join(append([]string{"git"}, command...), " "))
-			if err := commit(command); err != nil {
-				log.Fatal().Msg(err.Error())
-			}
-		}
-		action()
-		if gitCommitError != nil {
-			fmt.Println("\nError committing changes:", gitCommitError)
-			fmt.Println("Check the output above for details.")
-		}
+
+		return executeGitCommit(commitMessage, commitBody, cfg.SignOff)
 	},
 }
 
@@ -135,20 +71,29 @@ func init() {
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")
 	rootCmd.Flags().StringVarP(&messageFlag, "message", "m", "", "Specify a commit message")
-	rootCmd.Flags().
-		BoolVarP(&noVerifyFlag, "no-verify", "n", false, "bypass pre-commit and commit-msg hooks")
+	rootCmd.Flags().BoolVarP(&noVerifyFlag, "no-verify", "n", false, "bypass pre-commit and commit-msg hooks")
 	rootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "Display version information")
-	rootCmd.Flags().
-		BoolVarP(&addFlag, "add", "a", false, "Automatically stage files that have been modified and deleted")
-	rootCmd.Flags().
-		BoolVar(&amendFlag, "amend", false, "Change last commit")
+	rootCmd.Flags().BoolVarP(&addFlag, "add", "a", false, "Automatically stage files that have been modified and deleted")
+	rootCmd.Flags().BoolVar(&amendFlag, "amend", false, "Change last commit")
+
+	rootCmd.Flags().StringArrayVar(&gitFlags, "git-flag", []string{}, "Git flags (can be used multiple times)")
 }
 
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag string) string {
+	typeMatch := typeFlag
+	for _, t := range cfg.Types {
+		if typeFlag == t.Name {
+			if !cfg.NoEmoji {
+				typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
+			}
+			break
+		}
 	}
+
+	if scopeFlag != "" {
+		return fmt.Sprintf("%s(%s): %s", typeMatch, scopeFlag, messageFlag)
+	}
+	return fmt.Sprintf("%s: %s", typeMatch, messageFlag)
 }
 
 // commit executes a git commit with the given message and body.
@@ -157,27 +102,49 @@ func Execute() {
 // - message: the commit message.
 // - body: the commit body.
 // - sign: a boolean indicating whether to add a Signed-off-by trailer.
+// - amend: a boolean indicating whether to amend the last commit.
+// - commits the changes to git
 //
 // Returns:
 // - error: an error if the git commit execution fails.
-func buildCommitCommand(message string, body string, sign bool, extraArgs []string) []string {
+func executeGitCommit(message, body string, signOff bool) error {
 	args := []string{"commit", "-m", message}
 	if body != "" {
 		args = append(args, "-m", body)
 	}
-	if sign {
+	if signOff {
 		args = append(args, "--signoff")
 	}
-	return append(args, extraArgs...)
-}
+	var extraArgs []string
+	if noVerifyFlag {
+		extraArgs = append(extraArgs, "--no-verify")
+	}
+	if addFlag {
+		extraArgs = append(extraArgs, "-a")
+	}
+	if amendFlag {
+		extraArgs = append(extraArgs, "--amend")
+	}
+	// Add all dynamically passed Git flags
+	baseArgs := append(args, extraArgs...)
+	args = append(baseArgs, gitFlags...)
 
-// commit commits the changes to git
-func commit(args []string) error {
 	gitCmd := exec.Command("git", args...)
 	output, err := gitCmd.CombinedOutput()
+	// Print the executed command
+	fmt.Println("Executing command:", strings.Join(append([]string{"git"}, args...), " "))
+	// Print the command output
 	if err != nil {
 		return fmt.Errorf("git command failed: %v\nOutput: %s", err, output)
 	}
 	fmt.Printf("Git command output:\n%s", output)
+
 	return nil
+}
+
+func Execute() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

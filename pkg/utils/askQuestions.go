@@ -39,6 +39,9 @@ func AskQuestions(config *config.Config, presetType, presetMessage string) ([]st
 			}
 		}
 	}
+	if presetMessage != "" {
+		commitSubject = presetMessage
+	}
 
 	form := huh.NewForm(
 		huh.NewGroup(
@@ -84,10 +87,6 @@ func AskQuestions(config *config.Config, presetType, presetMessage string) ([]st
 				}),
 		),
 	)
-
-	if presetMessage != "" {
-		commitSubject = presetMessage
-	}
 
 	if err := form.Run(); err != nil {
 		return nil, err
