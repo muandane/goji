@@ -113,7 +113,6 @@ var rootCmd = &cobra.Command{
 				log.Fatalf("Error committing changes: %v\n", err)
 			}
 		}
-		fmt.Println("Committing...")
 		action()
 		// err = spinner.New().
 		// 	Title("Committing...").
@@ -123,9 +122,6 @@ var rootCmd = &cobra.Command{
 			fmt.Println("\nError committing changes:", gitCommitError)
 			fmt.Println("Check the output above for details.")
 		}
-		//  else if err != nil {
-		// 	fmt.Println("Error committing:", err)
-		// }
 	},
 }
 
