@@ -79,7 +79,11 @@ Simply run `goji` in your terminal to start the interactive commit process:
 If you don't want the interactive screen you can use the flags to construct a message:
 
 ```sh
-goji --type feat --scope home --message "Add home page"
+goji --type feat --scope home --message "Add home page" --git-flag="--porcelain" --git-flag="--branch"  --signoff --no-verify --add 
+ 
+-a, --add                Automatically stage files that have been modified and deleted
+--amend                  Change last commit
+-n, --no-verify          bypass pre-commit and commit-msg hooks
 ```
 
 ## Check command
