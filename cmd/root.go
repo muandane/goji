@@ -19,10 +19,11 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:          "goji",
-	Short:        "Goji CLI",
-	Long:         `Goji is a CLI tool to generate conventional commits with emojis`,
-	SilenceUsage: true,
+	Use:           "goji",
+	Short:         "Goji CLI",
+	Long:          `Goji is a CLI tool to generate conventional commits with emojis`,
+	SilenceUsage:  true,
+	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if versionFlag {
 			color.Green("goji version: v%s", version)
