@@ -3,7 +3,7 @@ module github.com/muandane/goji
 go 1.22.0
 
 require (
-	github.com/alecthomas/assert/v2 v2.10.0
+	github.com/alecthomas/assert/v2 v2.11.0
 	github.com/charmbracelet/huh v0.6.0
 	github.com/charmbracelet/lipgloss v0.13.0
 	github.com/fatih/color v1.17.0
