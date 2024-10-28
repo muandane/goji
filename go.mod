@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/assert/v2 v2.11.0
 	github.com/charmbracelet/huh v0.6.0
 	github.com/charmbracelet/lipgloss v0.13.0
-	github.com/fatih/color v1.17.0
+	github.com/fatih/color v1.18.0
 	github.com/rs/zerolog v1.33.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
