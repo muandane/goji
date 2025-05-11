@@ -86,16 +86,21 @@ func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag
 	for _, t := range cfg.Types {
 		if typeFlag == t.Name {
 			if !cfg.NoEmoji {
-				typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
+				typeMatch = fmt.Sprintf("%s %s", t.Emoji, t.Name)
+				break
+			} else {
+				typeMatch = t.Name
+				break
 			}
-			break
 		}
 	}
 
+	commitHeader := typeMatch
 	if scopeFlag != "" {
-		return fmt.Sprintf("%s (%s): %s", typeMatch, scopeFlag, messageFlag)
+		commitHeader += fmt.Sprintf(" (%s)", scopeFlag)
 	}
-	return fmt.Sprintf("%s: %s", typeMatch, messageFlag)
+
+	return fmt.Sprintf("%s: %s", commitHeader, messageFlag)
 }
 
 // commit executes a git commit with the given message and body.
