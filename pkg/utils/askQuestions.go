@@ -94,9 +94,11 @@ func AskQuestions(config *config.Config, presetType, presetMessage string) ([]st
 
 	commitMessage := commitType
 	if commitScope != "" {
-		commitMessage += fmt.Sprintf("(%s)", commitScope)
+		commitMessage += fmt.Sprintf(" (%s)", strings.TrimSpace(commitScope))
 	}
-	commitMessage += fmt.Sprintf(": %s", commitSubject)
+	commitMessage += fmt.Sprintf(": %s", strings.TrimSpace(commitSubject))
 
-	return []string{commitMessage, commitDescription}, nil
+	commitBody := strings.TrimSpace(commitDescription)
+
+	return []string{commitMessage, commitBody}, nil
 }

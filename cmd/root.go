@@ -96,7 +96,7 @@ func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag
 
 	commitHeader := typeMatch
 	if scopeFlag != "" {
-		commitHeader += fmt.Sprintf(" (%s)", scopeFlag)
+		commitHeader += " " + fmt.Sprintf("(%s)", scopeFlag)
 	}
 
 	return fmt.Sprintf("%s: %s", commitHeader, messageFlag)
