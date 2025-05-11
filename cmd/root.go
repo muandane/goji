@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/fatih/color"
 	"github.com/muandane/goji/pkg/config"
@@ -139,7 +138,7 @@ func executeGitCommit(message, body string, signOff bool) error {
 	gitCmd := exec.Command("git", args...)
 	output, err := gitCmd.CombinedOutput()
 	// Print the executed command
-	fmt.Println("Executing command:", strings.Join(append([]string{"git"}, args...), " "))
+	// fmt.Println("Executing command:", strings.Join(append([]string{"git"}, args...), " "))
 	// Print the command output
 	if err != nil {
 		return fmt.Errorf("git command failed: %v\nOutput: %s", err, output)
