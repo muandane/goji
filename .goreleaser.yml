@@ -76,6 +76,9 @@ winget:
     copyright: Muandane
     homepage: "https://github.com/muandane/goji"
     short_description: "Commitizen-like Emoji Commit Tool written in Go"
+    dependencies:
+      - package_identifier: Git.Git
+        minimum_version: 2.39.0
     repository:
       owner: "muandane"
       name: winget-pkgs
