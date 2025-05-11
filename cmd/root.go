@@ -93,7 +93,7 @@ func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag
 	}
 
 	if scopeFlag != "" {
-		return fmt.Sprintf("%s(%s): %s", typeMatch, scopeFlag, messageFlag)
+		return fmt.Sprintf("%s (%s): %s", typeMatch, scopeFlag, messageFlag)
 	}
 	return fmt.Sprintf("%s: %s", typeMatch, messageFlag)
 }
