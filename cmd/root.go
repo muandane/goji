@@ -37,10 +37,11 @@ var rootCmd = &cobra.Command{
 
 		typeFlag, _ := cmd.Flags().GetString("type")
 		messageFlag, _ := cmd.Flags().GetString("message")
+		scopeFlag, _ := cmd.Flags().GetString("scope")
 
 		var commitMessage, commitBody string
 		if typeFlag != "" && messageFlag != "" {
-			commitMessage = constructCommitMessage(cfg, typeFlag, "", messageFlag)
+			commitMessage = constructCommitMessage(cfg, typeFlag, scopeFlag, messageFlag)
 		} else {
 			messages, err := utils.AskQuestions(cfg, typeFlag, messageFlag)
 			if err != nil {
@@ -86,7 +87,7 @@ func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag
 	for _, t := range cfg.Types {
 		if typeFlag == t.Name {
 			if !cfg.NoEmoji {
-				typeMatch = fmt.Sprintf("%s %s", t.Emoji, t.Name)
+				typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
 				break
 			} else {
 				typeMatch = t.Name
@@ -97,7 +98,7 @@ func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag
 
 	commitHeader := typeMatch
 	if scopeFlag != "" {
-		commitHeader += fmt.Sprintf("(%s)", scopeFlag)
+		commitHeader += fmt.Sprintf(" (%s)", scopeFlag)
 	}
 
 	return fmt.Sprintf("%s: %s", commitHeader, messageFlag)
