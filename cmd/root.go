@@ -80,6 +80,7 @@ func init() {
 	rootCmd.Flags().BoolVar(&amendFlag, "amend", false, "Change last commit")
 
 	rootCmd.Flags().StringArrayVar(&gitFlags, "git-flag", []string{}, "Git flags (can be used multiple times)")
+	rootCmd.AddCommand(draftCmd)
 }
 
 func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag string) string {
