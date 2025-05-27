@@ -1,3 +1,4 @@
+// cmd/draft.go
 package cmd
 
 import (
@@ -19,6 +20,8 @@ var (
 	commitDirectly bool
 	overrideType   string
 	overrideScope  string
+	// New: Add a variable for extra context
+	extraContext string
 )
 
 var (
@@ -130,7 +133,9 @@ var draftCmd = &cobra.Command{
 		}
 
 		fmt.Println(mutedStyle.Render(fmt.Sprintf("🤖 Generating commit message using %s...", provider.GetModel())))
-		commitMessage, err := provider.GenerateCommitMessage(diff, string(commitTypesJSON))
+
+		// Pass the extra context to the AI provider
+		commitMessage, err := provider.GenerateCommitMessage(diff, string(commitTypesJSON), extraContext)
 
 		if err != nil {
 			printErrorAndExit("❌ Error generating commit message: %v", err)
@@ -158,7 +163,8 @@ var draftCmd = &cobra.Command{
 			fmt.Println(infoMsgStyle.Render(
 				"💡 Ready to commit!\n" +
 					"    • Run with --commit flag to auto-commit\n" +
-					"    • Use --type and --scope to override defaults",
+					"    • Use --type and --scope to override defaults\n" +
+					"    • Use --context to provide additional context to the AI", // Update usage info
 			))
 		}
 	},
@@ -169,4 +175,6 @@ func init() {
 	draftCmd.Flags().BoolVarP(&commitDirectly, "commit", "c", false, "Commit the generated message directly")
 	draftCmd.Flags().StringVarP(&overrideType, "type", "t", "", "Override the commit type (e.g., feat, fix, docs)")
 	draftCmd.Flags().StringVarP(&overrideScope, "scope", "s", "", "Override the commit scope (e.g., api, ui, core)")
+	// New: Add the --context flag
+	draftCmd.Flags().StringVarP(&extraContext, "context", "x", "", "Provide additional context for AI commit message generation")
 }

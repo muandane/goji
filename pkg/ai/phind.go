@@ -1,3 +1,4 @@
+// pkg/ai/phind.go
 package ai
 
 import (
@@ -32,12 +33,14 @@ func NewPhindProvider(model string) *PhindProvider {
 	}
 }
 
-func (p *PhindProvider) GenerateCommitMessage(diff string, commitTypes string) (string, error) {
+func (p *PhindProvider) GenerateCommitMessage(diff string, commitTypes string, extraContext string) (string, error) {
 	systemPrompt := `You are a commit message generator that follows these rules:
 		1. Write in present tense
 		2. Be concise and direct
 		3. Output only the commit message without any explanations
 		4. Follow the format: <type>(<optional scope>): <commit message>`
+
+	// Start building the user prompt
 	userPrompt := fmt.Sprintf(`Generate a concise git commit message written in present tense for the following code diff with the given specifications below:
 
 The output response must be in format:
@@ -45,17 +48,23 @@ The output response must be in format:
 
 Choose a type from the type-to-description JSON below that best describes the git diff:
 %s
+`, commitTypes)
 
-Focus on being accurate and concise.
+	// Add extra context if provided
+	if extraContext != "" {
+		userPrompt += fmt.Sprintf("\nAdditional context: %s\n", extraContext)
+	}
+
+	userPrompt += fmt.Sprintf(`Focus on being accurate and concise.
 Commit message must be a maximum of 72 characters.
-Exclude anything unnecessary such as translation. Your entire response will be passed directly into git commit.
-
-Code diff:`, commitTypes)
+Exclude anything unnecessary such as translation.
+Your entire response will be passed directly into git commit.
+Code diff:`)
 
 	userPrompt += fmt.Sprintf("\n```diff\n%s\n```", diff)
 
 	payload := map[string]interface{}{
-		"additional_extension_context": "",
+		"additional_extension_context": "", // This might be where the Phind API expects extra context, but for general AI models, it's usually in the user message.
 		"allow_magic_buttons":          true,
 		"is_vscode_extension":          true,
 		"message_history": []map[string]interface{}{
