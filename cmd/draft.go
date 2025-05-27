@@ -15,6 +15,8 @@ import (
 
 var (
 	commitDirectly bool
+	overrideType   string
+	overrideScope  string
 )
 
 var draftCmd = &cobra.Command{
@@ -65,16 +67,22 @@ var draftCmd = &cobra.Command{
 		finalCommitMessage := commitMessage
 		if !cfg.NoEmoji { // Check if emojis are enabled
 			// Regex to parse: <type>(<optional scope>): <message>
-			// Group 1: type (e.g., "feat")
-			// Group 2: full scope part (e.g., "(cmd)" or empty string)
-			// Group 3: message content (e.g., "Add AI-powered commit message generation")
-			re := regexp.MustCompile(`^([a-zA-Z]+)(\([^)]*\))?:\s*(.*)$`) // Regex now captures the full scope part including parentheses
+			re := regexp.MustCompile(`^([a-zA-Z]+)(\([^)]*\))?:\s*(.*)$`)
 			matches := re.FindStringSubmatch(commitMessage)
 
 			if len(matches) > 0 {
 				commitType := matches[1]
-				fullScopePart := matches[2] // This will be "(cmd)" or ""
+				fullScopePart := matches[2]
 				messagePart := matches[3]
+
+				// Apply overrides
+				if overrideType != "" {
+					commitType = overrideType
+				}
+
+				if overrideScope != "" {
+					fullScopePart = "(" + overrideScope + ")"
+				}
 
 				var emoji string
 				for _, t := range cfg.Types {
@@ -101,6 +109,34 @@ var draftCmd = &cobra.Command{
 					finalCommitMessage = builder.String()
 				}
 			}
+		} else if overrideType != "" || overrideScope != "" {
+			// Handle overrides when emojis are disabled
+			re := regexp.MustCompile(`^([a-zA-Z]+)(\([^)]*\))?:\s*(.*)$`)
+			matches := re.FindStringSubmatch(commitMessage)
+
+			if len(matches) > 0 {
+				commitType := matches[1]
+				fullScopePart := matches[2]
+				messagePart := matches[3]
+
+				if overrideType != "" {
+					commitType = overrideType
+				}
+
+				if overrideScope != "" {
+					fullScopePart = "(" + overrideScope + ")"
+				}
+
+				var builder strings.Builder
+				builder.WriteString(commitType)
+				if fullScopePart != "" {
+					builder.WriteString(fullScopePart)
+				}
+				builder.WriteString(": ")
+				builder.WriteString(strings.TrimSpace(messagePart))
+
+				finalCommitMessage = builder.String()
+			}
 		}
 		// --- End of modified logic ---
 
@@ -126,4 +162,6 @@ var draftCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(draftCmd)
 	draftCmd.Flags().BoolVarP(&commitDirectly, "commit", "c", false, "Commit the generated message directly")
+	draftCmd.Flags().StringVarP(&overrideType, "type", "t", "", "Override the commit type (e.g., feat, fix, docs)")
+	draftCmd.Flags().StringVarP(&overrideScope, "scope", "s", "", "Override the commit scope (e.g., api, ui, core)")
 }
