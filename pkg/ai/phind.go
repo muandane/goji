@@ -33,27 +33,36 @@ func NewPhindProvider(model string) *PhindProvider {
 }
 
 func (p *PhindProvider) GenerateCommitMessage(diff string, commitTypes string) (string, error) {
-	// Construct the user prompt based on the Rust implementation's draft prompt
+	systemPrompt := `You are a commit message generator that follows these rules:
+		1. Write in present tense
+		2. Be concise and direct
+		3. Output only the commit message without any explanations
+		4. Follow the format: <type>(<optional scope>): <commit message>`
 	userPrompt := fmt.Sprintf(`Generate a concise git commit message written in present tense for the following code diff with the given specifications below:
-			The output response must be in format:
-			<type>(<optional scope>): <commit message>
-			Choose a type from the type-to-description JSON below that best describes the git diff:
-			%s
-			Focus on being accurate and concise.
-			Commit message must be a maximum of 72 characters.
-			Exclude anything unnecessary such as translation. Your entire response will be passed directly into git commit.
 
-			Code diff:
-			'diff
-				%s
-			'
-		`, commitTypes, diff)
+The output response must be in format:
+<type>(<optional scope>): <commit message>
+
+Choose a type from the type-to-description JSON below that best describes the git diff:
+%s
+
+Focus on being accurate and concise.
+Commit message must be a maximum of 72 characters.
+Exclude anything unnecessary such as translation. Your entire response will be passed directly into git commit.
+
+Code diff:`, commitTypes)
+
+	userPrompt += fmt.Sprintf("\n```diff\n%s\n```", diff)
 
 	payload := map[string]interface{}{
 		"additional_extension_context": "",
 		"allow_magic_buttons":          true,
 		"is_vscode_extension":          true,
-		"message_history": []map[string]string{
+		"message_history": []map[string]interface{}{
+			{
+				"content": systemPrompt,
+				"role":    "system",
+			},
 			{
 				"content": userPrompt,
 				"role":    "user",
@@ -86,7 +95,7 @@ func (p *PhindProvider) GenerateCommitMessage(diff string, commitTypes string) (
 
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("Phind API returned status %d: %s", resp.StatusCode, string(bodyBytes))
+		return "", fmt.Errorf("phind API returned status %d: %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
@@ -101,7 +110,7 @@ func (p *PhindProvider) GenerateCommitMessage(diff string, commitTypes string) (
 			data := strings.TrimPrefix(line, "data: ")
 			var responseJson map[string]interface{}
 			if err := json.Unmarshal([]byte(data), &responseJson); err != nil {
-				continue // Skip malformed lines
+				continue
 			}
 			if choices, ok := responseJson["choices"].([]interface{}); ok && len(choices) > 0 {
 				if choice, ok := choices[0].(map[string]interface{}); ok {
@@ -118,7 +127,17 @@ func (p *PhindProvider) GenerateCommitMessage(diff string, commitTypes string) (
 		return "", fmt.Errorf("no content found in Phind response")
 	}
 
-	return fullContent.String(), nil
+	result := strings.TrimSpace(fullContent.String())
+
+	rlines := strings.Split(result, "\n")
+	for _, line := range rlines {
+		line = strings.TrimSpace(line)
+		if line != "" && !strings.HasPrefix(line, "```") && !strings.HasPrefix(line, "#") {
+			return line, nil
+		}
+	}
+
+	return result, nil
 }
 func (p *PhindProvider) GetModel() string {
 	return p.config.Model
