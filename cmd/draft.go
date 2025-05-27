@@ -6,7 +6,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muandane/goji/pkg/ai"
@@ -32,34 +31,13 @@ var (
 	headerStyle     = lipgloss.NewStyle().Bold(true).Foreground(primaryColor)
 	successMsgStyle = lipgloss.NewStyle().Foreground(successColor).Bold(true)
 	errorMsgStyle   = lipgloss.NewStyle().Foreground(errorColor).Bold(true)
-	infoMsgStyle    = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Padding(0, 1).Foreground(mutedColor).Italic(true).Width(60)
-	commitMsgStyle  = lipgloss.NewStyle().
+
+	infoMsgStyle   = lipgloss.NewStyle().Foreground(mutedColor).Italic(true)
+	commitMsgStyle = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(accentColor)
-	mutedStyle    = lipgloss.NewStyle().Foreground(mutedColor).Italic(true)
-	spinnerFrames = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
+	mutedStyle = lipgloss.NewStyle().Foreground(mutedColor).Italic(true)
 )
-
-func showSpinner(message string, done chan bool) {
-	spinnerStyle := lipgloss.NewStyle().
-		Foreground(primaryColor).
-		Bold(true)
-
-	i := 0
-	for {
-		select {
-		case <-done:
-
-			fmt.Print("\r" + strings.Repeat(" ", 50) + "\r")
-			return
-		default:
-			frame := spinnerFrames[i%len(spinnerFrames)]
-			fmt.Printf("\r%s %s", spinnerStyle.Render(frame), message)
-			time.Sleep(100 * time.Millisecond)
-			i++
-		}
-	}
-}
 
 func printErrorAndExit(format string, a ...interface{}) {
 	fmt.Println(errorMsgStyle.Render(fmt.Sprintf(format, a...)))
@@ -102,9 +80,7 @@ func processCommitMessage(commitMessage string, noEmoji bool, configTypes []mode
 
 		if fullScopePart != "" {
 
-			if !noEmoji || strings.HasPrefix(builder.String(), commitType+" ") {
-				builder.WriteString(" ")
-			} else if noEmoji && !strings.HasSuffix(builder.String(), " ") {
+			if !strings.HasSuffix(builder.String(), " ") {
 				builder.WriteString(" ")
 			}
 			builder.WriteString(fullScopePart)
@@ -153,11 +129,8 @@ var draftCmd = &cobra.Command{
 			printErrorAndExit("❌ Error marshaling commit types: %v", err)
 		}
 
-		done := make(chan bool)
-		go showSpinner(fmt.Sprintf("🤖 Generating commit message using %s...", provider.GetModel()), done)
-
+		fmt.Println(mutedStyle.Render(fmt.Sprintf("🤖 Generating commit message using %s...", provider.GetModel())))
 		commitMessage, err := provider.GenerateCommitMessage(diff, string(commitTypesJSON))
-		done <- true
 
 		if err != nil {
 			printErrorAndExit("❌ Error generating commit message: %v", err)
@@ -169,18 +142,19 @@ var draftCmd = &cobra.Command{
 
 		if commitDirectly {
 			fmt.Println(commitMsgStyle.Render(finalCommitMessage))
-			done = make(chan bool)
-			go showSpinner("📤 Committing changes...", done)
+
+			fmt.Println(mutedStyle.Render("📤 Committing changes..."))
 
 			err := executeGitCommit(finalCommitMessage, "", cfg.SignOff)
-			done <- true
 
 			if err != nil {
 				printErrorAndExit("❌ Error committing changes: %v", err)
 			}
 			fmt.Println(successMsgStyle.Render("🎉 Successfully committed changes!"))
 		} else {
-			fmt.Println(infoMsgStyle.Render("Here's your generated commit message:\n" + commitMsgStyle.Render(finalCommitMessage)))
+
+			fmt.Println(infoMsgStyle.Render("Here's your generated commit message:"))
+			fmt.Println(commitMsgStyle.Render(finalCommitMessage))
 			fmt.Println(infoMsgStyle.Render(
 				"💡 Ready to commit!\n" +
 					"    • Run with --commit flag to auto-commit\n" +
@@ -191,7 +165,6 @@ var draftCmd = &cobra.Command{
 }
 
 func init() {
-
 	rootCmd.AddCommand(draftCmd)
 	draftCmd.Flags().BoolVarP(&commitDirectly, "commit", "c", false, "Commit the generated message directly")
 	draftCmd.Flags().StringVarP(&overrideType, "type", "t", "", "Override the commit type (e.g., feat, fix, docs)")
