@@ -8,7 +8,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/muandane/goji/pkg/ai"
 	"github.com/muandane/goji/pkg/config"
 	"github.com/muandane/goji/pkg/git"
@@ -21,24 +20,6 @@ var (
 	overrideType   string
 	overrideScope  string
 	extraContext   string
-)
-
-var (
-	primaryColor = lipgloss.Color("#7C3AED")
-	successColor = lipgloss.Color("#10B981")
-	errorColor   = lipgloss.Color("#EF4444")
-	mutedColor   = lipgloss.Color("#6B7280")
-	accentColor  = lipgloss.Color("#EC4899")
-
-	headerStyle     = lipgloss.NewStyle().Bold(true).Foreground(primaryColor)
-	successMsgStyle = lipgloss.NewStyle().Foreground(successColor).Bold(true)
-	errorMsgStyle   = lipgloss.NewStyle().Foreground(errorColor).Bold(true)
-
-	infoMsgStyle   = lipgloss.NewStyle().Foreground(mutedColor).Italic(true)
-	commitMsgStyle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(accentColor)
-	mutedStyle = lipgloss.NewStyle().Foreground(mutedColor).Italic(true)
 )
 
 func printErrorAndExit(format string, a ...interface{}) {

@@ -7,9 +7,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/alecthomas/assert/v2"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRootCmd_VersionFlag(t *testing.T) {
