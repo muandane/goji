@@ -174,7 +174,3 @@ func getCurrentCommitDetails(sha string) (subject, body string, err error) {
 
 	return subject, body, nil
 }
-
-func init() {
-	rootCmd.AddCommand(editCmd)
-}
