@@ -1,4 +1,3 @@
-// pkg/ai/phind.go
 package ai
 
 import (
@@ -11,8 +10,13 @@ import (
 	"time"
 )
 
-const phindAPIURL = "https://https.extension.phind.com/agent/"
+var phindAPIURL = "https://https.extension.phind.com/agent/"
+
 const defaultPhindModel = "Phind-70B"
+
+func SetPhindAPIURL(url string) {
+	phindAPIURL = url
+}
 
 type PhindConfig struct {
 	Model string
@@ -40,7 +44,6 @@ func (p *PhindProvider) GenerateCommitMessage(diff string, commitTypes string, e
 		3. Output only the commit message without any explanations
 		4. Follow the format: <type>(<optional scope>): <commit message>`
 
-	// Start building the user prompt
 	userPrompt := fmt.Sprintf(`Generate a concise git commit message written in present tense for the following code diff with the given specifications below:
 
 The output response must be in format:
@@ -50,21 +53,20 @@ Choose a type from the type-to-description JSON below that best describes the gi
 %s
 `, commitTypes)
 
-	// Add extra context if provided
 	if extraContext != "" {
 		userPrompt += fmt.Sprintf("\nAdditional context: %s\n", extraContext)
 	}
 
-	userPrompt += fmt.Sprintf(`Focus on being accurate and concise.
+	userPrompt += `Focus on being accurate and concise.
 Commit message must be a maximum of 72 characters.
 Exclude anything unnecessary such as translation.
 Your entire response will be passed directly into git commit.
-Code diff:`)
+Code diff:`
 
 	userPrompt += fmt.Sprintf("\n```diff\n%s\n```", diff)
 
 	payload := map[string]interface{}{
-		"additional_extension_context": "", // This might be where the Phind API expects extra context, but for general AI models, it's usually in the user message.
+		"additional_extension_context": "",
 		"allow_magic_buttons":          true,
 		"is_vscode_extension":          true,
 		"message_history": []map[string]interface{}{
@@ -136,18 +138,22 @@ Code diff:`)
 		return "", fmt.Errorf("no content found in Phind response")
 	}
 
-	result := strings.TrimSpace(fullContent.String())
+	rawResult := fullContent.String() // Get the full content before line-by-line processing
 
-	rlines := strings.Split(result, "\n")
-	for _, line := range rlines {
-		line = strings.TrimSpace(line)
-		if line != "" && !strings.HasPrefix(line, "```") && !strings.HasPrefix(line, "#") {
-			return line, nil
+	// Iterate through lines to find the *first* valid commit message line.
+	// If no such line is found, we should return an empty string or an appropriate error/message.
+	for _, line := range strings.Split(rawResult, "\n") {
+		trimmedLine := strings.TrimSpace(line)
+		if trimmedLine != "" && !strings.HasPrefix(trimmedLine, "```") && !strings.HasPrefix(trimmedLine, "#") {
+			return trimmedLine, nil // Found a valid line, return it
 		}
 	}
 
-	return result, nil
+	// If the loop finishes and no valid line was found, return an empty string
+	// because the content was only whitespace, comments, or code blocks.
+	return "", nil
 }
+
 func (p *PhindProvider) GetModel() string {
 	return p.config.Model
 }
