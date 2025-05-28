@@ -1,4 +1,35 @@
 {
+  "aichoices": {
+    "Phind": {
+      "Model": "Phind-70B",
+      "ApiKey": ""
+    },
+    "OpenAI": {
+      "Model": "",
+      "ApiKey": ""
+    },
+    "Groq": {
+      "Model": "",
+      "ApiKey": ""
+    },
+    "Claude": {
+      "Model": "",
+      "ApiKey": ""
+    },
+    "Ollama": {
+      "Model": "",
+      "ApiKey": ""
+    },
+    "OpenRouter": {
+      "Model": "",
+      "ApiKey": ""
+    },
+    "Deepseek": {
+      "Model": "",
+      "ApiKey": ""
+    }
+  },
+  "aiprovider": "phind",
   "noemoji": false,
   "scopes": [
     "home",

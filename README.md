@@ -28,6 +28,7 @@ for selecting the type of change, scope, and description of your commit message.
 - Predefined commit types with corresponding emojis.
 - Customizable commit types and scopes through a JSON configuration file.
 - Supports Git out of the box
+- AI generated commit messages using [phind](https://phind.com) without needing API keys or tokens (possibility to use your own ai models will be planned).
 
 ## Install
 
@@ -105,6 +106,22 @@ To use the check command, add the following to your pre-commit hook in your git 
       description: >
         Check whether the current commit message follows commiting rules. Allow empty commit messages by default, because they typically indicate to Git that the commit should be aborted.
 ```
+
+## Draft command
+
+The `draft` command allows you to generate a commit message for staged changes using an AI provider.
+
+```sh
+goji draft
+```
+
+This command connects to an AI provider (e.g., Phind) to generate a commit message based on your staged changes.
+
+Options for `draft` command:
+
+- `-c`, `--commit`: Commit the generated message directly.
+- `-t`, `--type`: Override the commit type (e.g., feat, fix, docs).
+- `-s`, `--scope`: Override the commit scope (e.g., api, ui, core).
 
 ## Customization
 

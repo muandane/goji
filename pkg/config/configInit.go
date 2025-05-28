@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// AddCustomCommitTypes remains the same
 func AddCustomCommitTypes(gitmojis []Gitmoji) []Gitmoji {
 	custom := []Gitmoji{
 		{Emoji: "✨", Code: ":sparkles:", Description: "Introduce new features.", Name: "feat"},
@@ -24,10 +25,10 @@ func AddCustomCommitTypes(gitmojis []Gitmoji) []Gitmoji {
 		{Emoji: "🚧", Code: ":construction:", Description: "Work in progress.", Name: "wip"},
 		{Emoji: "📦", Code: ":package:", Description: "Add or update compiled files or packages.", Name: "package"},
 	}
-
 	return append(gitmojis, custom...)
 }
 
+// GetGitRootDir remains the same
 func GetGitRootDir() (string, error) {
 	gitRoot := exec.Command("git", "rev-parse", "--show-toplevel")
 	gitDirBytes, err := gitRoot.Output()
@@ -35,11 +36,11 @@ func GetGitRootDir() (string, error) {
 		return "", fmt.Errorf("error finding git root directory: %v", err)
 	}
 	gitDir := string(gitDirBytes)
-	gitDir = strings.TrimSpace(gitDir) // Remove newline character at the end
-
+	gitDir = strings.TrimSpace(gitDir)
 	return gitDir, nil
 }
 
+// SaveConfigToFile function updated: Removed "commitTypes"
 func SaveConfigToFile(config initConfig, file, dir string) error {
 	viper.Set("types", config.Types)
 	viper.Set("scopes", config.Scopes)
@@ -47,6 +48,8 @@ func SaveConfigToFile(config initConfig, file, dir string) error {
 	viper.Set("subjectMaxLength", config.SubjectMaxLength)
 	viper.Set("signOff", config.SignOff)
 	viper.Set("noemoji", config.NoEmoji)
+	viper.Set("aiProvider", config.AIProvider)
+	viper.Set("aiChoices", config.AIChoices)
 
 	viper.SetConfigName(file)
 	viper.SetConfigType("json")
@@ -55,19 +58,24 @@ func SaveConfigToFile(config initConfig, file, dir string) error {
 	if err := viper.WriteConfigAs(path.Join(dir, file+".json")); err != nil {
 		return fmt.Errorf("error writing config file: %v", err)
 	}
-
 	return nil
 }
 
+// InitRepoConfig function updated: Removed defaultAICommitTypes and its assignment
 func InitRepoConfig(global, repo bool) error {
-	gitmojis := AddCustomCommitTypes([]Gitmoji{})
+	gitmojis := AddCustomCommitTypes([]Gitmoji{}) // These are your main commit types
+
 	config := initConfig{
-		Types:            gitmojis,
+		Types:            gitmojis, // Use this for both interactive and AI
 		Scopes:           []string{"home", "accounts", "ci"},
 		SkipQuestions:    nil,
 		SubjectMaxLength: 100,
 		SignOff:          true,
 		NoEmoji:          false,
+		AIProvider:       "phind",
+		AIChoices: AIChoices{
+			Phind: AIConfig{Model: "Phind-70B"},
+		},
 	}
 
 	var location string
