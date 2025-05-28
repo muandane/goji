@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss" // Ensure lipgloss is imported for styles
 	"github.com/fatih/color"
 	"github.com/muandane/goji/pkg/config"
 	"github.com/muandane/goji/pkg/utils"
@@ -16,6 +17,21 @@ var (
 	gitFlags                                      []string
 	version, typeFlag, messageFlag, scopeFlag     string
 	versionFlag, noVerifyFlag, amendFlag, addFlag bool
+)
+
+var (
+	primaryColor = lipgloss.Color("#7C3AED")
+	successColor = lipgloss.Color("#10B981")
+	errorColor   = lipgloss.Color("#EF4444")
+	mutedColor   = lipgloss.Color("#6B7280")
+	accentColor  = lipgloss.Color("#EC4899")
+
+	headerStyle     = lipgloss.NewStyle().Bold(true).Foreground(primaryColor)
+	successMsgStyle = lipgloss.NewStyle().Foreground(successColor).Bold(true)
+	errorMsgStyle   = lipgloss.NewStyle().Foreground(errorColor).Bold(true)
+	infoMsgStyle    = lipgloss.NewStyle().Foreground(mutedColor).Italic(true)
+	commitMsgStyle  = lipgloss.NewStyle().Bold(true).Foreground(accentColor)
+	mutedStyle      = lipgloss.NewStyle().Foreground(mutedColor).Italic(true)
 )
 
 var rootCmd = &cobra.Command{
@@ -54,22 +70,17 @@ var rootCmd = &cobra.Command{
 			return fmt.Errorf("commit message cannot be empty")
 		}
 
-		return executeGitCommit(commitMessage, commitBody, cfg.SignOff)
+		// CORRECTED: Pass "--amend" as a variadic argument if amendFlag is set
+		var additionalFlags []string
+		if amendFlag { // This `amendFlag` is the global one from root command's flags
+			additionalFlags = append(additionalFlags, "--amend")
+		}
+		// Now, executeGitCommit will combine these with gitFlags and other internal flags.
+		return executeGitCommit(commitMessage, commitBody, cfg.SignOff, additionalFlags...)
 	},
 }
 
 // init initializes the flags for the root command.
-//
-// This function sets up the flags for the root command, which are used to specify the type, scope, message,
-// and options for the command. The flags are defined using the `rootCmd.Flags()` method.
-//
-// - `typeFlag` is a string flag that specifies the type from the config file.
-// - `scopeFlag` is a string flag that specifies a custom scope.
-// - `messageFlag` is a string flag that specifies a commit message.
-// - `noVerifyFlag` is a boolean flag that bypasses pre-commit and commit-msg hooks.
-// - `versionFlag` is a boolean flag that displays version information.
-//
-// There are no parameters or return values for this function.
 func init() {
 	rootCmd.Flags().StringVarP(&typeFlag, "type", "t", "", "Specify the type from the config file")
 	rootCmd.Flags().StringVarP(&scopeFlag, "scope", "s", "", "Specify a custom scope")
@@ -79,12 +90,18 @@ func init() {
 	rootCmd.Flags().BoolVarP(&addFlag, "add", "a", false, "Automatically stage files that have been modified and deleted")
 	rootCmd.Flags().BoolVar(&amendFlag, "amend", false, "Change last commit")
 
-	rootCmd.Flags().StringArrayVar(&gitFlags, "git-flag", []string{}, "Git flags (can be used multiple times)")
+	rootCmd.Flags().StringArrayVar(&gitFlags, "git-flag", []string{}, "Additional Git flags (can be used multiple times)")
+	rootCmd.AddCommand(editCmd) // Ensure editCmd is added
+	// Add existing commands
+	rootCmd.AddCommand(completionCmd)
 	rootCmd.AddCommand(draftCmd)
+	rootCmd.AddCommand(checkCmd)
+	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(manCmd)
 }
 
 func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag string) string {
-	typeMatch := typeFlag // Default to the raw typeFlag
+	typeMatch := typeFlag
 	for _, t := range cfg.Types {
 		if typeFlag == t.Name {
 			if !cfg.NoEmoji {
@@ -105,18 +122,9 @@ func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag
 	return fmt.Sprintf("%s: %s", commitHeader, messageFlag)
 }
 
-// commit executes a git commit with the given message and body.
-//
-// Parameters:
-// - message: the commit message.
-// - body: the commit body.
-// - sign: a boolean indicating whether to add a Signed-off-by trailer.
-// - amend: a boolean indicating whether to amend the last commit.
-// - commits the changes to git
-//
-// Returns:
-// - error: an error if the git commit execution fails.
-func executeGitCommit(message, body string, signOff bool) error {
+// executeGitCommit executes a git commit with the given message and body.
+// It now accepts variadic `extraGitFlags` which will be appended to the command.
+func executeGitCommit(message, body string, signOff bool, extraGitFlags ...string) error {
 	args := []string{"commit", "-m", message}
 	if body != "" {
 		args = append(args, "-m", body)
@@ -124,31 +132,43 @@ func executeGitCommit(message, body string, signOff bool) error {
 	if signOff {
 		args = append(args, "--signoff")
 	}
-	var extraArgs []string
+	var rootCommandFlags []string
 	if noVerifyFlag {
-		extraArgs = append(extraArgs, "--no-verify")
+		rootCommandFlags = append(rootCommandFlags, "--no-verify")
 	}
 	if addFlag {
-		extraArgs = append(extraArgs, "-a")
+		rootCommandFlags = append(rootCommandFlags, "-a")
 	}
-	if amendFlag {
-		extraArgs = append(extraArgs, "--amend")
+	// Only apply the root-level amendFlag if it's set AND it's not already
+	// included in the extraGitFlags (e.g., from `goji edit`).
+	if amendFlag && !contains(extraGitFlags, "--amend") {
+		rootCommandFlags = append(rootCommandFlags, "--amend")
 	}
-	// Add all dynamically passed Git flags
-	baseArgs := append(args, extraArgs...)
-	args = append(baseArgs, gitFlags...)
 
-	gitCmd := exec.Command("git", args...)
+	// Combine all flags
+	allArgs := append(args, rootCommandFlags...)
+	allArgs = append(allArgs, gitFlags...)      // Flags passed via --git-flag
+	allArgs = append(allArgs, extraGitFlags...) // Flags passed dynamically from other commands (e.g., "edit")
+
+	gitCmd := exec.Command("git", allArgs...)
+	fmt.Println("Executing command:", strings.Join(append([]string{"git"}, allArgs...), " "))
 	output, err := gitCmd.CombinedOutput()
-	// Print the executed command
-	fmt.Println("Executing command:", strings.Join(append([]string{"git"}, args...), " "))
-	// Print the command output
 	if err != nil {
 		return fmt.Errorf("git command failed: %v\nOutput: %s", err, output)
 	}
 	fmt.Printf("Git command output:\n%s", output)
 
 	return nil
+}
+
+// Helper function to check if a slice contains a string (for executeGitCommit)
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
 }
 
 func Execute() {
