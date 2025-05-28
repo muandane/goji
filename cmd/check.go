@@ -12,7 +12,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// checkCmd represents the check command
 var checkCmd = &cobra.Command{
 	Use:   "check",
 	Short: "Check if the commit message follows the conventional commit format",
@@ -25,16 +24,20 @@ var checkCmd = &cobra.Command{
 			log.Fatal().Msg("Error loading config file.")
 		}
 		if fromFile {
-			// Read commit message from file
-			if len(os.Args) < 2 {
-				fmt.Println("Please provide the path to the commit message file.")
+
+			if len(os.Args) < 4 {
+				fmt.Println("Please provide the path to the commit message file using -f flag.")
 				os.Exit(1)
 			}
-			commitMessage = strings.Split(string(os.Args[3]), "\n")[0]
-			fmt.Println(commitMessage)
-			// commitMessage = strings.TrimSpace(string(content))
+			filePath := os.Args[3]
+			content, err := os.ReadFile(filePath)
+			if err != nil {
+				fmt.Printf("Error reading commit message file: %v\n", err)
+				os.Exit(1)
+			}
+			commitMessage = strings.TrimSpace(string(content))
 		} else {
-			// Get the last commit message
+
 			gitCmd := exec.Command("git", "log", "-1", "--pretty=%B")
 			output, err := gitCmd.Output()
 			if err != nil {
@@ -53,7 +56,6 @@ var checkCmd = &cobra.Command{
 			commitMessage = strings.ReplaceAll(commitMessage, emoji, replacement)
 		}
 
-		// Define the regex pattern for a conventional commit message
 		parts := strings.SplitN(commitMessage, ":", 2)
 		if len(parts) != 2 {
 			fmt.Println("Error: Commit message does not follow the conventional commit format.")
@@ -64,21 +66,19 @@ var checkCmd = &cobra.Command{
 			typeNames = append(typeNames, t.Name)
 		}
 		typePattern := strings.Join(typeNames, "|")
-		// Validate the type and scope
+
 		typeScope := strings.Split(strings.TrimSpace(parts[0]), "(")
 		if len(typeScope) > 2 {
 			fmt.Println("Error: Commit message does not follow the conventional commit format.")
 			return
 		}
 
-		// Validate the type
 		typeRegex := regexp.MustCompile(`\A[\w\s]*?(` + typePattern + `)\z`)
 		if !typeRegex.MatchString(typeScope[0]) {
 			fmt.Println("Error: Commit message type is invalid.")
 			return
 		}
 
-		// Validate the scope (optional)
 		if len(typeScope) == 2 {
 			scope := strings.TrimSuffix(typeScope[1], ")")
 			if scope == "" {

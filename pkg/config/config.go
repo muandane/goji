@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -12,30 +13,43 @@ func ViperConfig() (*Config, error) {
 	viper.SetConfigName(".goji")
 	viper.SetConfigType("json")
 
+	// Ensure Viper searches the current working directory.
+	// This is crucial for tests that chdir to a temp directory.
+	viper.AddConfigPath(".") // <--- THIS IS THE KEY LINE
+
+	// Attempt to find git root directory for .goji.json
 	gitDir, err := GetGitRootDir()
-	if err != nil {
-		return nil, err
-	}
-	homeDir, _ := os.UserHomeDir()
-	if _, err = os.Stat(filepath.Join(gitDir, ".goji.json")); err == nil {
-		viper.AddConfigPath(gitDir)
-	} else {
-		viper.AddConfigPath(homeDir)
-		// fmt.Printf("using home conf") // used for debug
+	if err == nil {
+		if _, statErr := os.Stat(filepath.Join(gitDir, ".goji.json")); statErr == nil {
+			viper.AddConfigPath(gitDir)
+		}
 	}
 
-	err = viper.ReadInConfig()
-	if err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			return nil, fmt.Errorf("unable to find .goji.json in %s or %s", gitDir, homeDir)
+	// Attempt to find home directory for .goji.json
+	homeDir, homeErr := os.UserHomeDir()
+	if homeErr == nil {
+		viper.AddConfigPath(homeDir)
+	}
+
+	errRead := viper.ReadInConfig()
+	if errRead != nil {
+		if _, ok := errRead.(viper.ConfigFileNotFoundError); ok {
+			searchPaths := []string{"current directory"}
+			if gitDir != "" && err == nil {
+				searchPaths = append(searchPaths, gitDir)
+			}
+			if homeDir != "" && homeErr == nil {
+				searchPaths = append(searchPaths, homeDir)
+			}
+			return nil, fmt.Errorf("unable to find .goji.json in specified paths: %s. Error: %w", strings.Join(searchPaths, ", "), errRead)
 		} else {
-			return nil, err
+			return nil, fmt.Errorf("error reading config file: %w", errRead)
 		}
 	}
 
 	var config Config
-	if err := viper.Unmarshal(&config); err != nil {
-		return nil, err
+	if errUnmarshal := viper.Unmarshal(&config); errUnmarshal != nil {
+		return nil, fmt.Errorf("error unmarshaling config: %w", errUnmarshal)
 	}
 
 	return &config, nil

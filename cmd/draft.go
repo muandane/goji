@@ -20,8 +20,7 @@ var (
 	commitDirectly bool
 	overrideType   string
 	overrideScope  string
-	// New: Add a variable for extra context
-	extraContext string
+	extraContext   string
 )
 
 var (
