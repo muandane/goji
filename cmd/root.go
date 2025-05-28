@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/charmbracelet/lipgloss" // Ensure lipgloss is imported for styles
 	"github.com/fatih/color"
@@ -151,12 +150,12 @@ func executeGitCommit(message, body string, signOff bool, extraGitFlags ...strin
 	allArgs = append(allArgs, extraGitFlags...) // Flags passed dynamically from other commands (e.g., "edit")
 
 	gitCmd := exec.Command("git", allArgs...)
-	fmt.Println("Executing command:", strings.Join(append([]string{"git"}, allArgs...), " "))
+	// fmt.Println("Executing command:", strings.Join(append([]string{"git"}, allArgs...), " "))
 	output, err := gitCmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("git command failed: %v\nOutput: %s", err, output)
 	}
-	fmt.Printf("Git command output:\n%s", output)
+	fmt.Printf(string(output))
 
 	return nil
 }
