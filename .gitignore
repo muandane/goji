@@ -4,3 +4,4 @@ goji
 cat.sh
 result
 *.txt
+**/.env

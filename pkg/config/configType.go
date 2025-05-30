@@ -48,6 +48,5 @@ type AIChoices struct {
 }
 
 type AIConfig struct {
-	Model  string `mapstructure:"model"`
-	ApiKey string `mapstructure:"apiKey"`
+	Model string `mapstructure:"model"`
 }

@@ -98,6 +98,12 @@ var draftCmd = &cobra.Command{
 		switch cfg.AIProvider {
 		case "phind":
 			provider = ai.NewPhindProvider(cfg.AIChoices.Phind.Model)
+		case "openrouter":
+			apiKey := os.Getenv("OPENROUTER_API_KEY")
+			if apiKey == "" {
+				printErrorAndExit("❌ OPENROUTER_API_KEY environment variable not set.")
+			}
+			provider = ai.NewOpenRouterProvider(apiKey, cfg.AIChoices.OpenRouter.Model)
 		default:
 			printErrorAndExit("❌ Unsupported AI provider: %s", cfg.AIProvider)
 		}

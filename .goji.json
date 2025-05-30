@@ -1,32 +1,25 @@
 {
   "aichoices": {
     "Phind": {
-      "Model": "Phind-70B",
-      "ApiKey": ""
+      "Model": "Phind-70B"
     },
     "OpenAI": {
-      "Model": "",
-      "ApiKey": ""
+      "Model": ""
     },
     "Groq": {
-      "Model": "",
-      "ApiKey": ""
+      "Model": ""
     },
     "Claude": {
-      "Model": "",
-      "ApiKey": ""
+      "Model": ""
     },
     "Ollama": {
-      "Model": "",
-      "ApiKey": ""
+      "Model": ""
     },
     "OpenRouter": {
-      "Model": "",
-      "ApiKey": ""
+      "Model": "mistralai/devstral-small:free"
     },
     "Deepseek": {
-      "Model": "",
-      "ApiKey": ""
+      "Model": ""
     }
   },
   "aiprovider": "phind",

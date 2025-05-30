@@ -74,7 +74,8 @@ func InitRepoConfig(global, repo bool) error {
 		NoEmoji:          false,
 		AIProvider:       "phind",
 		AIChoices: AIChoices{
-			Phind: AIConfig{Model: "Phind-70B"},
+			Phind:      AIConfig{Model: "Phind-70B"},
+			OpenRouter: AIConfig{Model: "anthropic/claude-3.5-sonnet"},
 		},
 	}
 
