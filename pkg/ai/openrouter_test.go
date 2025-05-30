@@ -14,6 +14,7 @@ import (
 const testOpenRouterAPIKey = "test_openrouter_api_key"
 
 func TestNewOpenRouterProvider(t *testing.T) {
+	defaultOpenRouterModel := "meta-llama/llama-4-maverick:free"
 	t.Run("default model", func(t *testing.T) {
 		provider := NewOpenRouterProvider(testOpenRouterAPIKey, "")
 		assert.NotNil(t, provider)
@@ -151,7 +152,7 @@ func TestOpenRouterProvider_GenerateCommitMessage(t *testing.T) {
 			originalURL := openRouterAPIURL
 			openRouterAPIURL = server.URL // Point to test server
 			defer func() { openRouterAPIURL = originalURL }()
-
+			defaultOpenRouterModel := "mistralai/devstral-small:free"
 			// Simulate API key presence (passed to constructor, not via env for NewOpenRouterProvider)
 			provider := NewOpenRouterProvider(tt.apiKeyEnv, defaultOpenRouterModel)
 			// The provider's client will hit the httptest.Server URL due to the override above.

@@ -16,7 +16,7 @@
       "Model": ""
     },
     "OpenRouter": {
-      "Model": "mistralai/devstral-small:free"
+      "Model": "meta-llama/llama-4-maverick:free"
     },
     "Deepseek": {
       "Model": ""

@@ -43,7 +43,7 @@ type AIChoices struct {
 	Groq       AIConfig `mapstructure:"groq"`
 	Claude     AIConfig `mapstructure:"claude"`
 	Ollama     AIConfig `mapstructure:"ollama"`
-	OpenRouter AIConfig `mapstructure:"openRouter"`
+	OpenRouter AIConfig `mapstructure:"OpenRouter"`
 	Deepseek   AIConfig `mapstructure:"deepseek"`
 }
 
