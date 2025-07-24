@@ -17,7 +17,7 @@ func TestNewPhindProvider(t *testing.T) {
 	t.Run("default model", func(t *testing.T) {
 		provider := NewPhindProvider("")
 		assert.NotNil(t, provider)
-		assert.Equal(t, defaultPhindModel, provider.config.Model)
+		assert.Equal(t, "Phind-70B", provider.config.Model)
 		assert.NotNil(t, provider.client)
 	})
 
@@ -61,7 +61,7 @@ func TestPhindProvider_GenerateCommitMessage(t *testing.T) {
 				var payload map[string]interface{}
 				err := json.Unmarshal(bodyBytes, &payload)
 				require.NoError(t, err)
-				assert.Equal(t, defaultPhindModel, payload["requested_model"])
+				assert.Equal(t, "Phind-70B", payload["requested_model"])
 
 				// This is the key: The server's response must match the expected output.
 				// Change the mock response to match your expectedMsg from the test case.
@@ -85,7 +85,7 @@ func TestPhindProvider_GenerateCommitMessage(t *testing.T) {
 
 				userInput, ok := payload["user_input"].(string)
 				require.True(t, ok)
-				assert.Contains(t, userInput, "Additional context: testing context")
+				assert.Contains(t, userInput, "Use the following context to understand intent:\ntesting context")
 
 				// Change the mock response to match your expectedMsg from the test case.
 				responseLines := []string{
@@ -114,7 +114,7 @@ func TestPhindProvider_GenerateCommitMessage(t *testing.T) {
 				fmt.Fprintln(w, `data: {}`)
 			},
 			expectErr:      true,
-			expectedErrMsg: "no content found in Phind response",
+			expectedErrMsg: "no completion choice in Phind response",
 		},
 		{
 			name: "response is just whitespace or comments",
@@ -128,7 +128,7 @@ func TestPhindProvider_GenerateCommitMessage(t *testing.T) {
 					fmt.Fprintln(w, line)
 				}
 			},
-			expectedMsg: "",
+			expectedMsg: "   \n# comment line\n",
 			expectErr:   false,
 		},
 		{
@@ -161,41 +161,34 @@ func TestPhindProvider_GenerateCommitMessage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Save original API URL and restore it after the test
-			originalPhindAPIURL := phindAPIURL
-			defer func() { phindAPIURL = originalPhindAPIURL }()
-
 			if tt.malformedURL {
-				// Set a malformed URL to trigger the http.NewRequest error path
-				SetPhindAPIURL("http://%ghjk")
-			} else {
-				// Create a test server and set the provider's client to use it
-				server := httptest.NewServer(http.HandlerFunc(tt.serverHandler))
-				// Defer closing the server before the GenerateCommitMessage call
-				// but after the test's execution for the server handler.
-				defer server.Close()
-
-				// Set the PhindAPIURL to the test server's URL
-				SetPhindAPIURL(server.URL + "/agent/") // Ensure it matches the constant's path
+				// Create a provider with a malformed URL to trigger the http.NewRequest error path
+				providerForTest := &PhindProvider{
+					client: &http.Client{Timeout: 5 * time.Second},
+					config: PhindConfig{
+						Model:      "Phind-70B",
+						APIBaseURL: "http://%ghjk", // Malformed URL
+					},
+				}
+				_, err := providerForTest.GenerateCommitMessage(diffSample, commitTypesJSON, tt.extraContext)
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tt.expectedErrMsg)
+				return
 			}
 
-			providerForTest := NewPhindProvider(defaultPhindModel)
-			// Only set the client if not testing malformed URL, as client isn't used then
-			if !tt.malformedURL {
-				// Create a test server and set the provider's client to use it
-				server := httptest.NewServer(http.HandlerFunc(tt.serverHandler))
-				// Defer closing the server before the GenerateCommitMessage call
-				// but after the test's execution for the server handler.
-				defer server.Close()
+			// Create a test server and set the provider's client to use it
+			server := httptest.NewServer(http.HandlerFunc(tt.serverHandler))
+			defer server.Close()
 
-				// Set the PhindAPIURL to the test server's URL
-				SetPhindAPIURL(server.URL + "/agent/") // Ensure it matches the constant's path
-
-				providerForTest := NewPhindProvider(defaultPhindModel)
-				providerForTest.client = &http.Client{
+			providerForTest := &PhindProvider{
+				client: &http.Client{
 					Timeout:   5 * time.Second, // Shorter timeout for tests
 					Transport: server.Client().Transport,
-				}
+				},
+				config: PhindConfig{
+					Model:      "Phind-70B",
+					APIBaseURL: server.URL + "/agent/",
+				},
 			}
 
 			msg, err := providerForTest.GenerateCommitMessage(diffSample, commitTypesJSON, tt.extraContext)

@@ -10,60 +10,116 @@ import (
 	"time"
 )
 
-var phindAPIURL = "https://https.extension.phind.com/agent/"
-
-const defaultPhindModel = "Phind-70B"
-
-func SetPhindAPIURL(url string) {
-	phindAPIURL = url
+type PhindConfig struct {
+	Model      string
+	APIBaseURL string
 }
 
-type PhindConfig struct {
-	Model string
+func NewPhindConfig(model string) PhindConfig {
+	if model == "" {
+		model = "Phind-70B"
+	}
+	return PhindConfig{
+		Model:      model,
+		APIBaseURL: "https://https.extension.phind.com/agent/",
+	}
 }
 
 type PhindProvider struct {
-	config PhindConfig
 	client *http.Client
+	config PhindConfig
 }
 
 func NewPhindProvider(model string) *PhindProvider {
-	if model == "" {
-		model = defaultPhindModel
-	}
 	return &PhindProvider{
-		config: PhindConfig{Model: model},
 		client: &http.Client{Timeout: 30 * time.Second},
+		config: NewPhindConfig(model),
 	}
 }
 
-func (p *PhindProvider) GenerateCommitMessage(diff string, commitTypes string, extraContext string) (string, error) {
-	systemPrompt := `You are a commit message generator that follows these rules:
-		1. Write in present tense
-		2. Be concise and direct
-		3. Output only the commit message without any explanations
-		4. Follow the format: <type>(<optional scope>): <commit message>`
+func createPhindHeaders() http.Header {
+	headers := http.Header{}
+	headers.Set("Content-Type", "application/json")
+	headers.Set("User-Agent", "")
+	headers.Set("Accept", "*/*")
+	headers.Set("Accept-Encoding", "Identity")
+	return headers
+}
 
-	userPrompt := fmt.Sprintf(`Generate a concise git commit message written in present tense for the following code diff with the given specifications below:
+func parsePhindLine(line string) (string, bool) {
+	const prefix = "data: "
+	if !strings.HasPrefix(line, prefix) {
+		return "", false
+	}
+	data := strings.TrimPrefix(line, prefix)
+	var jsonValue map[string]interface{}
+	if err := json.Unmarshal([]byte(data), &jsonValue); err != nil {
+		return "", false
+	}
+	choices, ok := jsonValue["choices"].([]interface{})
+	if !ok || len(choices) == 0 {
+		return "", false
+	}
+	choice, ok := choices[0].(map[string]interface{})
+	if !ok {
+		return "", false
+	}
+	delta, ok := choice["delta"].(map[string]interface{})
+	if !ok {
+		return "", false
+	}
+	content, ok := delta["content"].(string)
+	return content, ok
+}
 
-The output response must be in format:
-<type>(<optional scope>): <commit message>
+func parsePhindStreamResponse(responseText string) string {
+	var builder strings.Builder
+	for _, line := range strings.Split(responseText, "\n") {
+		if content, ok := parsePhindLine(line); ok {
+			builder.WriteString(content)
+		}
+	}
+	return builder.String()
+}
 
-Choose a type from the type-to-description JSON below that best describes the git diff:
-%s
-`, commitTypes)
-
-	if extraContext != "" {
-		userPrompt += fmt.Sprintf("\nAdditional context: %s\n", extraContext)
+func (p *PhindProvider) GenerateCommitMessage(diff, commitTypes, extraContext string) (string, error) {
+	if diff == "" {
+		return "", fmt.Errorf("empty diff provided")
 	}
 
-	userPrompt += `Focus on being accurate and concise.
-Commit message must be a maximum of 72 characters.
-Exclude anything unnecessary such as translation.
-Your entire response will be passed directly into git commit.
-Code diff:`
+	systemPrompt := `You are a commit message generator. Your ONLY job is to generate a conventional commit message.
 
-	userPrompt += fmt.Sprintf("\n```diff\n%s\n```", diff)
+RULES:
+1. Write in present tense
+2. Be concise and direct
+3. Output ONLY the commit message without any explanations, quotes, or markdown
+4. Follow the format: <type>(<optional scope>): <commit message>
+5. Keep the message under 72 characters
+6. Focus on what changed, not how it changed
+
+VALID TYPES: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert
+
+EXAMPLE OUTPUT: feat(auth): add user authentication system`
+
+	context := ""
+	if extraContext != "" {
+		context = fmt.Sprintf(`
+Use the following context to understand intent:
+%s`, extraContext)
+	}
+
+	userPrompt := fmt.Sprintf("Generate a concise git commit message written in present tense for the following code diff with the given specifications below:\n\n"+
+		"The output response must be in format:\n"+
+		"<type>(<optional scope>): <commit message>\n\n"+
+		"Choose a type from the type-to-description JSON below that best describes the git diff:\n"+
+		"%s\n"+
+		"Focus on being accurate and concise.%s\n"+
+		"Commit message must be a maximum of 72 characters.\n"+
+		"Exclude anything unnecessary such as translation. Your entire response will be passed directly into git commit.\n\n"+
+		"Code diff:\n"+
+		"```diff\n"+
+		"%s\n"+
+		"```", commitTypes, context, diff)
 
 	payload := map[string]interface{}{
 		"additional_extension_context": "",
@@ -88,15 +144,11 @@ Code diff:`
 		return "", fmt.Errorf("failed to marshal payload: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", phindAPIURL, bytes.NewBuffer(jsonPayload))
+	req, err := http.NewRequest("POST", p.config.APIBaseURL, bytes.NewBuffer(jsonPayload))
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "")
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Accept-Encoding", "Identity")
+	req.Header = createPhindHeaders()
 
 	resp, err := p.client.Do(req)
 	if err != nil {
@@ -104,54 +156,30 @@ Code diff:`
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("phind API returned status %d: %s", resp.StatusCode, string(bodyBytes))
-	}
-
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	var fullContent strings.Builder
-	lines := strings.Split(string(bodyBytes), "\n")
-	for _, line := range lines {
-		if strings.HasPrefix(line, "data: ") {
-			data := strings.TrimPrefix(line, "data: ")
-			var responseJson map[string]interface{}
-			if err := json.Unmarshal([]byte(data), &responseJson); err != nil {
-				continue
-			}
-			if choices, ok := responseJson["choices"].([]interface{}); ok && len(choices) > 0 {
-				if choice, ok := choices[0].(map[string]interface{}); ok {
-					if delta, ok := choice["delta"].(map[string]interface{}); ok {
-						if content, ok := delta["content"].(string); ok {
-							fullContent.WriteString(content)
-						}
-					}
-				}
-			}
+	if resp.StatusCode != http.StatusOK {
+		// Try to parse error message from JSON
+		var errorJSON struct {
+			Error struct {
+				Message string `json:"message"`
+			} `json:"error"`
 		}
-	}
-	if fullContent.Len() == 0 {
-		return "", fmt.Errorf("no content found in Phind response")
-	}
-
-	rawResult := fullContent.String() // Get the full content before line-by-line processing
-
-	// Iterate through lines to find the *first* valid commit message line.
-	// If no such line is found, we should return an empty string or an appropriate error/message.
-	for _, line := range strings.Split(rawResult, "\n") {
-		trimmedLine := strings.TrimSpace(line)
-		if trimmedLine != "" && !strings.HasPrefix(trimmedLine, "```") && !strings.HasPrefix(trimmedLine, "#") {
-			return trimmedLine, nil // Found a valid line, return it
+		if err := json.Unmarshal(bodyBytes, &errorJSON); err == nil && errorJSON.Error.Message != "" {
+			return "", fmt.Errorf("phind API error (status %d): %s", resp.StatusCode, errorJSON.Error.Message)
 		}
+		return "", fmt.Errorf("phind API returned status %d: %s", resp.StatusCode, string(bodyBytes))
 	}
 
-	// If the loop finishes and no valid line was found, return an empty string
-	// because the content was only whitespace, comments, or code blocks.
-	return "", nil
+	fullText := parsePhindStreamResponse(string(bodyBytes))
+	if strings.TrimSpace(fullText) == "" {
+		return "", fmt.Errorf("no completion choice in Phind response")
+	}
+
+	return fullText, nil
 }
 
 func (p *PhindProvider) GetModel() string {

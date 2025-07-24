@@ -127,7 +127,17 @@ var draftCmd = &cobra.Command{
 			printErrorAndExit("❌ Error generating commit message: %v", err)
 		}
 
+		// Check if we got a valid commit message
+		if commitMessage == "" {
+			printErrorAndExit("❌ No commit message generated. The AI provider returned an empty response.")
+		}
+
 		finalCommitMessage := processCommitMessage(commitMessage, cfg.NoEmoji, cfg.Types)
+
+		// Validate the final commit message
+		if finalCommitMessage == "" {
+			printErrorAndExit("❌ Failed to process commit message. The result is empty.")
+		}
 
 		fmt.Println(successMsgStyle.Render("✅ Commit message generated successfully!"))
 

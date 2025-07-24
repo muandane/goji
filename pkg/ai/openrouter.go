@@ -7,19 +7,12 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 )
 
-const (
-	httpReferer                       = "https://github.com/muandane/goji"
-	xTitle                            = "Goji CLI"
-	openRouterDefaultModelForProvider = "mistralai/devstral-small:free"
-)
-
-var (
-	openRouterAPIURL = "https://openrouter.ai/api/v1/chat/completions"
-)
+var openRouterAPIURL = "https://openrouter.ai/api/v1/chat/completions"
+var httpReferer = "https://github.com/muandane/goji"
+var xTitle = "Goji"
 
 type OpenRouterMessage struct {
 	Role    string `json:"role"`
@@ -67,7 +60,7 @@ func NewOpenRouterProvider(apiKey, modelFromConfig string) *OpenRouterProvider {
 		if envModel != "" {
 			chosenModel = envModel
 		} else {
-			chosenModel = openRouterDefaultModelForProvider
+			chosenModel = "meta-llama/llama-4-maverick:free"
 		}
 	}
 	return &OpenRouterProvider{
@@ -78,11 +71,32 @@ func NewOpenRouterProvider(apiKey, modelFromConfig string) *OpenRouterProvider {
 }
 
 func (p *OpenRouterProvider) GenerateCommitMessage(diff string, commitTypesJSON string, extraContext string) (string, error) {
+	// Validate and enhance the diff
+	if diff == "" {
+		return "", fmt.Errorf("empty diff provided")
+	}
+
+	// Enhance small diffs
+	diff = enhanceSmallDiff(diff)
+
+	// Truncate large diffs
+	originalDiffSize := len(diff)
+	diff = truncateDiff(diff)
+	if originalDiffSize != len(diff) {
+		// Add warning to extra context if diff was truncated
+		if extraContext != "" {
+			extraContext += " "
+		}
+		extraContext += fmt.Sprintf("(Note: Diff was truncated from %d to %d characters due to size limits)", originalDiffSize, len(diff))
+	}
+
 	systemPrompt := `You are a commit message generator that follows these rules:
 		1. Write in present tense
 		2. Be concise and direct
 		3. Output only the commit message without any explanations
-		4. Follow the format: <type>(<optional scope>): <commit message>`
+		4. Follow the format: <type>(<optional scope>): <commit message>
+		5. Keep the message under 72 characters
+		6. Focus on what changed, not how it changed`
 
 	userPrompt := fmt.Sprintf(`Generate a concise git commit message written in present tense for the following code diff with the given specifications below:
 
@@ -158,25 +172,14 @@ Code diff:`
 
 	rawResult := successResponse.Choices[0].Message.Content
 
-	for _, line := range strings.Split(rawResult, "\n") {
-		trimmedLine := strings.TrimSpace(line)
-
-		trimmedLine = strings.TrimPrefix(trimmedLine, "```")
-		trimmedLine = strings.TrimSuffix(trimmedLine, "```")
-		trimmedLine = strings.TrimPrefix(trimmedLine, "`")
-		trimmedLine = strings.TrimSuffix(trimmedLine, "`")
-		trimmedLine = strings.TrimSpace(trimmedLine)
-
-		if trimmedLine != "" && !strings.HasPrefix(trimmedLine, "#") {
-			return trimmedLine, nil
-		}
+	// Improved response parsing - try multiple strategies
+	commitMessage := extractCommitMessage(rawResult)
+	if commitMessage != "" {
+		return commitMessage, nil
 	}
 
-	if strings.TrimSpace(rawResult) != "" {
-		return strings.TrimSpace(rawResult), nil
-	}
-
-	return "", fmt.Errorf("no usable commit message content found in OpenRouter response after cleanup. Original: %s", rawResult)
+	// If no valid commit message found, return error with context
+	return "", fmt.Errorf("no valid commit message found in response. Raw response: %s", rawResult)
 }
 
 func (p *OpenRouterProvider) GetModel() string {

@@ -16,7 +16,7 @@
       "Model": ""
     },
     "OpenRouter": {
-      "Model": "meta-llama/llama-4-maverick:free"
+      "Model": "anthropic/claude-3.5-sonnet"
     },
     "Deepseek": {
       "Model": ""
