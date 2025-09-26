@@ -76,19 +76,24 @@ func (p *OpenRouterProvider) GenerateCommitMessage(diff string, commitTypesJSON 
 		return "", fmt.Errorf("empty diff provided")
 	}
 
-	// Enhance small diffs
-	diff = enhanceSmallDiff(diff)
+	// Use smart diff summarization for better AI comprehension
+	diffSummary, optimizedDiff := summarizeDiff(diff)
 
-	// Truncate large diffs
-	originalDiffSize := len(diff)
-	diff = truncateDiff(diff)
-	if originalDiffSize != len(diff) {
-		// Add warning to extra context if diff was truncated
+	// Add summary info to context if diff was significantly reduced
+	if diffSummary.SummarySize < diffSummary.OriginalSize {
 		if extraContext != "" {
 			extraContext += " "
 		}
-		extraContext += fmt.Sprintf("(Note: Diff was truncated from %d to %d characters due to size limits)", originalDiffSize, len(diff))
+		extraContext += fmt.Sprintf("(Diff summarized: %d files changed. %s)",
+			len(diffSummary.FilesChanged),
+			diffSummary.Summary)
 	}
+
+	// Use the optimized diff
+	diff = optimizedDiff
+
+	// Still apply small diff enhancement if needed
+	diff = enhanceSmallDiff(diff)
 
 	systemPrompt := `You are a commit message generator that follows these rules:
 		1. Write in present tense
@@ -180,6 +185,143 @@ Code diff:`
 
 	// If no valid commit message found, return error with context
 	return "", fmt.Errorf("no valid commit message found in response. Raw response: %s", rawResult)
+}
+
+func (p *OpenRouterProvider) GenerateDetailedCommit(diff string, commitTypesJSON string, extraContext string) (*CommitResult, error) {
+	// Validate and enhance the diff
+	if diff == "" {
+		return nil, fmt.Errorf("empty diff provided")
+	}
+
+	// Use smart diff summarization for better AI comprehension
+	diffSummary, optimizedDiff := summarizeDiff(diff)
+
+	// Add summary info to context if diff was significantly reduced
+	if diffSummary.SummarySize < diffSummary.OriginalSize {
+		if extraContext != "" {
+			extraContext += " "
+		}
+		extraContext += fmt.Sprintf("(Diff summarized: %d files changed. %s)",
+			len(diffSummary.FilesChanged),
+			diffSummary.Summary)
+	}
+
+	// Use the optimized diff
+	diff = optimizedDiff
+	diff = enhanceSmallDiff(diff)
+
+	systemPrompt := `You are a commit message generator that generates both a concise title and a detailed body.
+
+RULES FOR TITLE:
+1. Write in present tense
+2. Be concise and direct
+3. Follow the format: <type>(<optional scope>): <commit message>
+4. Keep the title under 72 characters
+5. Focus on what changed, not how it changed
+
+RULES FOR BODY:
+1. Write in present tense
+2. Provide 2-4 bullet points that explain the changes in depth
+3. Each bullet point should be concise but informative
+4. Focus on the WHY and WHAT of the changes
+5. Reference specific files or functionality when relevant
+
+VALID TYPES: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert
+
+OUTPUT FORMAT:
+Title: <type>(<optional scope>): <commit message>
+
+Body:
+• First detailed point about the changes
+• Second detailed point about the changes  
+• Third detailed point about the changes (if applicable)
+
+EXAMPLE OUTPUT:
+Title: feat(auth): add user authentication system
+
+Body:
+• Add JWT token generation and validation middleware
+• Implement login/logout endpoints with secure password hashing
+• Create user model with role-based access control
+• Add authentication middleware to protect API routes`
+
+	userPrompt := fmt.Sprintf(`Generate a commit message with detailed body for the following code diff:
+
+Follow the exact format specified. Include both a concise title and detailed bullet points in the body.
+
+Choose a type from the type-to-description JSON below that best describes the git diff:
+%s
+`, commitTypesJSON)
+
+	if extraContext != "" {
+		userPrompt += fmt.Sprintf("\nAdditional context: %s\n", extraContext)
+	}
+
+	userPrompt += `Focus on being accurate and comprehensive.
+Code diff:`
+	userPrompt += fmt.Sprintf("\n```diff\n%s\n```", diff)
+
+	requestPayload := OpenRouterRequest{
+		Model: p.model,
+		Messages: []OpenRouterMessage{
+			{Role: "system", Content: systemPrompt},
+			{Role: "user", Content: userPrompt},
+		},
+	}
+
+	jsonPayload, err := json.Marshal(requestPayload)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal OpenRouter request payload: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", openRouterAPIURL, bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create OpenRouter request: %w", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+p.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("HTTP-Referer", httpReferer)
+	req.Header.Set("X-Title", xTitle)
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := p.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send request to OpenRouter: %w", err)
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read OpenRouter response body: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		var errorResponse OpenRouterErrorResponse
+		if err := json.Unmarshal(bodyBytes, &errorResponse); err == nil && errorResponse.Error.Message != "" {
+			return nil, fmt.Errorf("openrouter API error (status %d): %s", resp.StatusCode, errorResponse.Error.Message)
+		}
+		return nil, fmt.Errorf("openrouter API returned status %d: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	var successResponse OpenRouterResponse
+	if err := json.Unmarshal(bodyBytes, &successResponse); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal OpenRouter success response: %w. Body: %s", err, string(bodyBytes))
+	}
+
+	if len(successResponse.Choices) == 0 || successResponse.Choices[0].Message.Content == "" {
+		return nil, fmt.Errorf("no content found in OpenRouter response or choices array is empty. Body: %s", string(bodyBytes))
+	}
+
+	rawResult := successResponse.Choices[0].Message.Content
+
+	// Parse the detailed commit message to extract title and body
+	result := parseDetailedCommitMessage(rawResult)
+	if result.Message == "" {
+		return nil, fmt.Errorf("no valid commit message found in response. Raw response: %s", rawResult)
+	}
+
+	return result, nil
 }
 
 func (p *OpenRouterProvider) GetModel() string {

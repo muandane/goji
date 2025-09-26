@@ -20,6 +20,7 @@ var (
 	overrideType   string
 	overrideScope  string
 	extraContext   string
+	generateBody   bool
 )
 
 func printErrorAndExit(format string, a ...interface{}) {
@@ -120,19 +121,34 @@ var draftCmd = &cobra.Command{
 
 		fmt.Println(mutedStyle.Render(fmt.Sprintf("🤖 Generating commit message using %s...", provider.GetModel())))
 
-		// Pass the extra context to the AI provider
-		commitMessage, err := provider.GenerateCommitMessage(diff, string(commitTypesJSON), extraContext)
+		// Handle both regular and detailed commit generation
+		var finalCommitMessage, commitBody string
+		if generateBody {
+			// Generate detailed commit with body
+			result, err := provider.GenerateDetailedCommit(diff, string(commitTypesJSON), extraContext)
+			if err != nil {
+				printErrorAndExit("❌ Error generating detailed commit message: %v", err)
+			}
 
-		if err != nil {
-			printErrorAndExit("❌ Error generating commit message: %v", err)
+			if result.Message == "" {
+				printErrorAndExit("❌ No commit message generated. The AI provider returned an empty response.")
+			}
+
+			finalCommitMessage = processCommitMessage(result.Message, cfg.NoEmoji, cfg.Types)
+			commitBody = result.Body
+		} else {
+			// Generate simple commit message
+			commitMessage, err := provider.GenerateCommitMessage(diff, string(commitTypesJSON), extraContext)
+			if err != nil {
+				printErrorAndExit("❌ Error generating commit message: %v", err)
+			}
+
+			if commitMessage == "" {
+				printErrorAndExit("❌ No commit message generated. The AI provider returned an empty response.")
+			}
+
+			finalCommitMessage = processCommitMessage(commitMessage, cfg.NoEmoji, cfg.Types)
 		}
-
-		// Check if we got a valid commit message
-		if commitMessage == "" {
-			printErrorAndExit("❌ No commit message generated. The AI provider returned an empty response.")
-		}
-
-		finalCommitMessage := processCommitMessage(commitMessage, cfg.NoEmoji, cfg.Types)
 
 		// Validate the final commit message
 		if finalCommitMessage == "" {
@@ -142,25 +158,36 @@ var draftCmd = &cobra.Command{
 		fmt.Println(successMsgStyle.Render("✅ Commit message generated successfully!"))
 
 		if commitDirectly {
-			fmt.Println(commitMsgStyle.Render(finalCommitMessage))
+			// Display the commit message with body if available
+			displayMessage := finalCommitMessage
+			if commitBody != "" {
+				displayMessage += "\n\n" + commitBody
+			}
+			fmt.Println(commitMsgStyle.Render(displayMessage))
 
 			fmt.Println(mutedStyle.Render("📤 Committing changes..."))
 
-			err := executeGitCommit(finalCommitMessage, "", cfg.SignOff)
-
+			err := executeGitCommit(finalCommitMessage, commitBody, cfg.SignOff)
 			if err != nil {
 				printErrorAndExit("❌ Error committing changes: %v", err)
 			}
 			fmt.Println(successMsgStyle.Render("🎉 Successfully committed changes!"))
 		} else {
-
 			fmt.Println(infoMsgStyle.Render("Here's your generated commit message:"))
 			fmt.Println(commitMsgStyle.Render(finalCommitMessage))
+			if commitBody != "" {
+				fmt.Println(commitMsgStyle.Render(commitBody))
+			}
+
+			bodyHint := ""
+			if !generateBody {
+				bodyHint = "\n    • Use --body flag to generate detailed commit body"
+			}
 			fmt.Println(infoMsgStyle.Render(
 				"💡 Ready to commit!\n" +
 					"    • Run with --commit flag to auto-commit\n" +
 					"    • Use --type and --scope to override defaults\n" +
-					"    • Use --context to provide additional context to the AI", // Update usage info
+					"    • Use --context to provide additional context to the AI" + bodyHint,
 			))
 		}
 	},
@@ -171,6 +198,6 @@ func init() {
 	draftCmd.Flags().BoolVarP(&commitDirectly, "commit", "c", false, "Commit the generated message directly")
 	draftCmd.Flags().StringVarP(&overrideType, "type", "t", "", "Override the commit type (e.g., feat, fix, docs)")
 	draftCmd.Flags().StringVarP(&overrideScope, "scope", "s", "", "Override the commit scope (e.g., api, ui, core)")
-	// New: Add the --context flag
 	draftCmd.Flags().StringVarP(&extraContext, "context", "x", "", "Provide additional context for AI commit message generation")
+	draftCmd.Flags().BoolVarP(&generateBody, "body", "b", false, "Generate detailed commit body with bullet points explaining the changes")
 }
