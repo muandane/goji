@@ -41,7 +41,7 @@ archives:
     {{- .ProjectName }}_v{{- .Version }}_ {{- title .Os }}_ {{- if eq .Arch "amd64" }}x86_64 {{- else if eq .Arch "386" }}i386 {{- else }}{{ .Arch }}{{ end }} {{- if .Arm }}v{{ .Arm }}{{ end -}}
   format_overrides:
   - goos: windows
-    format: zip
+    formats: ['zip']
   builds_info:
     group: root
     owner: root
@@ -51,7 +51,7 @@ archives:
   - manpages/*
   - completions/*
 
-brews:
+homebrew_casks:
 - name: goji
   homepage: "https://github.com/muandane/homebrew-tap"
   repository:
@@ -60,15 +60,17 @@ brews:
   description: "Commitizen-like Emoji Commit Tool written in Go"
   directory: Formula
   dependencies:
-  - name: git
+  - formula: git
   commit_author:
     name: muandane
     email: zmoualhi@outlook.com
-  extra_install: |-
-    bash_completion.install "completions/goji.bash" => "goji"
-    zsh_completion.install "completions/goji.zsh" => "_goji"
-    fish_completion.install "completions/goji.fish"
-    man1.install "manpages/goji.1.gz"
+  hooks: 
+    post: 
+      install: |-
+        bash_completion.install "completions/goji.bash" => "goji"
+        zsh_completion.install "completions/goji.zsh" => "_goji"
+        fish_completion.install "completions/goji.fish"
+        man1.install "manpages/goji.1.gz"
 
 winget:
   - publisher: muandane
