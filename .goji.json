@@ -22,7 +22,7 @@
       "model": ""
     }
   },
-  "aiprovider": "phind",
+  "aiprovider": "groq",
   "noemoji": false,
   "scopes": [
     "home",
