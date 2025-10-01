@@ -29,37 +29,29 @@ func (m *MockAIProvider) GetModel() string {
 	return args.String(0)
 }
 
-func TestChunkedDiffProcessor_SplitDiffIntoChunks(t *testing.T) {
+func TestChunkedDiffProcessor_CreateAggressiveSummary(t *testing.T) {
 	processor := &ChunkedDiffProcessor{}
 
-	t.Run("small diff returns single chunk", func(t *testing.T) {
-		smallDiff := "diff --git a/file.txt b/file.txt\n+line1\n-line2"
-		chunks := processor.splitDiffIntoChunks(smallDiff)
+	t.Run("creates aggressive summary", func(t *testing.T) {
+		diff := `diff --git a/src/main.go b/src/main.go
++func main() {
++    fmt.Println("hello")
++}
+diff --git a/README.md b/README.md
++# Project`
 
-		assert.Len(t, chunks, 1)
-		assert.Equal(t, smallDiff+"\n", chunks[0])
+		summary := processor.createAggressiveSummary(diff)
+
+		assert.Contains(t, summary, "Summary of changes:")
+		assert.Contains(t, summary, "src/main.go: +3/-0")
+		assert.Contains(t, summary, "README.md: +1/-0")
+		assert.Contains(t, summary, "+func main() {")
 	})
 
-	t.Run("large diff splits into multiple chunks", func(t *testing.T) {
-		// Create a large diff that will definitely exceed maxChunkSize
-		var largeDiff strings.Builder
-		for i := 0; i < 10000; i++ {
-			largeDiff.WriteString(fmt.Sprintf("+line %d with some additional content to make it longer\n", i))
-		}
+	t.Run("handles empty diff", func(t *testing.T) {
+		summary := processor.createAggressiveSummary("")
 
-		chunks := processor.splitDiffIntoChunks(largeDiff.String())
-
-		assert.Greater(t, len(chunks), 1)
-
-		// Verify each chunk is within size limits
-		for i, chunk := range chunks {
-			assert.LessOrEqual(t, len(chunk), maxChunkSize+100, "chunk %d exceeds max size", i)
-		}
-	})
-
-	t.Run("empty diff returns empty chunks", func(t *testing.T) {
-		chunks := processor.splitDiffIntoChunks("")
-		assert.Len(t, chunks, 1) // Empty string still creates one chunk with newline
+		assert.Contains(t, summary, "Summary of changes:")
 	})
 }
 
@@ -104,68 +96,25 @@ func TestChunkedDiffProcessor_ProcessChunkedDiff(t *testing.T) {
 		mockProvider.AssertExpectations(t)
 	})
 
-	t.Run("handles chunk processing errors", func(t *testing.T) {
+	t.Run("handles processing errors with large diff", func(t *testing.T) {
 		mockProvider := &MockAIProvider{}
 		processor := NewChunkedDiffProcessor(mockProvider)
 
 		// Create a large diff
 		var largeDiff strings.Builder
 		largeDiff.WriteString("diff --git a/file.txt b/file.txt\n")
-		for i := 0; i < 50000; i++ { // Much larger to ensure chunking
+		for i := 0; i < 50000; i++ { // Much larger to ensure summarization
 			largeDiff.WriteString(fmt.Sprintf("+line %d with some additional content to make it longer\n", i))
 		}
 
-		// Mock chunk processing with error
+		// Mock processing with error
 		mockProvider.On("GenerateCommitMessage", mock.Anything, "types", mock.Anything).Return("", assert.AnError).Maybe()
 
 		result, err := processor.ProcessChunkedDiff(largeDiff.String(), "types", "context")
 
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "chunk processing errors")
+		assert.Contains(t, err.Error(), "general error for testing")
 		assert.Empty(t, result)
-	})
-}
-
-func TestChunkedDiffProcessor_ExtractFilesFromChunk(t *testing.T) {
-	processor := &ChunkedDiffProcessor{}
-
-	t.Run("extracts files from diff chunk", func(t *testing.T) {
-		chunk := `diff --git a/src/main.go b/src/main.go
-+func main() {
-+    fmt.Println("hello")
-+}
-diff --git a/README.md b/README.md
-+# Project`
-
-		files := processor.extractFilesFromChunk(chunk)
-
-		assert.Len(t, files, 2)
-		assert.Contains(t, files, "src/main.go")
-		assert.Contains(t, files, "README.md")
-	})
-
-	t.Run("handles chunk with no files", func(t *testing.T) {
-		chunk := "+line1\n-line2"
-
-		files := processor.extractFilesFromChunk(chunk)
-
-		assert.Len(t, files, 0)
-	})
-}
-
-func TestChunkedDiffProcessor_CreateMergePrompt(t *testing.T) {
-	processor := &ChunkedDiffProcessor{}
-
-	t.Run("creates merge prompt", func(t *testing.T) {
-		summaries := []string{"feat: add feature", "fix: fix bug"}
-		files := []string{"file1.go", "file2.go"}
-
-		prompt := processor.createMergePrompt(summaries, files, "types", "context")
-
-		assert.Contains(t, prompt, "Merge the following commit message summaries")
-		assert.Contains(t, prompt, "Summary 1: feat: add feature")
-		assert.Contains(t, prompt, "Summary 2: fix: fix bug")
-		assert.Contains(t, prompt, "Files affected: file1.go, file2.go")
 	})
 }
 

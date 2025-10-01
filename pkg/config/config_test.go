@@ -25,7 +25,7 @@ func TestViperConfig_EdgeCases(t *testing.T) {
 	t.Run("empty config file", func(t *testing.T) {
 		tempDir, err := os.MkdirTemp("", "goji-test")
 		require.NoError(t, err)
-		defer os.RemoveAll(tempDir)
+		defer func() { _ = os.RemoveAll(tempDir) }()
 
 		configFile := filepath.Join(tempDir, ".goji.json")
 		err = os.WriteFile(configFile, []byte(`{}`), 0644)
@@ -33,7 +33,7 @@ func TestViperConfig_EdgeCases(t *testing.T) {
 
 		originalDir, err := os.Getwd()
 		require.NoError(t, err)
-		defer os.Chdir(originalDir)
+		defer func() { _ = os.Chdir(originalDir) }()
 
 		err = os.Chdir(tempDir)
 		require.NoError(t, err)
@@ -48,11 +48,11 @@ func TestGetGitRootDir_EdgeCases(t *testing.T) {
 	t.Run("not in git repository", func(t *testing.T) {
 		tempDir, err := os.MkdirTemp("", "goji-test")
 		require.NoError(t, err)
-		defer os.RemoveAll(tempDir)
+		defer func() { _ = os.RemoveAll(tempDir) }()
 
 		originalDir, err := os.Getwd()
 		require.NoError(t, err)
-		defer os.Chdir(originalDir)
+		defer func() { _ = os.Chdir(originalDir) }()
 
 		err = os.Chdir(tempDir)
 		require.NoError(t, err)
@@ -155,7 +155,7 @@ func TestSaveConfigToFile_EdgeCases(t *testing.T) {
 	t.Run("valid directory", func(t *testing.T) {
 		tempDir, err := os.MkdirTemp("", "goji-test")
 		require.NoError(t, err)
-		defer os.RemoveAll(tempDir)
+		defer func() { _ = os.RemoveAll(tempDir) }()
 
 		config := initConfig{
 			Types:            []Gitmoji{},
@@ -197,11 +197,11 @@ func TestInitRepoConfig_EdgeCases(t *testing.T) {
 	t.Run("repo config without git", func(t *testing.T) {
 		tempDir, err := os.MkdirTemp("", "goji-test")
 		require.NoError(t, err)
-		defer os.RemoveAll(tempDir)
+		defer func() { _ = os.RemoveAll(tempDir) }()
 
 		originalDir, err := os.Getwd()
 		require.NoError(t, err)
-		defer os.Chdir(originalDir)
+		defer func() { _ = os.Chdir(originalDir) }()
 
 		err = os.Chdir(tempDir)
 		require.NoError(t, err)

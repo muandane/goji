@@ -50,7 +50,7 @@ func TestGroqProvider_GenerateCommitMessage(t *testing.T) {
 			}
 
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(mockResponse)
+			_ = json.NewEncoder(w).Encode(mockResponse)
 		}))
 		defer server.Close()
 
@@ -83,7 +83,7 @@ func TestGroqProvider_GenerateCommitMessage(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(errorResponse)
+			_ = json.NewEncoder(w).Encode(errorResponse)
 		}))
 		defer server.Close()
 
@@ -144,7 +144,7 @@ Body:
 
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(mockResponse)
+			_ = json.NewEncoder(w).Encode(mockResponse)
 		}))
 		defer server.Close()
 

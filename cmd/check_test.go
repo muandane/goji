@@ -38,7 +38,7 @@ func captureCheckOutput(f func()) string {
 
 	f()
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = oldStdout
 	var buf strings.Builder
 	_, _ = io.Copy(&buf, r)

@@ -16,11 +16,11 @@ func TestGetStagedDiff_EdgeCases(t *testing.T) {
 		// Create a temporary directory that's not a git repository
 		tempDir, err := os.MkdirTemp("", "goji-test")
 		require.NoError(t, err)
-		defer os.RemoveAll(tempDir)
+		defer func() { _ = os.RemoveAll(tempDir) }()
 
 		originalDir, err := os.Getwd()
 		require.NoError(t, err)
-		defer os.Chdir(originalDir)
+		defer func() { _ = os.Chdir(originalDir) }()
 
 		err = os.Chdir(tempDir)
 		require.NoError(t, err)
@@ -34,11 +34,11 @@ func TestGetStagedDiff_EdgeCases(t *testing.T) {
 		// Create a git repository
 		tempDir, err := os.MkdirTemp("", "goji-test")
 		require.NoError(t, err)
-		defer os.RemoveAll(tempDir)
+		defer func() { _ = os.RemoveAll(tempDir) }()
 
 		originalDir, err := os.Getwd()
 		require.NoError(t, err)
-		defer os.Chdir(originalDir)
+		defer func() { _ = os.Chdir(originalDir) }()
 
 		err = os.Chdir(tempDir)
 		require.NoError(t, err)
@@ -62,11 +62,11 @@ func TestGetStagedDiff_EdgeCases(t *testing.T) {
 		// Create a git repository
 		tempDir, err := os.MkdirTemp("", "goji-test")
 		require.NoError(t, err)
-		defer os.RemoveAll(tempDir)
+		defer func() { _ = os.RemoveAll(tempDir) }()
 
 		originalDir, err := os.Getwd()
 		require.NoError(t, err)
-		defer os.Chdir(originalDir)
+		defer func() { _ = os.Chdir(originalDir) }()
 
 		err = os.Chdir(tempDir)
 		require.NoError(t, err)
