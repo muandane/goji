@@ -1,25 +1,25 @@
 {
   "aichoices": {
-    "Phind": {
-      "Model": "Phind-70B"
+    "phind": {
+      "model": "Phind-70B"
     },
-    "OpenAI": {
-      "Model": ""
+    "openai": {
+      "model": ""
     },
-    "Groq": {
-      "Model": ""
+    "groq": {
+      "model": "openai/gpt-oss-20b"
     },
-    "Claude": {
-      "Model": ""
+    "claude": {
+      "model": ""
     },
-    "Ollama": {
-      "Model": ""
+    "ollama": {
+      "model": ""
     },
-    "OpenRouter": {
-      "Model": "anthropic/claude-3.5-sonnet"
+    "openrouter": {
+      "model": "anthropic/claude-3.5-sonnet"
     },
-    "Deepseek": {
-      "Model": ""
+    "deepseek": {
+      "model": ""
     }
   },
   "aiprovider": "phind",
