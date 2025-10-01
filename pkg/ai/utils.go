@@ -151,9 +151,10 @@ func createFileChange(filepath string, changes []ChangeLine) FileChange {
 	delCount := 0
 
 	for _, change := range changes {
-		if change.Type == "+" {
+		switch change.Type {
+		case "+":
 			addCount++
-		} else if change.Type == "-" {
+		case "-":
 			delCount++
 		}
 	}

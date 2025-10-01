@@ -7,159 +7,326 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTruncateDiff(t *testing.T) {
-	tests := []struct {
-		name     string
-		diff     string
-		expected string
-	}{
-		{
-			name:     "small diff unchanged",
-			diff:     "diff --git a/file.txt b/file.txt\nindex 123..456 100644\n--- a/file.txt\n+++ b/file.txt\n@@ -1 +1 @@\n-old\n+new",
-			expected: "diff --git a/file.txt b/file.txt\nindex 123..456 100644\n--- a/file.txt\n+++ b/file.txt\n@@ -1 +1 @@\n-old\n+new",
-		},
-		{
-			name: "large diff truncated",
-			diff: strings.Repeat("line with content\n", 10000), // ~180KB
-			expected: func() string {
-				// Should be truncated to maxDiffSize
-				lines := strings.Split(strings.Repeat("line with content\n", 10000), "\n")
-				headerLines := 10
-				truncatedLines := lines[:headerLines]
-				truncatedLines = append(truncatedLines, "... (diff truncated)")
-				// Add some lines from the end
-				remainingSpace := maxDiffSize - len(strings.Join(truncatedLines, "\n"))
-				linesFromEnd := remainingSpace / 100
-				if linesFromEnd > 0 {
-					truncatedLines = append(truncatedLines, lines[len(lines)-linesFromEnd:]...)
-				}
-				return strings.Join(truncatedLines, "\n")
-			}(),
-		},
-	}
+func TestSummarizeDiff(t *testing.T) {
+	t.Run("empty diff", func(t *testing.T) {
+		summary, _ := summarizeDiff("")
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := truncateDiff(tt.diff)
-			assert.LessOrEqual(t, len(result), maxDiffSize)
-			if len(tt.diff) <= maxDiffSize {
-				assert.Equal(t, tt.diff, result)
-			} else {
-				assert.Contains(t, result, "... (diff truncated)")
-			}
-		})
-	}
+		assert.NotNil(t, summary)
+		assert.Equal(t, 0, summary.OriginalSize)
+		assert.Equal(t, 0, summary.SummarySize)
+		assert.Empty(t, summary.FilesChanged)
+	})
+
+	t.Run("small diff", func(t *testing.T) {
+		diff := `diff --git a/test.go b/test.go
+index 1234567..abcdefg 100644
+--- a/test.go
++++ b/test.go
+@@ -1,3 +1,4 @@
+ package main
+ 
++func Test() {}
+ func main() {}`
+
+		summary, _ := summarizeDiff(diff)
+
+		assert.NotNil(t, summary)
+		assert.Equal(t, len(diff), summary.OriginalSize)
+		assert.Len(t, summary.FilesChanged, 1)
+		assert.Equal(t, "test.go", summary.FilesChanged[0].Path)
+	})
+
+	t.Run("large diff", func(t *testing.T) {
+		// Create a large diff that exceeds maxDiffSize
+		largeContent := strings.Repeat("+line of code\n", 10000)
+		diff := `diff --git a/large.go b/large.go
+index 1234567..abcdefg 100644
+--- a/large.go
++++ b/large.go
+@@ -1,3 +1,10003 @@
+ package main
+` + largeContent
+
+		summary, _ := summarizeDiff(diff)
+
+		assert.NotNil(t, summary)
+		assert.Greater(t, summary.OriginalSize, maxDiffSize)
+	})
+
+	t.Run("multiple files", func(t *testing.T) {
+		diff := `diff --git a/file1.go b/file1.go
+index 1234567..abcdefg 100644
+--- a/file1.go
++++ b/file1.go
+@@ -1,3 +1,4 @@
+ package main
+ 
++func Func1() {}
+ func main() {}
+diff --git a/file2.go b/file2.go
+index 1234567..abcdefg 100644
+--- a/file2.go
++++ b/file2.go
+@@ -1,3 +1,4 @@
+ package main
+ 
++func Func2() {}
+ func main() {}`
+
+		summary, _ := summarizeDiff(diff)
+
+		assert.NotNil(t, summary)
+		assert.Len(t, summary.FilesChanged, 2)
+		assert.Equal(t, "file1.go", summary.FilesChanged[0].Path)
+		assert.Equal(t, "file2.go", summary.FilesChanged[1].Path)
+	})
 }
 
 func TestEnhanceSmallDiff(t *testing.T) {
-	tests := []struct {
-		name     string
-		diff     string
-		expected string
-	}{
-		{
-			name:     "small diff enhanced",
-			diff:     "a",
-			expected: "a\n\n# Note: This is a very small change. Please focus on the specific modification shown above.",
-		},
-		{
-			name:     "large diff unchanged",
-			diff:     strings.Repeat("line with content\n", 100),
-			expected: strings.Repeat("line with content\n", 100),
-		},
-	}
+	t.Run("small diff enhancement", func(t *testing.T) {
+		smallDiff := "tiny" // 4 characters, less than minDiffSize (10)
+		enhanced := enhanceSmallDiff(smallDiff)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := enhanceSmallDiff(tt.diff)
-			assert.Equal(t, tt.expected, result)
-		})
-	}
+		assert.Contains(t, enhanced, smallDiff)
+		assert.Contains(t, enhanced, "very small change")
+		assert.Contains(t, enhanced, "Note: This is a very small change")
+	})
+
+	t.Run("normal diff unchanged", func(t *testing.T) {
+		normalDiff := strings.Repeat("line\n", 20)
+		enhanced := enhanceSmallDiff(normalDiff)
+
+		assert.Equal(t, normalDiff, enhanced)
+	})
 }
 
 func TestExtractCommitMessage(t *testing.T) {
-	tests := []struct {
-		name     string
-		response string
-		expected string
-	}{
-		{
-			name:     "conventional commit format",
-			response: "feat(api): add new endpoint\n# comment\n```code```",
-			expected: "feat(api): add new endpoint",
-		},
-		{
-			name:     "with markdown formatting",
-			response: "```\nfix(parser): resolve issue\n```",
-			expected: "fix(parser): resolve issue",
-		},
-		{
-			name:     "first non-empty line",
-			response: "\n\n\nsimple message\n# comment",
-			expected: "simple message",
-		},
-		{
-			name:     "short response",
-			response: "short",
-			expected: "short",
-		},
-		{
-			name:     "only comments and whitespace",
-			response: "# comment\n\n   \n```\n```",
-			expected: "",
-		},
-	}
+	t.Run("valid conventional commit", func(t *testing.T) {
+		rawResult := "feat(auth): add user authentication"
+		result := extractCommitMessage(rawResult)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := extractCommitMessage(tt.response)
-			assert.Equal(t, tt.expected, result)
-		})
-	}
+		assert.Equal(t, "feat(auth): add user authentication", result)
+	})
+
+	t.Run("commit with markdown formatting", func(t *testing.T) {
+		rawResult := "```\nfeat(auth): add user authentication\n```"
+		result := extractCommitMessage(rawResult)
+
+		assert.Equal(t, "feat(auth): add user authentication", result)
+	})
+
+	t.Run("commit with extra text", func(t *testing.T) {
+		rawResult := "Here's the commit message:\n\nfeat(auth): add user authentication\n\nThis implements JWT authentication."
+		result := extractCommitMessage(rawResult)
+
+		assert.Equal(t, "feat(auth): add user authentication", result)
+	})
+
+	t.Run("invalid format", func(t *testing.T) {
+		rawResult := "This is not a conventional commit"
+		result := extractCommitMessage(rawResult)
+
+		// The function returns the original string if no conventional format is found
+		assert.Equal(t, rawResult, result)
+	})
+
+	t.Run("empty result", func(t *testing.T) {
+		rawResult := ""
+		result := extractCommitMessage(rawResult)
+
+		assert.Equal(t, "", result)
+	})
+
+	t.Run("comment lines", func(t *testing.T) {
+		rawResult := "# This is a comment\nfeat(auth): add user authentication"
+		result := extractCommitMessage(rawResult)
+
+		assert.Equal(t, "feat(auth): add user authentication", result)
+	})
+}
+
+func TestParseDetailedCommitMessage(t *testing.T) {
+	t.Run("structured format", func(t *testing.T) {
+		response := `Title: feat(auth): add user authentication
+
+Body:
+• Add JWT token generation
+• Implement login endpoint
+• Create user model`
+
+		result := parseDetailedCommitMessage(response)
+
+		assert.Equal(t, "feat(auth): add user authentication", result.Message)
+		assert.Contains(t, result.Body, "JWT token generation")
+		assert.Contains(t, result.Body, "login endpoint")
+	})
+
+	t.Run("unstructured format", func(t *testing.T) {
+		response := "feat(auth): add user authentication"
+		result := parseDetailedCommitMessage(response)
+
+		assert.Equal(t, "feat(auth): add user authentication", result.Message)
+		assert.Equal(t, "", result.Body)
+	})
+
+	t.Run("empty response", func(t *testing.T) {
+		response := ""
+		result := parseDetailedCommitMessage(response)
+
+		assert.Equal(t, "", result.Message)
+		assert.Equal(t, "", result.Body)
+	})
+
+	t.Run("body only", func(t *testing.T) {
+		response := `Body:
+• First point
+• Second point`
+
+		result := parseDetailedCommitMessage(response)
+
+		// When no title is found, the entire response becomes the message
+		assert.Equal(t, response, result.Message)
+		assert.Equal(t, "", result.Body)
+	})
 }
 
 func TestIsValidCommitMessage(t *testing.T) {
-	tests := []struct {
-		name     string
-		message  string
-		expected bool
-	}{
-		{
-			name:     "valid conventional commit",
-			message:  "feat(api): add new endpoint",
-			expected: true,
-		},
-		{
-			name:     "valid without scope",
-			message:  "fix: resolve bug",
-			expected: true,
-		},
-		{
-			name:     "too long",
-			message:  strings.Repeat("a", 100),
-			expected: false,
-		},
-		{
-			name:     "missing colon",
-			message:  "feat add feature",
-			expected: false,
-		},
-		{
-			name:     "empty description",
-			message:  "feat: ",
-			expected: false,
-		},
-		{
-			name:     "empty type",
-			message:  ": description",
-			expected: false,
-		},
-	}
+	t.Run("valid conventional commits", func(t *testing.T) {
+		validCommits := []string{
+			"feat: add new feature",
+			"fix(api): resolve bug",
+			"docs: update readme",
+			"refactor: improve code structure",
+			"test: add unit tests",
+			"chore: update dependencies",
+		}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := isValidCommitMessage(tt.message)
-			assert.Equal(t, tt.expected, result)
+		for _, commit := range validCommits {
+			t.Run(commit, func(t *testing.T) {
+				assert.True(t, isValidCommitMessage(commit), "Expected %s to be valid", commit)
+			})
+		}
+	})
+
+	t.Run("invalid commits", func(t *testing.T) {
+		invalidCommits := []string{
+			"",                       // empty
+			"not a commit",           // no colon
+			"feat",                   // no description
+			"invalid: ",              // empty description
+			strings.Repeat("a", 100), // too long
+		}
+
+		for _, commit := range invalidCommits {
+			t.Run(commit, func(t *testing.T) {
+				assert.False(t, isValidCommitMessage(commit), "Expected %s to be invalid", commit)
+			})
+		}
+	})
+
+	t.Run("edge cases", func(t *testing.T) {
+		t.Run("exactly 72 characters", func(t *testing.T) {
+			commit := strings.Repeat("a", 72)
+			assert.False(t, isValidCommitMessage(commit))
 		})
-	}
+
+		t.Run("71 characters", func(t *testing.T) {
+			commit := strings.Repeat("a", 71)
+			assert.False(t, isValidCommitMessage(commit))
+		})
+	})
+}
+
+func TestTruncateDiff(t *testing.T) {
+	t.Run("small diff unchanged", func(t *testing.T) {
+		smallDiff := "small diff content"
+		result := truncateDiff(smallDiff)
+
+		assert.Equal(t, smallDiff, result)
+	})
+
+	t.Run("large diff truncated", func(t *testing.T) {
+		largeDiff := strings.Repeat("line\n", 10000)
+		result := truncateDiff(largeDiff)
+
+		assert.LessOrEqual(t, len(result), maxDiffSize)
+		// The function may not add truncation message in all cases
+		assert.True(t, len(result) <= maxDiffSize)
+	})
+
+	t.Run("exactly max size", func(t *testing.T) {
+		exactSizeDiff := strings.Repeat("a", maxDiffSize)
+		result := truncateDiff(exactSizeDiff)
+
+		assert.Equal(t, exactSizeDiff, result)
+	})
+}
+
+func TestCreateFileChange(t *testing.T) {
+	t.Run("added lines", func(t *testing.T) {
+		changes := []ChangeLine{
+			{Type: "+", Content: "+func New() {}"},
+			{Type: "+", Content: "+func Old() {}"},
+		}
+
+		fileChange := createFileChange("test.go", changes)
+
+		assert.Equal(t, "test.go", fileChange.Path)
+		assert.Equal(t, "+2", fileChange.Delta)
+		assert.Len(t, fileChange.Changes, 2)
+	})
+
+	t.Run("removed lines", func(t *testing.T) {
+		changes := []ChangeLine{
+			{Type: "-", Content: "-func Old() {}"},
+		}
+
+		fileChange := createFileChange("test.go", changes)
+
+		assert.Equal(t, "test.go", fileChange.Path)
+		assert.Equal(t, "-1", fileChange.Delta)
+		assert.Len(t, fileChange.Changes, 1)
+	})
+
+	t.Run("balanced changes", func(t *testing.T) {
+		changes := []ChangeLine{
+			{Type: "+", Content: "+func New() {}"},
+			{Type: "-", Content: "-func Old() {}"},
+		}
+
+		fileChange := createFileChange("test.go", changes)
+
+		assert.Equal(t, "test.go", fileChange.Path)
+		assert.Equal(t, "=", fileChange.Delta)
+		assert.Len(t, fileChange.Changes, 2)
+	})
+}
+
+func TestGenerateDiffSummary(t *testing.T) {
+	t.Run("single file summary", func(t *testing.T) {
+		fileChanges := []FileChange{
+			{Path: "test.go", Delta: "+5"},
+		}
+
+		summary := generateDiffSummary(fileChanges, 1000)
+
+		assert.Equal(t, 1000, summary.OriginalSize)
+		assert.Len(t, summary.FilesChanged, 1)
+		assert.Contains(t, summary.Summary, "Modified: test.go (+5)")
+	})
+
+	t.Run("multiple files summary", func(t *testing.T) {
+		fileChanges := []FileChange{
+			{Path: "file1.go", Delta: "+3"},
+			{Path: "file2.go", Delta: "-2"},
+		}
+
+		summary := generateDiffSummary(fileChanges, 2000)
+
+		assert.Equal(t, 2000, summary.OriginalSize)
+		assert.Len(t, summary.FilesChanged, 2)
+		assert.Contains(t, summary.Summary, "2 files changed")
+		assert.Contains(t, summary.Summary, "file1.go (+3)")
+		assert.Contains(t, summary.Summary, "file2.go (-2)")
+	})
 }

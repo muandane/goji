@@ -69,7 +69,7 @@ func TestPhindProvider_GenerateCommitMessage(t *testing.T) {
 					`data: {"choices":[{"delta":{"content":"feat(test): implement new API final bit."}}]}`,
 				}
 				for _, line := range responseLines {
-					fmt.Fprintln(w, line)
+					_, _ = fmt.Fprintln(w, line)
 				}
 			},
 			expectedMsg: "feat(test): implement new API final bit.",
@@ -92,7 +92,7 @@ func TestPhindProvider_GenerateCommitMessage(t *testing.T) {
 					`data: {"choices":[{"delta":{"content":"fix(auth): resolve context issue"}}]}`,
 				}
 				for _, line := range responseLines {
-					fmt.Fprintln(w, line)
+					_, _ = fmt.Fprintln(w, line)
 				}
 			},
 			extraContext: "testing context",
@@ -110,8 +110,8 @@ func TestPhindProvider_GenerateCommitMessage(t *testing.T) {
 		{
 			name: "empty content in response",
 			serverHandler: func(w http.ResponseWriter, r *http.Request) {
-				fmt.Fprintln(w, `data: {"choices":[{"delta":{}}]}`)
-				fmt.Fprintln(w, `data: {}`)
+				_, _ = fmt.Fprintln(w, `data: {"choices":[{"delta":{}}]}`)
+				_, _ = fmt.Fprintln(w, `data: {}`)
 			},
 			expectErr:      true,
 			expectedErrMsg: "no completion choice in Phind response",
@@ -125,7 +125,7 @@ func TestPhindProvider_GenerateCommitMessage(t *testing.T) {
 					`data: {"choices":[{"delta":{"content":"\n"}}]}`,
 				}
 				for _, line := range responseLines {
-					fmt.Fprintln(w, line)
+					_, _ = fmt.Fprintln(w, line)
 				}
 			},
 			expectedMsg: "   \n# comment line\n",
@@ -141,7 +141,7 @@ func TestPhindProvider_GenerateCommitMessage(t *testing.T) {
 				// or write an incomplete response.
 				w.Header().Set("Content-Length", "100") // Claim a length, but don't send all of it.
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("partial content"))
+				_, _ = w.Write([]byte("partial content"))
 				// The client will try to read 100 bytes, but only gets "partial content".
 				// This should cause an EOF or similar error on read.
 			},

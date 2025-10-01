@@ -71,7 +71,7 @@ func TestOpenRouterProvider_GenerateCommitMessage(t *testing.T) {
 						{Message: OpenRouterMessage{Content: "feat: add new feature"}},
 					},
 				}
-				json.NewEncoder(w).Encode(resp)
+				_ = json.NewEncoder(w).Encode(resp)
 			},
 			apiKeyEnv:   testOpenRouterAPIKey,
 			expectedMsg: "feat: add new feature",
@@ -89,7 +89,7 @@ func TestOpenRouterProvider_GenerateCommitMessage(t *testing.T) {
 						{Message: OpenRouterMessage{Content: "docs(readme): update with context"}},
 					},
 				}
-				json.NewEncoder(w).Encode(resp)
+				_ = json.NewEncoder(w).Encode(resp)
 			},
 			apiKeyEnv:    testOpenRouterAPIKey,
 			extraContext: "Test Context",
@@ -102,7 +102,7 @@ func TestOpenRouterProvider_GenerateCommitMessage(t *testing.T) {
 				errResp := OpenRouterErrorResponse{
 					Error: OpenRouterErrorDetail{Message: "Invalid API key"},
 				}
-				json.NewEncoder(w).Encode(errResp)
+				_ = json.NewEncoder(w).Encode(errResp)
 			},
 			apiKeyEnv:      testOpenRouterAPIKey,
 			expectErr:      true,
@@ -112,7 +112,7 @@ func TestOpenRouterProvider_GenerateCommitMessage(t *testing.T) {
 			name: "API error 500 internal server error",
 			serverHandler: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusInternalServerError)
-				io.WriteString(w, "Something went wrong")
+				_, _ = io.WriteString(w, "Something went wrong")
 			},
 			apiKeyEnv:      testOpenRouterAPIKey,
 			expectErr:      true,
@@ -122,7 +122,7 @@ func TestOpenRouterProvider_GenerateCommitMessage(t *testing.T) {
 			name: "no choices in response",
 			serverHandler: func(w http.ResponseWriter, r *http.Request) {
 				resp := OpenRouterResponse{Choices: []OpenRouterResponseChoice{}}
-				json.NewEncoder(w).Encode(resp)
+				_ = json.NewEncoder(w).Encode(resp)
 			},
 			apiKeyEnv:      testOpenRouterAPIKey,
 			expectErr:      true,
@@ -136,7 +136,7 @@ func TestOpenRouterProvider_GenerateCommitMessage(t *testing.T) {
 						{Message: OpenRouterMessage{Content: "  `fix(parser): resolve issue`  \n#comment\n"}},
 					},
 				}
-				json.NewEncoder(w).Encode(resp)
+				_ = json.NewEncoder(w).Encode(resp)
 			},
 			apiKeyEnv:   testOpenRouterAPIKey,
 			expectedMsg: "fix(parser): resolve issue",

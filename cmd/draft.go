@@ -115,6 +115,9 @@ var draftCmd = &cobra.Command{
 			printErrorAndExit("❌ Unsupported AI provider: %s", cfg.AIProvider)
 		}
 
+		// Wrap provider with chunked processor for large diffs
+		chunkedProcessor := ai.NewChunkedDiffProcessor(provider)
+
 		aiCommitTypes := make(map[string]string)
 		for _, t := range cfg.Types {
 			aiCommitTypes[t.Name] = t.Description
@@ -130,8 +133,8 @@ var draftCmd = &cobra.Command{
 		// Handle both regular and detailed commit generation
 		var finalCommitMessage, commitBody string
 		if generateBody {
-			// Generate detailed commit with body
-			result, err := provider.GenerateDetailedCommit(diff, string(commitTypesJSON), extraContext)
+			// Generate detailed commit with body using chunked processor
+			result, err := chunkedProcessor.ProcessChunkedDetailedCommit(diff, string(commitTypesJSON), extraContext)
 			if err != nil {
 				printErrorAndExit("❌ Error generating detailed commit message: %v", err)
 			}
@@ -143,8 +146,8 @@ var draftCmd = &cobra.Command{
 			finalCommitMessage = processCommitMessage(result.Message, cfg.NoEmoji, cfg.Types)
 			commitBody = result.Body
 		} else {
-			// Generate simple commit message
-			commitMessage, err := provider.GenerateCommitMessage(diff, string(commitTypesJSON), extraContext)
+			// Generate simple commit message using chunked processor
+			commitMessage, err := chunkedProcessor.ProcessChunkedDiff(diff, string(commitTypesJSON), extraContext)
 			if err != nil {
 				printErrorAndExit("❌ Error generating commit message: %v", err)
 			}

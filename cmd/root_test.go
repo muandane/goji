@@ -46,7 +46,7 @@ func TestRootCmd_VersionFlag(t *testing.T) {
 	}
 
 	// Close the writer and restore os.Stdout
-	w.Close()
+	_ = w.Close()
 	os.Stdout = originalStdout
 
 	// Read the captured output

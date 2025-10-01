@@ -229,9 +229,9 @@ func TestEditCommandIntegration(t *testing.T) {
 	}
 
 	// Restore stdout
-	w.Close()
+	_ = w.Close()
 	os.Stdout = old
-	io.Copy(io.Discard, r)
+	_, _ = io.Copy(io.Discard, r)
 }
 
 // Helper functions

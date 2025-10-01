@@ -173,7 +173,7 @@ Use the following context to understand intent:
 	if err != nil {
 		return "", fmt.Errorf("failed to send request to Phind: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -308,7 +308,7 @@ Use the following context to understand intent:
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request to Phind: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
