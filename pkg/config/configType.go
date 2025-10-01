@@ -38,15 +38,15 @@ type initConfig struct {
 
 // AIChoices and AIConfig remain the same
 type AIChoices struct {
-	Phind      AIConfig `mapstructure:"phind"`
-	OpenAI     AIConfig `mapstructure:"openai"`
-	Groq       AIConfig `mapstructure:"groq"`
-	Claude     AIConfig `mapstructure:"claude"`
-	Ollama     AIConfig `mapstructure:"ollama"`
-	OpenRouter AIConfig `mapstructure:"OpenRouter"`
-	Deepseek   AIConfig `mapstructure:"deepseek"`
+	Phind      AIConfig `mapstructure:"phind" json:"phind"`
+	OpenAI     AIConfig `mapstructure:"openai" json:"openai"`
+	Groq       AIConfig `mapstructure:"groq" json:"groq"`
+	Claude     AIConfig `mapstructure:"claude" json:"claude"`
+	Ollama     AIConfig `mapstructure:"ollama" json:"ollama"`
+	OpenRouter AIConfig `mapstructure:"openrouter" json:"openrouter"`
+	Deepseek   AIConfig `mapstructure:"deepseek" json:"deepseek"`
 }
 
 type AIConfig struct {
-	Model string `mapstructure:"model"`
+	Model string `mapstructure:"model" json:"model"`
 }

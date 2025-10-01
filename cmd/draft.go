@@ -105,6 +105,12 @@ var draftCmd = &cobra.Command{
 				printErrorAndExit("❌ OPENROUTER_API_KEY environment variable not set.")
 			}
 			provider = ai.NewOpenRouterProvider(apiKey, cfg.AIChoices.OpenRouter.Model)
+		case "groq":
+			apiKey := os.Getenv("GROQ_API_KEY")
+			if apiKey == "" {
+				printErrorAndExit("❌ GROQ_API_KEY environment variable not set.")
+			}
+			provider = ai.NewGroqProvider(apiKey, cfg.AIChoices.Groq.Model)
 		default:
 			printErrorAndExit("❌ Unsupported AI provider: %s", cfg.AIProvider)
 		}
