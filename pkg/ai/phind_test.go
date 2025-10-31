@@ -205,3 +205,156 @@ func TestPhindProvider_GenerateCommitMessage(t *testing.T) {
 		})
 	}
 }
+
+func TestPhindProvider_GenerateDetailedCommit(t *testing.T) {
+	commitTypesJSON := `{"feat":"Feature","fix":"Bug fix"}`
+	diffSample := "diff --git a/main.go b/main.go\nindex 123..456 100644\n--- a/main.go\n+++ b/main.go\n@@ -1,1 +1,1 @@\n-fmt.Println(\"Hello\")\n+fmt.Println(\"Hi\")"
+
+	tests := []struct {
+		name           string
+		serverHandler  func(w http.ResponseWriter, r *http.Request)
+		extraContext   string
+		diff           string
+		expectedMsg    string
+		expectedBody   string
+		expectErr      bool
+		expectedErrMsg string
+	}{
+		{
+			name: "successful detailed commit response",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, http.MethodPost, r.Method)
+				
+				bodyBytes, _ := io.ReadAll(r.Body)
+				var payload map[string]interface{}
+				err := json.Unmarshal(bodyBytes, &payload)
+				require.NoError(t, err)
+				
+				// Check that system prompt contains detailed commit instructions
+				messageHistory := payload["message_history"].([]interface{})
+				systemMsg := messageHistory[0].(map[string]interface{})
+				assert.Contains(t, systemMsg["content"].(string), "detailed body")
+				
+				responseLines := []string{
+					`data: {"choices":[{"delta":{"content":"Title: feat(test): implement new API"}}]}`,
+					`data: {"choices":[{"delta":{"content":"\n\nBody:\n• First point\n• Second point"}}]}`,
+				}
+				for _, line := range responseLines {
+					_, _ = fmt.Fprintln(w, line)
+				}
+			},
+			diff:        diffSample,
+			expectedMsg: "feat(test): implement new API",
+			expectedBody: "• First point\n• Second point",
+			expectErr:   false,
+		},
+		{
+			name: "empty diff error",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				// Handler shouldn't be called
+			},
+			diff:           "",
+			expectErr:      true,
+			expectedErrMsg: "empty diff provided",
+		},
+		{
+			name: "API returns non-200 status",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "internal server error", http.StatusInternalServerError)
+			},
+			diff:           diffSample,
+			expectErr:      true,
+			expectedErrMsg: "phind API returned status 500",
+		},
+		{
+			name: "empty content in response",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				_, _ = fmt.Fprintln(w, `data: {"choices":[{"delta":{}}]}`)
+			},
+			diff:           diffSample,
+			expectErr:      true,
+			expectedErrMsg: "no completion choice in Phind response",
+		},
+		{
+			name: "detailed commit with extra context",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				bodyBytes, _ := io.ReadAll(r.Body)
+				var payload map[string]interface{}
+				err := json.Unmarshal(bodyBytes, &payload)
+				require.NoError(t, err)
+				
+				messageHistory := payload["message_history"].([]interface{})
+				userMsg := messageHistory[1].(map[string]interface{})
+				assert.Contains(t, userMsg["content"].(string), "testing context")
+				
+				responseLines := []string{
+					`data: {"choices":[{"delta":{"content":"Title: fix(auth): resolve context issue\n\nBody:\n• Point about context"}}]}`,
+				}
+				for _, line := range responseLines {
+					_, _ = fmt.Fprintln(w, line)
+				}
+			},
+			diff:         diffSample,
+			extraContext: "testing context",
+			expectedMsg:  "fix(auth): resolve context issue",
+			expectedBody: "• Point about context",
+			expectErr:    false,
+		},
+		{
+			name: "unstructured response format",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				responseLines := []string{
+					`data: {"choices":[{"delta":{"content":"feat(test): simple commit message"}}]}`,
+				}
+				for _, line := range responseLines {
+					_, _ = fmt.Fprintln(w, line)
+				}
+			},
+			diff:        diffSample,
+			expectedMsg: "feat(test): simple commit message",
+			expectedBody: "",
+			expectErr:   false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.diff == "" {
+				// Test empty diff case
+				provider := NewPhindProvider("")
+				_, err := provider.GenerateDetailedCommit(tt.diff, commitTypesJSON, tt.extraContext)
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tt.expectedErrMsg)
+				return
+			}
+
+			server := httptest.NewServer(http.HandlerFunc(tt.serverHandler))
+			defer server.Close()
+
+			providerForTest := &PhindProvider{
+				client: &http.Client{
+					Timeout:   5 * time.Second,
+					Transport: server.Client().Transport,
+				},
+				config: PhindConfig{
+					Model:      "Phind-70B",
+					APIBaseURL: server.URL + "/agent/",
+				},
+			}
+
+			result, err := providerForTest.GenerateDetailedCommit(tt.diff, commitTypesJSON, tt.extraContext)
+
+			if tt.expectErr {
+				assert.Error(t, err)
+				if tt.expectedErrMsg != "" {
+					assert.Contains(t, err.Error(), tt.expectedErrMsg)
+				}
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, result)
+				assert.Equal(t, tt.expectedMsg, result.Message)
+				assert.Equal(t, tt.expectedBody, result.Body)
+			}
+		})
+	}
+}

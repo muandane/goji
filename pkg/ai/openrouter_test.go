@@ -173,3 +173,188 @@ func TestOpenRouterProvider_GenerateCommitMessage(t *testing.T) {
 		})
 	}
 }
+
+func TestOpenRouterProvider_GenerateDetailedCommit(t *testing.T) {
+	commitTypesJSON := `{"feat":"New feature","fix":"Bug fix"}`
+	diffSample := "diff --git a/main.go b/main.go\n--- a/main.go\n+++ b/main.go\n@@ -1 +1 @@\n-old\n+new"
+
+	tests := []struct {
+		name           string
+		serverHandler  func(w http.ResponseWriter, r *http.Request)
+		extraContext   string
+		diff           string
+		expectedMsg    string
+		expectedBody   string
+		expectErr      bool
+		expectedErrStr string
+	}{
+		{
+			name: "successful detailed commit response",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				assert.Equal(t, "Bearer "+testOpenRouterAPIKey, r.Header.Get("Authorization"))
+
+				var reqPayload OpenRouterRequest
+				err := json.NewDecoder(r.Body).Decode(&reqPayload)
+				require.NoError(t, err)
+
+				// Check that system prompt contains detailed commit instructions
+				assert.Contains(t, reqPayload.Messages[0].Content, "detailed body")
+
+				resp := OpenRouterResponse{
+					Choices: []OpenRouterResponseChoice{
+						{
+							Message: OpenRouterMessage{
+								Content: `Title: feat(test): implement new API
+
+Body:
+• First detailed point about the changes
+• Second detailed point about the changes`,
+							},
+						},
+					},
+				}
+				_ = json.NewEncoder(w).Encode(resp)
+			},
+			diff:         diffSample,
+			expectedMsg:  "feat(test): implement new API",
+			expectedBody: "• First detailed point about the changes\n• Second detailed point about the changes",
+			expectErr:    false,
+		},
+		{
+			name: "empty diff error",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				// Handler shouldn't be called
+			},
+			diff:           "",
+			expectErr:      true,
+			expectedErrStr: "empty diff provided",
+		},
+		{
+			name: "API error 500",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, _ = io.WriteString(w, "Internal server error")
+			},
+			diff:           diffSample,
+			expectErr:      true,
+			expectedErrStr: "openrouter API returned status 500",
+		},
+		{
+			name: "no choices in response",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				resp := OpenRouterResponse{Choices: []OpenRouterResponseChoice{}}
+				_ = json.NewEncoder(w).Encode(resp)
+			},
+			diff:           diffSample,
+			expectErr:      true,
+			expectedErrStr: "no content found in OpenRouter response",
+		},
+		{
+			name: "empty message content",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				resp := OpenRouterResponse{
+					Choices: []OpenRouterResponseChoice{
+						{Message: OpenRouterMessage{Content: ""}},
+					},
+				}
+				_ = json.NewEncoder(w).Encode(resp)
+			},
+			diff:           diffSample,
+			expectErr:      true,
+			expectedErrStr: "no content found in OpenRouter response",
+		},
+		{
+			name: "unstructured response format",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				resp := OpenRouterResponse{
+					Choices: []OpenRouterResponseChoice{
+						{Message: OpenRouterMessage{Content: "feat(test): simple commit message"}},
+					},
+				}
+				_ = json.NewEncoder(w).Encode(resp)
+			},
+			diff:         diffSample,
+			expectedMsg:  "feat(test): simple commit message",
+			expectedBody: "",
+			expectErr:    false,
+		},
+		{
+			name: "detailed commit with extra context",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				var reqPayload OpenRouterRequest
+				err := json.NewDecoder(r.Body).Decode(&reqPayload)
+				require.NoError(t, err)
+				assert.Contains(t, reqPayload.Messages[1].Content, "testing context")
+
+				resp := OpenRouterResponse{
+					Choices: []OpenRouterResponseChoice{
+						{
+							Message: OpenRouterMessage{
+								Content: `Title: fix(auth): resolve context issue
+
+Body:
+• Point about context`,
+							},
+						},
+					},
+				}
+				_ = json.NewEncoder(w).Encode(resp)
+			},
+			diff:         diffSample,
+			extraContext: "testing context",
+			expectedMsg:  "fix(auth): resolve context issue",
+			expectedBody: "• Point about context",
+			expectErr:    false,
+		},
+		{
+			name: "no valid commit message found - empty after parsing",
+			serverHandler: func(w http.ResponseWriter, r *http.Request) {
+				resp := OpenRouterResponse{
+					Choices: []OpenRouterResponseChoice{
+						{Message: OpenRouterMessage{Content: ""}},
+					},
+				}
+				_ = json.NewEncoder(w).Encode(resp)
+			},
+			diff:           diffSample,
+			expectErr:      true,
+			expectedErrStr: "no content found in OpenRouter response",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.diff == "" {
+				// Test empty diff case
+				provider := NewOpenRouterProvider(testOpenRouterAPIKey, "")
+				_, err := provider.GenerateDetailedCommit(tt.diff, commitTypesJSON, tt.extraContext)
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tt.expectedErrStr)
+				return
+			}
+
+			server := httptest.NewServer(http.HandlerFunc(tt.serverHandler))
+			defer server.Close()
+
+			originalURL := openRouterAPIURL
+			openRouterAPIURL = server.URL
+			defer func() { openRouterAPIURL = originalURL }()
+
+			provider := NewOpenRouterProvider(testOpenRouterAPIKey, "mistralai/devstral-small:free")
+
+			result, err := provider.GenerateDetailedCommit(tt.diff, commitTypesJSON, tt.extraContext)
+
+			if tt.expectErr {
+				assert.Error(t, err)
+				if tt.expectedErrStr != "" {
+					assert.Contains(t, err.Error(), tt.expectedErrStr)
+				}
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, result)
+				assert.Equal(t, tt.expectedMsg, result.Message)
+				assert.Equal(t, tt.expectedBody, result.Body)
+			}
+		})
+	}
+}
