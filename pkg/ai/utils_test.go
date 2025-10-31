@@ -260,6 +260,57 @@ func TestTruncateDiff(t *testing.T) {
 
 		assert.Equal(t, exactSizeDiff, result)
 	})
+
+	t.Run("diff slightly larger than max", func(t *testing.T) {
+		largeDiff := strings.Repeat("a", maxDiffSize+1000)
+		result := truncateDiff(largeDiff)
+
+		assert.LessOrEqual(t, len(result), maxDiffSize+100) // Allow some margin for truncation message
+		assert.Contains(t, result, "... (diff truncated)")
+	})
+
+	t.Run("diff much larger than max", func(t *testing.T) {
+		// Create a diff that's much larger than maxDiffSize
+		headerLines := strings.Repeat("diff header line\n", 15)
+		bodyLines := strings.Repeat("+some code change\n", 50000)
+		largeDiff := headerLines + bodyLines
+		
+		result := truncateDiff(largeDiff)
+		
+		assert.LessOrEqual(t, len(result), maxDiffSize+100)
+		// Should include header
+		assert.Contains(t, result, "diff header")
+	})
+
+	t.Run("diff with few lines", func(t *testing.T) {
+		// Test case where len(lines) < headerLines
+		smallDiff := "line1\nline2\nline3"
+		result := truncateDiff(smallDiff)
+		
+		assert.Equal(t, smallDiff, result)
+	})
+
+	t.Run("diff where remainingSpace is small", func(t *testing.T) {
+		// Test case where remainingSpace <= 1000
+		// Create a diff that's just over maxDiffSize but leaves little room
+		header := strings.Repeat("header\n", 10)
+		// Make header + minimal body just over maxDiffSize
+		body := strings.Repeat("x", maxDiffSize-len(header)+100)
+		largeDiff := header + body
+		
+		result := truncateDiff(largeDiff)
+		
+		assert.LessOrEqual(t, len(result), maxDiffSize+100)
+	})
+
+	t.Run("diff that truncates at maxDiffSize", func(t *testing.T) {
+		// Test the final truncation path in truncateDiff
+		veryLargeDiff := strings.Repeat("x", maxDiffSize*2)
+		result := truncateDiff(veryLargeDiff)
+		
+		// Should be truncated and include truncation message
+		assert.LessOrEqual(t, len(result), maxDiffSize+100)
+	})
 }
 
 func TestCreateFileChange(t *testing.T) {

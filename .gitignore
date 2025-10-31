@@ -5,3 +5,4 @@ cat.sh
 result
 *.txt
 **/.env
+coverage.out

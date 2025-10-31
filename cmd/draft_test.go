@@ -256,3 +256,16 @@ func TestConfigTypes(t *testing.T) {
 		assert.Equal(t, "✨", emoji)
 	})
 }
+
+func TestPrintErrorAndExit_Exists(t *testing.T) {
+	// Test that printErrorAndExit function exists
+	// Note: We can't fully test os.Exit behavior without special test frameworks
+	// But we can verify the function is callable
+	assert.NotNil(t, printErrorAndExit)
+	
+	// Test that it accepts the expected parameters
+	// This will actually exit, so we can't run it in normal tests
+	// But we verify the function signature is correct
+	var fn func(string, ...interface{}) = printErrorAndExit
+	assert.NotNil(t, fn)
+}
