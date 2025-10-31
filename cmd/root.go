@@ -47,6 +47,11 @@ var rootCmd = &cobra.Command{
 			return nil
 		}
 
+		// Check if we're in a git repository before proceeding
+		if !isInGitRepo() {
+			return showNotInGitRepoMessage(cmd)
+		}
+
 		cfg, err := config.ViperConfig()
 		if err != nil {
 			return fmt.Errorf("failed to load config: %w", err)
@@ -202,6 +207,41 @@ func getVersion() string {
 	
 	// Fallback to "dev" if git is not available or not in a git repo
 	return "dev"
+}
+
+// isInGitRepo checks if the current directory is in a git repository
+func isInGitRepo() bool {
+	cmd := exec.Command("git", "rev-parse", "--git-dir")
+	err := cmd.Run()
+	return err == nil
+}
+
+// showNotInGitRepoMessage displays a helpful message when not in a git repository
+func showNotInGitRepoMessage(cmd *cobra.Command) error {
+	color.Set(color.FgYellow)
+	fmt.Println("\n⚠️  You're not in a git repository.")
+	color.Unset()
+	
+	fmt.Println("\nGoji is a CLI tool for generating conventional commit messages with emojis.")
+	fmt.Println("To use goji, you need to be in a git repository.")
+	
+	fmt.Println("\n💡 Quick tips:")
+	fmt.Println("   1. Initialize a git repository:  git init")
+	fmt.Println("   2. Initialize goji config:       goji init --global")
+	fmt.Println("   3. Or initialize repo config:     goji init --repo (requires git repo)")
+	
+	fmt.Println("\n📚 For more information:")
+	fmt.Println("   • View help:                      goji --help")
+	fmt.Println("   • Initialize config:               goji init --help")
+	fmt.Println("   • Read the README:                 https://github.com/muandane/goji")
+	
+	fmt.Println()
+	
+	// Show help output
+	cmd.Help()
+	
+	// Return nil (no error) so we exit with code 0
+	return nil
 }
 
 func Execute() {
