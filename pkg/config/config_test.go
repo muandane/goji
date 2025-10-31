@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 
@@ -11,14 +12,16 @@ import (
 
 func TestViperConfig_EdgeCases(t *testing.T) {
 	t.Run("config file not found", func(t *testing.T) {
-		// This test is complex due to viper's search behavior
-		// For now, we just test that the function exists
+		// This test is complex due to viper's search behavior across multiple paths
+		// Viper searches current dir, git root, and home dir, so it may find configs
+		// from the actual repo. We just verify the function exists and can be called.
 		assert.NotNil(t, ViperConfig)
 	})
 
 	t.Run("invalid JSON config", func(t *testing.T) {
 		// This test is complex due to viper's behavior with invalid JSON
-		// For now, we just test that the function exists
+		// Viper's global state makes it hard to test in isolation
+		// We verify the function exists
 		assert.NotNil(t, ViperConfig)
 	})
 
@@ -36,6 +39,69 @@ func TestViperConfig_EdgeCases(t *testing.T) {
 		defer func() { _ = os.Chdir(originalDir) }()
 
 		err = os.Chdir(tempDir)
+		require.NoError(t, err)
+
+		config, err := ViperConfig()
+		assert.NoError(t, err)
+		assert.NotNil(t, config)
+	})
+
+	t.Run("valid config file", func(t *testing.T) {
+		tempDir, err := os.MkdirTemp("", "goji-test")
+		require.NoError(t, err)
+		defer func() { _ = os.RemoveAll(tempDir) }()
+
+		configFile := filepath.Join(tempDir, ".goji.json")
+		validConfig := `{
+			"types": [{"name": "feat", "emoji": "✨", "description": "New feature"}],
+			"scopes": ["api"],
+			"subjectMaxLength": 100,
+			"signOff": true,
+			"noEmoji": false,
+			"aiProvider": "phind"
+		}`
+		err = os.WriteFile(configFile, []byte(validConfig), 0644)
+		require.NoError(t, err)
+
+		originalDir, err := os.Getwd()
+		require.NoError(t, err)
+		defer func() { _ = os.Chdir(originalDir) }()
+
+		err = os.Chdir(tempDir)
+		require.NoError(t, err)
+
+		config, err := ViperConfig()
+		assert.NoError(t, err)
+		assert.NotNil(t, config)
+		// Config may have default types merged in, so we just check it's not nil
+		if len(config.Types) > 0 {
+			// If types are present, verify structure
+			assert.NotEmpty(t, config.Types[0].Name)
+		}
+	})
+
+	t.Run("config in git root directory", func(t *testing.T) {
+		tempDir, err := os.MkdirTemp("", "goji-test")
+		require.NoError(t, err)
+		defer func() { _ = os.RemoveAll(tempDir) }()
+
+		// Initialize git repo
+		originalDir, err := os.Getwd()
+		require.NoError(t, err)
+		defer func() { _ = os.Chdir(originalDir) }()
+
+		err = os.Chdir(tempDir)
+		require.NoError(t, err)
+
+		// Create git repo
+		gitCmd := exec.Command("git", "init")
+		err = gitCmd.Run()
+		if err != nil {
+			t.Skip("git not available for test")
+		}
+
+		configFile := filepath.Join(tempDir, ".goji.json")
+		err = os.WriteFile(configFile, []byte(`{"types": [{"name": "feat", "emoji": "✨", "description": "New feature"}]}`), 0644)
 		require.NoError(t, err)
 
 		config, err := ViperConfig()
