@@ -6,8 +6,28 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/muandane/goji/pkg/models"
 	"github.com/spf13/viper"
 )
+
+// gitmojiToCommitType converts a Gitmoji to models.CommitType
+func gitmojiToCommitType(g Gitmoji) models.CommitType {
+	return models.CommitType{
+		Emoji:       g.Emoji,
+		Code:        g.Code,
+		Description: g.Description,
+		Name:        g.Name,
+	}
+}
+
+// gitmojisToCommitTypes converts a slice of Gitmoji to []models.CommitType
+func gitmojisToCommitTypes(gitmojis []Gitmoji) []models.CommitType {
+	commitTypes := make([]models.CommitType, len(gitmojis))
+	for i, g := range gitmojis {
+		commitTypes[i] = gitmojiToCommitType(g)
+	}
+	return commitTypes
+}
 
 func ViperConfig() (*Config, error) {
 	viper.SetConfigName(".goji")
@@ -50,6 +70,12 @@ func ViperConfig() (*Config, error) {
 	var config Config
 	if errUnmarshal := viper.Unmarshal(&config); errUnmarshal != nil {
 		return nil, fmt.Errorf("error unmarshaling config: %w", errUnmarshal)
+	}
+
+	// If Types is empty or nil, fallback to default types
+	if len(config.Types) == 0 {
+		defaultGitmojis := AddCustomCommitTypes([]Gitmoji{})
+		config.Types = gitmojisToCommitTypes(defaultGitmojis)
 	}
 
 	return &config, nil

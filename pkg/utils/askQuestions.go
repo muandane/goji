@@ -13,6 +13,11 @@ import (
 func AskQuestions(config *config.Config, presetType, presetMessage string) ([]string, error) {
 	var commitType, commitScope, commitSubject, commitDescription string
 
+	// Validate that Types is not empty
+	if len(config.Types) == 0 {
+		return nil, fmt.Errorf("no commit types configured. Please run 'goji init --global' or 'goji init --repo' to initialize your configuration")
+	}
+
 	nameStyle := lipgloss.NewStyle().Width(15).Align(lipgloss.Left)
 	emojiStyle := lipgloss.NewStyle().Width(5).PaddingRight(5).Align(lipgloss.Left)
 	descStyle := lipgloss.NewStyle().Width(45).Align(lipgloss.Left)

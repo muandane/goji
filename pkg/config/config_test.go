@@ -44,6 +44,33 @@ func TestViperConfig_EdgeCases(t *testing.T) {
 		config, err := ViperConfig()
 		assert.NoError(t, err)
 		assert.NotNil(t, config)
+		// Verify that default types are loaded when config is empty
+		assert.NotEmpty(t, config.Types, "Types should not be empty - default types should be loaded")
+		assert.Len(t, config.Types, 11, "Should have 11 default types")
+	})
+
+	t.Run("config file with empty types array", func(t *testing.T) {
+		tempDir, err := os.MkdirTemp("", "goji-test")
+		require.NoError(t, err)
+		defer func() { _ = os.RemoveAll(tempDir) }()
+
+		configFile := filepath.Join(tempDir, ".goji.json")
+		err = os.WriteFile(configFile, []byte(`{"types": []}`), 0644)
+		require.NoError(t, err)
+
+		originalDir, err := os.Getwd()
+		require.NoError(t, err)
+		defer func() { _ = os.Chdir(originalDir) }()
+
+		err = os.Chdir(tempDir)
+		require.NoError(t, err)
+
+		config, err := ViperConfig()
+		assert.NoError(t, err)
+		assert.NotNil(t, config)
+		// Verify that default types are loaded when types array is empty
+		assert.NotEmpty(t, config.Types, "Types should not be empty - default types should be loaded")
+		assert.Len(t, config.Types, 11, "Should have 11 default types")
 	})
 
 	t.Run("valid config file", func(t *testing.T) {
