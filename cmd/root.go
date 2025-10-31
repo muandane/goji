@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/charmbracelet/lipgloss" // Ensure lipgloss is imported for styles
 	"github.com/fatih/color"
@@ -41,7 +42,8 @@ var rootCmd = &cobra.Command{
 	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if versionFlag {
-			color.Green("goji version: v%s", version)
+			v := getVersion()
+			color.Green("goji version: v%s", v)
 			return nil
 		}
 
@@ -168,6 +170,38 @@ func contains(slice []string, item string) bool {
 		}
 	}
 	return false
+}
+
+// getVersion returns the version string, falling back to git tag detection if version is empty
+func getVersion() string {
+	if version != "" {
+		return version
+	}
+	
+	// Try to get version from git describe
+	cmd := exec.Command("git", "describe", "--tags", "--always", "--dirty")
+	output, err := cmd.Output()
+	if err == nil {
+		v := strings.TrimSpace(string(output))
+		// Remove 'v' prefix if present
+		v = strings.TrimPrefix(v, "v")
+		// Clean up any newlines
+		v = strings.TrimRight(v, "\n\r")
+		// If the version contains a dash (e.g., "0.1.8-2-g035f84e-dirty"), 
+		// extract just the version part before the first dash for cleaner output
+		if idx := strings.Index(v, "-"); idx > 0 {
+			// Keep the full string if it's just a commit hash, otherwise use prefix
+			if strings.HasPrefix(v, "0.") || strings.HasPrefix(v, "1.") || strings.HasPrefix(v, "2.") {
+				v = v[:idx]
+			}
+		}
+		if v != "" {
+			return v
+		}
+	}
+	
+	// Fallback to "dev" if git is not available or not in a git repo
+	return "dev"
 }
 
 func Execute() {

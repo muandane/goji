@@ -64,7 +64,17 @@ winget install muandane.goji
 
 ```sh
 git clone https://github.com/muandane/goji.git && cd goji
-go build -ldflags "-s -w -X goji/cmd.version=0.0.8"
+# Auto-detect version from git tags (recommended)
+VERSION=$(git describe --tags --always --dirty | sed 's/^v//')
+go build -ldflags "-s -w -X github.com/muandane/goji/cmd.version=${VERSION}"
+mv goji /usr/local/bin
+goji --version
+```
+
+Or manually specify the version:
+
+```sh
+go build -ldflags "-s -w -X github.com/muandane/goji/cmd.version=0.1.8"
 mv goji /usr/local/bin
 goji --version
 ```
