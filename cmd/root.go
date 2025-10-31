@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/charmbracelet/lipgloss" // Ensure lipgloss is imported for styles
 	"github.com/fatih/color"
@@ -41,8 +42,14 @@ var rootCmd = &cobra.Command{
 	SilenceErrors: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if versionFlag {
-			color.Green("goji version: v%s", version)
+			v := getVersion()
+			color.Green("goji version: v%s", v)
 			return nil
+		}
+
+		// Check if we're in a git repository before proceeding
+		if !isInGitRepo() {
+			return showNotInGitRepoMessage(cmd)
 		}
 
 		cfg, err := config.ViperConfig()
@@ -168,6 +175,73 @@ func contains(slice []string, item string) bool {
 		}
 	}
 	return false
+}
+
+// getVersion returns the version string, falling back to git tag detection if version is empty
+func getVersion() string {
+	if version != "" {
+		return version
+	}
+	
+	// Try to get version from git describe
+	cmd := exec.Command("git", "describe", "--tags", "--always", "--dirty")
+	output, err := cmd.Output()
+	if err == nil {
+		v := strings.TrimSpace(string(output))
+		// Remove 'v' prefix if present
+		v = strings.TrimPrefix(v, "v")
+		// Clean up any newlines
+		v = strings.TrimRight(v, "\n\r")
+		// If the version contains a dash (e.g., "0.1.8-2-g035f84e-dirty"), 
+		// extract just the version part before the first dash for cleaner output
+		if idx := strings.Index(v, "-"); idx > 0 {
+			// Keep the full string if it's just a commit hash, otherwise use prefix
+			if strings.HasPrefix(v, "0.") || strings.HasPrefix(v, "1.") || strings.HasPrefix(v, "2.") {
+				v = v[:idx]
+			}
+		}
+		if v != "" {
+			return v
+		}
+	}
+	
+	// Fallback to "dev" if git is not available or not in a git repo
+	return "dev"
+}
+
+// isInGitRepo checks if the current directory is in a git repository
+func isInGitRepo() bool {
+	cmd := exec.Command("git", "rev-parse", "--git-dir")
+	err := cmd.Run()
+	return err == nil
+}
+
+// showNotInGitRepoMessage displays a helpful message when not in a git repository
+func showNotInGitRepoMessage(cmd *cobra.Command) error {
+	color.Set(color.FgYellow)
+	fmt.Println("\n⚠️  You're not in a git repository.")
+	color.Unset()
+	
+	fmt.Println("\nGoji is a CLI tool for generating conventional commit messages with emojis.")
+	fmt.Println("To use goji, you need to be in a git repository.")
+	
+	fmt.Println("\n💡 Quick tips:")
+	fmt.Println("   1. Initialize a git repository:  git init")
+	fmt.Println("   2. Initialize goji config:       goji init --global")
+	fmt.Println("   3. Or initialize repo config:     goji init --repo (requires git repo)")
+	
+	fmt.Println("\n📚 For more information:")
+	fmt.Println("   • View help:                      goji --help")
+	fmt.Println("   • Initialize config:               goji init --help")
+	fmt.Println("   • Read the README:                 https://github.com/muandane/goji")
+	
+	fmt.Println()
+	
+	// Show help output
+	cmd.Help()
+	
+	// Return nil (no error) so we exit with code 0
+	return nil
 }
 
 func Execute() {
