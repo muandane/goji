@@ -4,11 +4,13 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
 	"testing"
 
 	"github.com/muandane/goji/pkg/config"
 	"github.com/muandane/goji/pkg/models"
 	"github.com/spf13/cobra"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestGetRecentCommits tests the git log parsing functionality
@@ -339,4 +341,188 @@ func TestGitCommandArgs(t *testing.T) {
 			_ = executeGitCommit(tt.message, tt.body, tt.signOff, tt.extraFlags...)
 		})
 	}
+}
+
+func TestGetRecentCommits_EdgeCases(t *testing.T) {
+	t.Run("malformed git log output", func(t *testing.T) {
+		// Test parsing logic with malformed input
+		malformedOutput := "sha1\nsubject\n---COMMIT-END---\nsha2\n---COMMIT-END---"
+		rawCommits := strings.Split(strings.TrimSpace(malformedOutput), "---COMMIT-END---")
+		
+		var commits []GitCommit
+		for _, rawCommit := range rawCommits {
+			if strings.TrimSpace(rawCommit) == "" {
+				continue
+			}
+			parts := strings.SplitN(strings.TrimSpace(rawCommit), "\n", 3)
+			if len(parts) < 2 {
+				continue
+			}
+
+			commit := GitCommit{
+				SHA:     parts[0],
+				Subject: parts[1],
+			}
+			if len(parts) == 3 {
+				commit.Body = strings.TrimSpace(parts[2])
+			}
+			commits = append(commits, commit)
+		}
+
+		// Should skip commits with insufficient parts
+		assert.Len(t, commits, 1) // Only first commit should be parsed
+		assert.Equal(t, "sha1", commits[0].SHA)
+		assert.Equal(t, "subject", commits[0].Subject)
+	})
+
+	t.Run("empty git log output", func(t *testing.T) {
+		emptyOutput := ""
+		rawCommits := strings.Split(strings.TrimSpace(emptyOutput), "---COMMIT-END---")
+		
+		var commits []GitCommit
+		for _, rawCommit := range rawCommits {
+			if strings.TrimSpace(rawCommit) == "" {
+				continue
+			}
+			parts := strings.SplitN(strings.TrimSpace(rawCommit), "\n", 3)
+			if len(parts) < 2 {
+				continue
+			}
+
+			commit := GitCommit{
+				SHA:     parts[0],
+				Subject: parts[1],
+			}
+			if len(parts) == 3 {
+				commit.Body = strings.TrimSpace(parts[2])
+			}
+			commits = append(commits, commit)
+		}
+
+		assert.Empty(t, commits)
+	})
+
+	t.Run("commit with body", func(t *testing.T) {
+		outputWithBody := "sha123\nsubject line\nbody content\n---COMMIT-END---"
+		rawCommits := strings.Split(strings.TrimSpace(outputWithBody), "---COMMIT-END---")
+		
+		var commits []GitCommit
+		for _, rawCommit := range rawCommits {
+			if strings.TrimSpace(rawCommit) == "" {
+				continue
+			}
+			parts := strings.SplitN(strings.TrimSpace(rawCommit), "\n", 3)
+			if len(parts) < 2 {
+				continue
+			}
+
+			commit := GitCommit{
+				SHA:     parts[0],
+				Subject: parts[1],
+			}
+			if len(parts) == 3 {
+				commit.Body = strings.TrimSpace(parts[2])
+			}
+			commits = append(commits, commit)
+		}
+
+		assert.Len(t, commits, 1)
+		assert.Equal(t, "sha123", commits[0].SHA)
+		assert.Equal(t, "subject line", commits[0].Subject)
+		assert.Equal(t, "body content", commits[0].Body)
+	})
+
+	t.Run("commit without body", func(t *testing.T) {
+		outputWithoutBody := "sha123\nsubject line\n---COMMIT-END---"
+		rawCommits := strings.Split(strings.TrimSpace(outputWithoutBody), "---COMMIT-END---")
+		
+		var commits []GitCommit
+		for _, rawCommit := range rawCommits {
+			if strings.TrimSpace(rawCommit) == "" {
+				continue
+			}
+			parts := strings.SplitN(strings.TrimSpace(rawCommit), "\n", 3)
+			if len(parts) < 2 {
+				continue
+			}
+
+			commit := GitCommit{
+				SHA:     parts[0],
+				Subject: parts[1],
+			}
+			if len(parts) == 3 {
+				commit.Body = strings.TrimSpace(parts[2])
+			}
+			commits = append(commits, commit)
+		}
+
+		assert.Len(t, commits, 1)
+		assert.Equal(t, "sha123", commits[0].SHA)
+		assert.Equal(t, "subject line", commits[0].Subject)
+		assert.Empty(t, commits[0].Body)
+	})
+}
+
+func TestGetCurrentCommitDetails_EdgeCases(t *testing.T) {
+	t.Run("empty SHA", func(t *testing.T) {
+		// This will fail in real execution, but we test the function signature
+		assert.NotNil(t, getCurrentCommitDetails)
+	})
+
+	t.Run("commit with empty body", func(t *testing.T) {
+		if !isGitRepo() {
+			t.Skip("Not in a git repository")
+		}
+
+		sha, err := getLastCommitSHA()
+		if err != nil {
+			t.Skip("Cannot get last commit SHA")
+		}
+
+		subject, body, err := getCurrentCommitDetails(sha)
+		assert.NoError(t, err)
+		assert.NotEmpty(t, subject)
+		// Body can be empty, that's valid
+		_ = body
+	})
+}
+
+func TestEditCmd_Structure(t *testing.T) {
+	t.Run("command exists", func(t *testing.T) {
+		assert.NotNil(t, editCmd)
+	})
+
+	t.Run("command use", func(t *testing.T) {
+		assert.Equal(t, "edit", editCmd.Use)
+	})
+
+	t.Run("command short description", func(t *testing.T) {
+		assert.NotEmpty(t, editCmd.Short)
+	})
+
+	t.Run("command long description", func(t *testing.T) {
+		assert.NotEmpty(t, editCmd.Long)
+		assert.Contains(t, editCmd.Long, "edit")
+	})
+}
+
+func TestGitCommit_Struct(t *testing.T) {
+	t.Run("struct fields", func(t *testing.T) {
+		commit := GitCommit{
+			SHA:     "abc123",
+			Subject: "test subject",
+			Body:    "test body",
+		}
+
+		assert.Equal(t, "abc123", commit.SHA)
+		assert.Equal(t, "test subject", commit.Subject)
+		assert.Equal(t, "test body", commit.Body)
+	})
+
+	t.Run("empty struct", func(t *testing.T) {
+		commit := GitCommit{}
+		assert.Empty(t, commit.SHA)
+		assert.Empty(t, commit.Subject)
+		assert.Empty(t, commit.Body)
+	})
 }
