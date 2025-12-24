@@ -11,6 +11,8 @@ import (
 	"github.com/muandane/goji/pkg/config"
 	"github.com/muandane/goji/pkg/utils"
 	"github.com/spf13/cobra"
+
+	"github.com/carapace-sh/carapace"
 )
 
 var (
@@ -245,6 +247,7 @@ func showNotInGitRepoMessage(cmd *cobra.Command) error {
 }
 
 func Execute() {
+	carapace.Gen(rootCmd)
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
