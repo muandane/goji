@@ -98,12 +98,6 @@ func init() {
 
 	rootCmd.Flags().StringArrayVar(&gitFlags, "git-flag", []string{}, "Additional Git flags (can be used multiple times)")
 	rootCmd.AddCommand(editCmd) // Ensure editCmd is added
-	// Add existing commands
-	rootCmd.AddCommand(completionCmd)
-	rootCmd.AddCommand(draftCmd)
-	rootCmd.AddCommand(checkCmd)
-	rootCmd.AddCommand(initCmd)
-	rootCmd.AddCommand(manCmd)
 }
 
 func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag string) string {
