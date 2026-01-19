@@ -72,9 +72,8 @@ func InitRepoConfig(global, repo bool) error {
 		SubjectMaxLength: 100,
 		SignOff:          true,
 		NoEmoji:          false,
-		AIProvider:       "phind",
+		AIProvider:       "openrouter",
 		AIChoices: AIChoices{
-			Phind:      AIConfig{Model: "Phind-70B"},
 			OpenRouter: AIConfig{Model: "anthropic/claude-3.5-sonnet"},
 			Groq:       AIConfig{Model: "openai/gpt-oss-20b"},
 		},

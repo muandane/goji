@@ -80,7 +80,7 @@ func processCommitMessage(commitMessage string, noEmoji bool, configTypes []mode
 var draftCmd = &cobra.Command{
 	Use:   "draft",
 	Short: "Generate a commit message for staged changes using AI",
-	Long:  `This command connects to an AI provider (e.g., Phind) to generate a commit message based on your staged changes.`,
+	Long:  `This command connects to an AI provider (e.g., OpenRouter, Groq) to generate a commit message based on your staged changes.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(headerStyle.Render("✨ AI Commit Message Generator"))
 
@@ -95,24 +95,24 @@ var draftCmd = &cobra.Command{
 			printErrorAndExit("❌ Error getting staged diff: %v", err)
 		}
 
-		var provider ai.AIProvider
-		switch cfg.AIProvider {
-		case "phind":
-			provider = ai.NewPhindProvider(cfg.AIChoices.Phind.Model)
-		case "openrouter":
-			apiKey := os.Getenv("OPENROUTER_API_KEY")
-			if apiKey == "" {
-				printErrorAndExit("❌ OPENROUTER_API_KEY environment variable not set.")
-			}
-			provider = ai.NewOpenRouterProvider(apiKey, cfg.AIChoices.OpenRouter.Model)
-		case "groq":
-			apiKey := os.Getenv("GROQ_API_KEY")
-			if apiKey == "" {
-				printErrorAndExit("❌ GROQ_API_KEY environment variable not set.")
-			}
-			provider = ai.NewGroqProvider(apiKey, cfg.AIChoices.Groq.Model)
-		default:
-			printErrorAndExit("❌ Unsupported AI provider: %s", cfg.AIProvider)
+	var provider ai.AIProvider
+	switch cfg.AIProvider {
+	case "phind":
+		printErrorAndExit("❌ Phind provider has been permanently shut down and is no longer supported. Please update your .goji.json to use 'openrouter' or 'groq' instead.")
+	case "openrouter":
+		apiKey := os.Getenv("OPENROUTER_API_KEY")
+		if apiKey == "" {
+			printErrorAndExit("❌ OPENROUTER_API_KEY environment variable not set.")
+		}
+		provider = ai.NewOpenRouterProvider(apiKey, cfg.AIChoices.OpenRouter.Model)
+	case "groq":
+		apiKey := os.Getenv("GROQ_API_KEY")
+		if apiKey == "" {
+			printErrorAndExit("❌ GROQ_API_KEY environment variable not set.")
+		}
+		provider = ai.NewGroqProvider(apiKey, cfg.AIChoices.Groq.Model)
+	default:
+		printErrorAndExit("❌ Unsupported AI provider: %s", cfg.AIProvider)
 		}
 
 		// Wrap provider with chunked processor for large diffs

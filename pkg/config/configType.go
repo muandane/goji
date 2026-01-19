@@ -38,7 +38,6 @@ type initConfig struct {
 
 // AIChoices and AIConfig remain the same
 type AIChoices struct {
-	Phind      AIConfig `mapstructure:"phind" json:"phind"`
 	OpenAI     AIConfig `mapstructure:"openai" json:"openai"`
 	Groq       AIConfig `mapstructure:"groq" json:"groq"`
 	Claude     AIConfig `mapstructure:"claude" json:"claude"`

@@ -331,7 +331,7 @@ func TestDraftCmd_ProviderSelection(t *testing.T) {
 		for _, provider := range providers {
 			switch provider {
 			case "phind":
-				// Phind provider should be selected
+				// Phind provider should trigger deprecation error
 				assert.Equal(t, "phind", provider)
 			case "openrouter":
 				// OpenRouter provider should be selected
@@ -341,7 +341,6 @@ func TestDraftCmd_ProviderSelection(t *testing.T) {
 				assert.Equal(t, "groq", provider)
 			default:
 				// Invalid provider should trigger error path
-				assert.NotEqual(t, "phind", provider)
 				assert.NotEqual(t, "openrouter", provider)
 				assert.NotEqual(t, "groq", provider)
 			}
@@ -541,7 +540,7 @@ func TestDraftCmd_RunLogicPaths(t *testing.T) {
 		for _, provider := range providers {
 			switch provider {
 			case "phind":
-				// Phind path should work
+				// Phind path should trigger deprecation error
 				assert.Equal(t, "phind", provider)
 			case "openrouter":
 				// OpenRouter path requires API key check
@@ -551,7 +550,6 @@ func TestDraftCmd_RunLogicPaths(t *testing.T) {
 				assert.Equal(t, "groq", provider)
 			default:
 				// Invalid provider should trigger error
-				assert.NotEqual(t, "phind", provider)
 				assert.NotEqual(t, "openrouter", provider)
 				assert.NotEqual(t, "groq", provider)
 			}

@@ -29,9 +29,8 @@ for selecting the type of change, scope, and description of your commit message.
 - Customizable commit types and scopes through a JSON configuration file.
 - Supports Git out of the box
 - AI generated commit messages using multiple providers:
-  - **Phind** (default, no API key required)
+  - **OpenRouter** (default, access to multiple models, requires API key)
   - **Groq** (fast inference, requires API key)
-  - **OpenRouter** (access to multiple models, requires API key)
 - Intelligent large diff handling with automatic summarization
 - No rate limiting issues with smart diff compression
 
@@ -134,16 +133,14 @@ This command connects to an AI provider to generate a commit message based on yo
 
 ### Quick Start
 
-**1. Set up environment variables (if using Groq or OpenRouter):**
+**1. Set up environment variables:**
 
 ```sh
-# For Groq
-export GROQ_API_KEY="your-groq-api-key"
-
-# For OpenRouter  
+# For OpenRouter (default)
 export OPENROUTER_API_KEY="your-openrouter-api-key"
 
-# For Phind (no setup needed)
+# For Groq
+export GROQ_API_KEY="your-groq-api-key"
 ```
 
 **2. Generate and commit:**
@@ -180,20 +177,36 @@ goji draft --body --commit
 
 Goji supports multiple AI providers for generating commit messages. Configure your preferred provider in the `.goji.json` file:
 
-#### 1. Phind (Default - No API Key Required)
+#### 1. OpenRouter (Default)
 
-Phind is the default provider and doesn't require any API keys.
+Access to multiple AI models through a single API. Requires an OpenRouter API key.
+
+**Setup:**
+
+```sh
+export OPENROUTER_API_KEY="your-openrouter-api-key"
+```
+
+**Configuration:**
 
 ```json
 {
-  "aiprovider": "phind",
+  "aiprovider": "openrouter",
   "aichoices": {
-    "phind": {
-      "model": "Phind-70B"
+    "openrouter": {
+      "model": "anthropic/claude-3.5-sonnet"
     }
   }
 }
 ```
+
+**Available Models:**
+
+- `anthropic/claude-3.5-sonnet` (default)
+- `openai/gpt-4o`
+- `openai/gpt-4o-mini`
+- `meta-llama/llama-3.1-405b-instruct`
+- `google/gemini-pro-1.5`
 
 #### 2. Groq
 
@@ -224,37 +237,6 @@ export GROQ_API_KEY="your-groq-api-key"
 - `llama2-70b-4096`
 - `llama2-13b-chat`
 - `gemma-7b-it`
-
-#### 3. OpenRouter
-
-Access to multiple AI models through a single API. Requires an OpenRouter API key.
-
-**Setup:**
-
-```sh
-export OPENROUTER_API_KEY="your-openrouter-api-key"
-```
-
-**Configuration:**
-
-```json
-{
-  "aiprovider": "openrouter",
-  "aichoices": {
-    "openrouter": {
-      "model": "anthropic/claude-3.5-sonnet"
-    }
-  }
-}
-```
-
-**Available Models:**
-
-- `anthropic/claude-3.5-sonnet` (default)
-- `openai/gpt-4o`
-- `openai/gpt-4o-mini`
-- `meta-llama/llama-3.1-405b-instruct`
-- `google/gemini-pro-1.5`
 
 ### Large Diff Handling
 
@@ -310,11 +292,8 @@ Update your `.goji.json` to configure AI providers:
 
 ```json
 {
-  "aiprovider": "groq",
+  "aiprovider": "openrouter",
   "aichoices": {
-    "phind": {
-      "model": "Phind-70B"
-    },
     "groq": {
       "model": "mixtral-8x7b-32768"
     },
@@ -333,9 +312,8 @@ Goji uses environment variables to authenticate with AI providers. Set these in 
 
 | Provider | Environment Variable | Required | Description |
 |----------|---------------------|----------|-------------|
-| **Phind** | None | ❌ | Works out of the box |
-| **Groq** | `GROQ_API_KEY` | ✅ | Get from [Groq Console](https://console.groq.com) |
 | **OpenRouter** | `OPENROUTER_API_KEY` | ✅ | Get from [OpenRouter](https://openrouter.ai) |
+| **Groq** | `GROQ_API_KEY` | ✅ | Get from [Groq Console](https://console.groq.com) |
 
 **For Groq:**
 
@@ -347,12 +325,6 @@ export GROQ_API_KEY="your-groq-api-key"
 
 ```sh
 export OPENROUTER_API_KEY="your-openrouter-api-key"
-```
-
-**For Phind:**
-
-```sh
-# No environment variables required - works out of the box
 ```
 
 #### Setting Environment Variables

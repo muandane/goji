@@ -1,8 +1,5 @@
 {
   "aichoices": {
-    "phind": {
-      "model": "Phind-70B"
-    },
     "openai": {
       "model": ""
     },
@@ -22,7 +19,7 @@
       "model": ""
     }
   },
-  "aiprovider": "phind",
+  "aiprovider": "openrouter",
   "noemoji": false,
   "scopes": [
     "home",
