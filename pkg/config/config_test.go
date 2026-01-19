@@ -85,7 +85,7 @@ func TestViperConfig_EdgeCases(t *testing.T) {
 			"subjectMaxLength": 100,
 			"signOff": true,
 			"noEmoji": false,
-			"aiProvider": "phind"
+			"aiProvider": "openrouter"
 		}`
 		err = os.WriteFile(configFile, []byte(validConfig), 0644)
 		require.NoError(t, err)
@@ -233,9 +233,9 @@ func TestSaveConfigToFile_EdgeCases(t *testing.T) {
 			SubjectMaxLength: 100,
 			SignOff:          true,
 			NoEmoji:          false,
-			AIProvider:       "phind",
+			AIProvider:       "openrouter",
 			AIChoices: AIChoices{
-				Phind: AIConfig{Model: "Phind-70B"},
+				OpenRouter: AIConfig{Model: "anthropic/claude-3.5-sonnet"},
 			},
 		}
 
@@ -257,9 +257,9 @@ func TestSaveConfigToFile_EdgeCases(t *testing.T) {
 			SubjectMaxLength: 100,
 			SignOff:          true,
 			NoEmoji:          false,
-			AIProvider:       "phind",
+			AIProvider:       "openrouter",
 			AIChoices: AIChoices{
-				Phind: AIConfig{Model: "Phind-70B"},
+				OpenRouter: AIConfig{Model: "anthropic/claude-3.5-sonnet"},
 			},
 		}
 
@@ -317,7 +317,6 @@ func TestConfigStructs(t *testing.T) {
 
 	t.Run("AIChoices structure", func(t *testing.T) {
 		choices := AIChoices{
-			Phind:      AIConfig{Model: "Phind-70B"},
 			OpenAI:     AIConfig{Model: "gpt-4"},
 			Groq:       AIConfig{Model: "mixtral-8x7b-32768"},
 			Claude:     AIConfig{Model: "claude-3"},
@@ -326,7 +325,6 @@ func TestConfigStructs(t *testing.T) {
 			Deepseek:   AIConfig{Model: "deepseek-coder"},
 		}
 
-		assert.Equal(t, "Phind-70B", choices.Phind.Model)
 		assert.Equal(t, "gpt-4", choices.OpenAI.Model)
 		assert.Equal(t, "mixtral-8x7b-32768", choices.Groq.Model)
 		assert.Equal(t, "claude-3", choices.Claude.Model)
@@ -362,9 +360,8 @@ func TestConfigValidation(t *testing.T) {
 			SubjectMaxLength: 100,
 			SignOff:          true,
 			NoEmoji:          false,
-			AIProvider:       "phind",
+			AIProvider:       "openrouter",
 			AIChoices: AIChoices{
-				Phind:      AIConfig{Model: "Phind-70B"},
 				OpenRouter: AIConfig{Model: "anthropic/claude-3.5-sonnet"},
 				Groq:       AIConfig{Model: "openai/gpt-oss-20b"},
 			},
@@ -375,7 +372,7 @@ func TestConfigValidation(t *testing.T) {
 		assert.Equal(t, 100, config.SubjectMaxLength)
 		assert.True(t, config.SignOff)
 		assert.False(t, config.NoEmoji)
-		assert.Equal(t, "phind", config.AIProvider)
-		assert.Equal(t, "Phind-70B", config.AIChoices.Phind.Model)
+		assert.Equal(t, "openrouter", config.AIProvider)
+		assert.Equal(t, "anthropic/claude-3.5-sonnet", config.AIChoices.OpenRouter.Model)
 	})
 }

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -28,6 +30,109 @@ func printErrorAndExit(format string, a ...interface{}) {
 	os.Exit(1)
 }
 
+// extractScopeFromFiles determines the scope based on staged file paths
+// Returns a short, meaningful scope like "ai", "cmd", or "pkg/ai" for nested paths
+func extractScopeFromFiles() string {
+	cmd := exec.Command("git", "diff", "--staged", "--name-only")
+	output, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	files := strings.Fields(string(output))
+	if len(files) == 0 {
+		return ""
+	}
+
+	// Normalize file paths and extract directories
+	dirPaths := make([]string, 0, len(files))
+	dirCounts := make(map[string]int)
+
+	for _, file := range files {
+		// Clean the path
+		file = strings.TrimSpace(file)
+		if file == "" {
+			continue
+		}
+
+		dir := filepath.Dir(file)
+		if dir == "." || dir == "" {
+			// Root level file - use filename without extension as scope
+			base := filepath.Base(file)
+			ext := filepath.Ext(base)
+			if ext != "" {
+				base = strings.TrimSuffix(base, ext)
+			}
+			dirCounts[base]++
+			dirPaths = append(dirPaths, base)
+		} else {
+			// Normalize path separators
+			dir = strings.ReplaceAll(dir, "\\", "/")
+			dir = strings.TrimPrefix(dir, "./")
+			dirCounts[dir]++
+			dirPaths = append(dirPaths, dir)
+		}
+	}
+
+	// Strategy 1: If all files are in the same directory, use the last component
+	if len(dirCounts) == 1 {
+		for dir := range dirCounts {
+			parts := strings.Split(dir, "/")
+			// Return the last component (e.g., "ai" from "pkg/ai")
+			return parts[len(parts)-1]
+		}
+	}
+
+	// Strategy 2: Find common path prefix
+	if len(dirPaths) > 1 {
+		commonParts := strings.Split(dirPaths[0], "/")
+		for _, dir := range dirPaths[1:] {
+			parts := strings.Split(dir, "/")
+			// Find common prefix
+			minLen := len(commonParts)
+			if len(parts) < minLen {
+				minLen = len(parts)
+			}
+			newCommonLen := 0
+			for i := 0; i < minLen; i++ {
+				if commonParts[i] == parts[i] {
+					newCommonLen++
+				} else {
+					break
+				}
+			}
+			commonParts = commonParts[:newCommonLen]
+			if len(commonParts) == 0 {
+				break
+			}
+		}
+
+		// If we have a meaningful common prefix, use the last component
+		if len(commonParts) > 0 {
+			// For paths like "pkg/ai", return "ai" (last component)
+			// For single-level paths, return as-is
+			return commonParts[len(commonParts)-1]
+		}
+	}
+
+	// Strategy 3: Use the most common directory's last component
+	maxCount := 0
+	mostCommon := ""
+	for dir, count := range dirCounts {
+		if count > maxCount {
+			maxCount = count
+			mostCommon = dir
+		}
+	}
+
+	if mostCommon != "" {
+		parts := strings.Split(mostCommon, "/")
+		return parts[len(parts)-1]
+	}
+
+	return ""
+}
+
 func processCommitMessage(commitMessage string, noEmoji bool, configTypes []models.CommitType) string {
 	finalCommitMessage := commitMessage
 	re := regexp.MustCompile(`^([a-zA-Z]+)(\([^)]*\))?:\s*(.*)$`)
@@ -42,7 +147,17 @@ func processCommitMessage(commitMessage string, noEmoji bool, configTypes []mode
 			commitType = overrideType
 		}
 		if overrideScope != "" {
+			// Manual override takes precedence
 			fullScopePart = "(" + overrideScope + ")"
+		} else {
+			// Always replace AI-generated scope with file path-based scope
+			detectedScope := extractScopeFromFiles()
+			if detectedScope != "" {
+				fullScopePart = "(" + detectedScope + ")"
+			} else if fullScopePart == "" {
+				// Keep empty if no scope detected and none was in original
+				fullScopePart = ""
+			}
 		}
 
 		var builder strings.Builder
@@ -80,7 +195,7 @@ func processCommitMessage(commitMessage string, noEmoji bool, configTypes []mode
 var draftCmd = &cobra.Command{
 	Use:   "draft",
 	Short: "Generate a commit message for staged changes using AI",
-	Long:  `This command connects to an AI provider (e.g., Phind) to generate a commit message based on your staged changes.`,
+	Long:  `This command connects to an AI provider (e.g., OpenRouter, Groq) to generate a commit message based on your staged changes.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(headerStyle.Render("✨ AI Commit Message Generator"))
 
@@ -98,7 +213,7 @@ var draftCmd = &cobra.Command{
 		var provider ai.AIProvider
 		switch cfg.AIProvider {
 		case "phind":
-			provider = ai.NewPhindProvider(cfg.AIChoices.Phind.Model)
+			printErrorAndExit("❌ Phind provider has been permanently shut down and is no longer supported. Please update your .goji.json to use 'openrouter', 'groq', or 'gemini' instead.")
 		case "openrouter":
 			apiKey := os.Getenv("OPENROUTER_API_KEY")
 			if apiKey == "" {
@@ -111,6 +226,10 @@ var draftCmd = &cobra.Command{
 				printErrorAndExit("❌ GROQ_API_KEY environment variable not set.")
 			}
 			provider = ai.NewGroqProvider(apiKey, cfg.AIChoices.Groq.Model)
+		case "gemini":
+			// Gemini supports both OAuth (browser login) and API key
+			apiKey := os.Getenv("GEMINI_API_KEY")
+			provider = ai.NewGeminiProvider(apiKey, cfg.AIChoices.Gemini.Model)
 		default:
 			printErrorAndExit("❌ Unsupported AI provider: %s", cfg.AIProvider)
 		}

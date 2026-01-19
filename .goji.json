@@ -1,8 +1,5 @@
 {
   "aichoices": {
-    "phind": {
-      "model": "Phind-70B"
-    },
     "openai": {
       "model": ""
     },
@@ -20,9 +17,12 @@
     },
     "deepseek": {
       "model": ""
+    },
+    "gemini": {
+      "model": "gemini-2.5-flash-lite"
     }
   },
-  "aiprovider": "phind",
+  "aiprovider": "gemini",
   "noemoji": false,
   "scopes": [
     "home",

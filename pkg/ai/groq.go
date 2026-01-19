@@ -18,8 +18,9 @@ type GroqMessage struct {
 }
 
 type GroqRequest struct {
-	Model    string        `json:"model"`
-	Messages []GroqMessage `json:"messages"`
+	Model       string        `json:"model"`
+	Messages    []GroqMessage `json:"messages"`
+	Temperature float64       `json:"temperature,omitempty"`
 }
 
 type GroqResponseChoice struct {
@@ -120,6 +121,7 @@ Code diff:`
 			{Role: "system", Content: systemPrompt},
 			{Role: "user", Content: userPrompt},
 		},
+		Temperature: 0.1, // Low temperature for deterministic, consistent commit messages
 	}
 
 	jsonPayload, err := json.Marshal(requestPayload)
@@ -250,6 +252,7 @@ Code diff:`
 			{Role: "system", Content: systemPrompt},
 			{Role: "user", Content: userPrompt},
 		},
+		Temperature: 0.1, // Low temperature for deterministic, consistent commit messages
 	}
 
 	jsonPayload, err := json.Marshal(requestPayload)

@@ -20,8 +20,9 @@ type OpenRouterMessage struct {
 }
 
 type OpenRouterRequest struct {
-	Model    string              `json:"model"`
-	Messages []OpenRouterMessage `json:"messages"`
+	Model       string              `json:"model"`
+	Messages    []OpenRouterMessage `json:"messages"`
+	Temperature float64             `json:"temperature,omitempty"`
 }
 
 type OpenRouterResponseChoice struct {
@@ -129,6 +130,7 @@ Code diff:`
 			{Role: "system", Content: systemPrompt},
 			{Role: "user", Content: userPrompt},
 		},
+		Temperature: 0.1, // Low temperature for deterministic, consistent commit messages
 	}
 
 	jsonPayload, err := json.Marshal(requestPayload)
@@ -267,6 +269,7 @@ Code diff:`
 			{Role: "system", Content: systemPrompt},
 			{Role: "user", Content: userPrompt},
 		},
+		Temperature: 0.1, // Low temperature for deterministic, consistent commit messages
 	}
 
 	jsonPayload, err := json.Marshal(requestPayload)

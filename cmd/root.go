@@ -238,7 +238,7 @@ func showNotInGitRepoMessage(cmd *cobra.Command) error {
 	fmt.Println()
 	
 	// Show help output
-	cmd.Help()
+	_ = cmd.Help()
 	
 	// Return nil (no error) so we exit with code 0
 	return nil
