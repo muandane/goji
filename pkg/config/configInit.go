@@ -71,12 +71,15 @@ func InitRepoConfig(global, repo bool) error {
 		SkipQuestions:    nil,
 		SubjectMaxLength: 100,
 		SignOff:          true,
-		NoEmoji:          false,
-		AIProvider:       "openrouter",
+		NoEmoji:          true,
+		AIProvider:       "gemini",
 		AIChoices: AIChoices{
 			OpenRouter: AIConfig{Model: "anthropic/claude-3.5-sonnet"},
 			Groq:       AIConfig{Model: "openai/gpt-oss-20b"},
-			Gemini:     AIConfig{Model: "gemini-3-flash-preview"},
+			Gemini:     AIConfig{Model: "gemini-2.5-flash-lite"},
+			Claude:     AIConfig{Model: "anthropic/claude-3.5-sonnet"},
+			Ollama:     AIConfig{Model: "ollama/llama3.1:8b"},
+			Deepseek:   AIConfig{Model: "deepseek/deepseek-r1:14b"},
 		},
 	}
 

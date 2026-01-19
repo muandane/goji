@@ -18,7 +18,7 @@ func TestCompletionCmd_Structure(t *testing.T) {
 	})
 
 	t.Run("command use", func(t *testing.T) {
-		assert.Equal(t, "completion [bash|zsh|fish|powershell]", completionCmd.Use)
+		assert.Equal(t, "completion [bash|zsh|fish|powershell|nushell|elvish|ion]", completionCmd.Use)
 	})
 
 	t.Run("command short description", func(t *testing.T) {
@@ -31,10 +31,13 @@ func TestCompletionCmd_Structure(t *testing.T) {
 		assert.Contains(t, completionCmd.Long, "zsh")
 		assert.Contains(t, completionCmd.Long, "fish")
 		assert.Contains(t, completionCmd.Long, "powershell")
+		assert.Contains(t, completionCmd.Long, "nushell")
+		assert.Contains(t, completionCmd.Long, "elvish")
+		assert.Contains(t, completionCmd.Long, "ion")
 	})
 
 	t.Run("valid args", func(t *testing.T) {
-		expectedArgs := []string{"bash", "zsh", "fish", "powershell"}
+		expectedArgs := []string{"bash", "zsh", "fish", "powershell", "nushell", "elvish", "ion"}
 		assert.Equal(t, expectedArgs, completionCmd.ValidArgs)
 	})
 
@@ -161,7 +164,7 @@ func TestCompletionCmd_GeneratePowerShell(t *testing.T) {
 
 func TestCompletionCmd_ArgsValidation(t *testing.T) {
 	t.Run("valid shell names", func(t *testing.T) {
-		validShells := []string{"bash", "zsh", "fish", "powershell"}
+		validShells := []string{"bash", "zsh", "fish", "powershell", "nushell", "elvish", "ion"}
 		for _, shell := range validShells {
 			// Test that the args validator accepts valid shells
 			// The Args field uses cobra.MatchAll with OnlyValidArgs
@@ -612,6 +615,8 @@ func TestCompletionCmd_ErrorPaths(t *testing.T) {
 		originalStdout := os.Stdout
 		defer func() { os.Stdout = originalStdout }()
 
+		// Test only cobra-native shells for error path testing
+		// (nushell, elvish, ion use carapace's _carapace subcommand)
 		shells := []string{"bash", "zsh", "fish", "powershell"}
 		for _, shell := range shells {
 			// Capture stdout for error messages
