@@ -32,7 +32,7 @@ var (
 
 func getGeminiOAuthConfig() (*oauth2.Config, error) {
 	clientID := os.Getenv("GOOGLE_CLIENT_ID")
-	
+
 	// Use default if not provided (for project-wide client ID)
 	if clientID == "" {
 		// TODO: Replace with actual client ID created for goji project
@@ -70,11 +70,12 @@ type GeminiPart struct {
 }
 
 type GeminiGenerationConfig struct {
-	Temperature float64 `json:"temperature,omitempty"`
+	Temperature     float64 `json:"temperature,omitempty"`
+	MaxOutputTokens int     `json:"maxOutputTokens,omitempty"`
 }
 
 type GeminiRequest struct {
-	Contents         []GeminiContent        `json:"contents"`
+	Contents         []GeminiContent         `json:"contents"`
 	GenerationConfig *GeminiGenerationConfig `json:"generationConfig,omitempty"`
 }
 
@@ -125,7 +126,7 @@ func NewGeminiProvider(apiKey, modelFromConfig string) *GeminiProvider {
 			return &GeminiProvider{
 				accessToken: token.AccessToken,
 				model:       chosenModel,
-				client:      &http.Client{Timeout: 30 * time.Second},
+				client:      &http.Client{Timeout: 20 * time.Second}, // Reduced timeout for faster failure
 				useOAuth:    true,
 			}
 		}
@@ -134,7 +135,7 @@ func NewGeminiProvider(apiKey, modelFromConfig string) *GeminiProvider {
 	return &GeminiProvider{
 		apiKey:   apiKey,
 		model:    chosenModel,
-		client:   &http.Client{Timeout: 30 * time.Second},
+		client:   &http.Client{Timeout: 20 * time.Second}, // Reduced timeout for faster failure
 		useOAuth: useOAuth,
 	}
 }
@@ -437,7 +438,8 @@ func (p *GeminiProvider) callGeminiAPI(systemPrompt, userPrompt string) (string,
 			},
 		},
 		GenerationConfig: &GeminiGenerationConfig{
-			Temperature: 0.1, // Low temperature for deterministic, consistent commit messages
+			Temperature:     0.1, // Low temperature for deterministic, consistent commit messages
+			MaxOutputTokens: 500, // Limit output length for faster responses (commit messages are short)
 		},
 	}
 
@@ -446,7 +448,39 @@ func (p *GeminiProvider) callGeminiAPI(systemPrompt, userPrompt string) (string,
 		return "", fmt.Errorf("failed to marshal Gemini request: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+	// Retry logic for transient errors (503, 429, network errors)
+	maxRetries := 3
+	var lastErr error
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		if attempt > 0 {
+			// Exponential backoff: 1s, 2s, 4s
+			backoff := time.Duration(1<<uint(attempt-1)) * time.Second
+			fmt.Printf("⏳ Retrying in %v... (attempt %d/%d)\n", backoff, attempt+1, maxRetries)
+			time.Sleep(backoff)
+		}
+
+		result, err := p.executeGeminiRequest(url, jsonPayload)
+		if err == nil {
+			return result, nil
+		}
+
+		lastErr = err
+
+		// Check if error is retryable
+		if !isRetryableError(err) {
+			return "", err // Don't retry non-retryable errors
+		}
+	}
+
+	return "", fmt.Errorf("gemini API failed after %d attempts: %w", maxRetries, lastErr)
+}
+
+func (p *GeminiProvider) executeGeminiRequest(url string, jsonPayload []byte) (string, error) {
+	// Use context with timeout for faster failure on slow responses
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, "POST", url, bytes.NewBuffer(jsonPayload))
 	if err != nil {
 		return "", fmt.Errorf("failed to create Gemini request: %w", err)
 	}
@@ -487,6 +521,32 @@ func (p *GeminiProvider) callGeminiAPI(systemPrompt, userPrompt string) (string,
 	}
 
 	return successResponse.Candidates[0].Content.Parts[0].Text, nil
+}
+
+// isRetryableError checks if an error is transient and worth retrying
+func isRetryableError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	errStr := err.Error()
+
+	// Retry on 503 (service unavailable) and 429 (rate limit)
+	if strings.Contains(errStr, "status 503") || strings.Contains(errStr, "status 429") {
+		return true
+	}
+
+	// Retry on network/timeout errors
+	if strings.Contains(errStr, "timeout") ||
+		strings.Contains(errStr, "connection") ||
+		strings.Contains(errStr, "network") ||
+		strings.Contains(errStr, "temporary") {
+		return true
+	}
+
+	// Don't retry on 4xx errors (except 429) or 5xx errors that aren't 503
+	// These are typically permanent errors (auth, bad request, etc.)
+	return false
 }
 
 func (p *GeminiProvider) GetModel() string {

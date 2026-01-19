@@ -193,21 +193,24 @@ Use your Google account to authenticate with Gemini, or use an API key. Uses Gem
 Similar to Gemini CLI's "Login with Google" feature - just open browser and sign in!
 
 1. **One-time setup:** Get an OAuth client ID:
-   - Visit: https://console.cloud.google.com/apis/credentials
+   - Visit: <https://console.cloud.google.com/apis/credentials>
    - Click "Create Credentials" → "OAuth client ID"
    - Application type: **Desktop app**
    - Name it (e.g., "Goji CLI")
    - Copy the **Client ID** (you don't need the secret with PKCE)
 
 2. **Set the client ID:**
+
    ```sh
    export GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
    ```
 
 3. **Run goji:**
+
    ```sh
    goji draft
    ```
+
    - Browser will open automatically
    - Sign in with your Google account
    - Token is saved for future use
@@ -249,7 +252,6 @@ export GEMINI_API_KEY="your-gemini-api-key"
 2. **API Key** - Simpler alternative
    - Get from [Google AI Studio](https://makersuite.google.com/app/apikey)
    - Set `GEMINI_API_KEY` environment variable
-
 
 #### 2. OpenRouter (Default)
 
