@@ -44,6 +44,7 @@ type AIChoices struct {
 	Ollama     AIConfig `mapstructure:"ollama" json:"ollama"`
 	OpenRouter AIConfig `mapstructure:"openrouter" json:"openrouter"`
 	Deepseek   AIConfig `mapstructure:"deepseek" json:"deepseek"`
+	Gemini     AIConfig `mapstructure:"gemini" json:"gemini"`
 }
 
 type AIConfig struct {

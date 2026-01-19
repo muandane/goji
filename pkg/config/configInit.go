@@ -76,6 +76,7 @@ func InitRepoConfig(global, repo bool) error {
 		AIChoices: AIChoices{
 			OpenRouter: AIConfig{Model: "anthropic/claude-3.5-sonnet"},
 			Groq:       AIConfig{Model: "openai/gpt-oss-20b"},
+			Gemini:     AIConfig{Model: "gemini-3-flash-preview"},
 		},
 	}
 

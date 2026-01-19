@@ -98,7 +98,7 @@ var draftCmd = &cobra.Command{
 	var provider ai.AIProvider
 	switch cfg.AIProvider {
 	case "phind":
-		printErrorAndExit("❌ Phind provider has been permanently shut down and is no longer supported. Please update your .goji.json to use 'openrouter' or 'groq' instead.")
+		printErrorAndExit("❌ Phind provider has been permanently shut down and is no longer supported. Please update your .goji.json to use 'openrouter', 'groq', or 'gemini' instead.")
 	case "openrouter":
 		apiKey := os.Getenv("OPENROUTER_API_KEY")
 		if apiKey == "" {
@@ -111,9 +111,13 @@ var draftCmd = &cobra.Command{
 			printErrorAndExit("❌ GROQ_API_KEY environment variable not set.")
 		}
 		provider = ai.NewGroqProvider(apiKey, cfg.AIChoices.Groq.Model)
+	case "gemini":
+		// Gemini supports both OAuth (browser login) and API key
+		apiKey := os.Getenv("GEMINI_API_KEY")
+		provider = ai.NewGeminiProvider(apiKey, cfg.AIChoices.Gemini.Model)
 	default:
 		printErrorAndExit("❌ Unsupported AI provider: %s", cfg.AIProvider)
-		}
+	}
 
 		// Wrap provider with chunked processor for large diffs
 		chunkedProcessor := ai.NewChunkedDiffProcessor(provider)

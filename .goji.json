@@ -17,9 +17,12 @@
     },
     "deepseek": {
       "model": ""
+    },
+    "gemini": {
+      "model": "gemini-3-flash-preview"
     }
   },
-  "aiprovider": "openrouter",
+  "aiprovider": "gemini",
   "noemoji": false,
   "scopes": [
     "home",

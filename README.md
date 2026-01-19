@@ -29,6 +29,7 @@ for selecting the type of change, scope, and description of your commit message.
 - Customizable commit types and scopes through a JSON configuration file.
 - Supports Git out of the box
 - AI generated commit messages using multiple providers:
+  - **Gemini** (OAuth login with Google account or API key, uses Gemini Flash)
   - **OpenRouter** (default, access to multiple models, requires API key)
   - **Groq** (fast inference, requires API key)
 - Intelligent large diff handling with automatic summarization
@@ -133,9 +134,15 @@ This command connects to an AI provider to generate a commit message based on yo
 
 ### Quick Start
 
-**1. Set up environment variables:**
+**1. Set up authentication:**
 
 ```sh
+# For Gemini (OAuth - recommended, like Gemini CLI)
+export GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+
+# OR for Gemini (API key)
+export GEMINI_API_KEY="your-gemini-api-key"
+
 # For OpenRouter (default)
 export OPENROUTER_API_KEY="your-openrouter-api-key"
 
@@ -177,7 +184,74 @@ goji draft --body --commit
 
 Goji supports multiple AI providers for generating commit messages. Configure your preferred provider in the `.goji.json` file:
 
-#### 1. OpenRouter (Default)
+#### 1. Gemini (OAuth Login - Like Gemini CLI)
+
+Use your Google account to authenticate with Gemini, or use an API key. Uses Gemini Flash by default.
+
+**Setup with OAuth (Recommended - Browser Login):**
+
+Similar to Gemini CLI's "Login with Google" feature - just open browser and sign in!
+
+1. **One-time setup:** Get an OAuth client ID:
+   - Visit: https://console.cloud.google.com/apis/credentials
+   - Click "Create Credentials" → "OAuth client ID"
+   - Application type: **Desktop app**
+   - Name it (e.g., "Goji CLI")
+   - Copy the **Client ID** (you don't need the secret with PKCE)
+
+2. **Set the client ID:**
+   ```sh
+   export GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+   ```
+
+3. **Run goji:**
+   ```sh
+   goji draft
+   ```
+   - Browser will open automatically
+   - Sign in with your Google account
+   - Token is saved for future use
+
+**Setup with API Key (Simpler):**
+
+```sh
+export GEMINI_API_KEY="your-gemini-api-key"
+```
+
+**Configuration:**
+
+```json
+{
+  "aiprovider": "gemini",
+  "aichoices": {
+    "gemini": {
+      "model": "gemini-3-flash-preview"
+    }
+  }
+}
+```
+
+**Available Models:**
+
+- `gemini-3-flash-preview` (default, recommended)
+- `gemini-1.5-pro`
+- `gemini-1.5-flash`
+
+**Authentication Methods:**
+
+1. **Login with Google (OAuth - Recommended)** - Like Gemini CLI
+   - One-time setup: Create OAuth client ID in Google Cloud Console
+   - Set `GOOGLE_CLIENT_ID` environment variable
+   - Browser opens automatically for login
+   - No API key needed
+   - Uses PKCE flow (secure, no client secret required)
+
+2. **API Key** - Simpler alternative
+   - Get from [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Set `GEMINI_API_KEY` environment variable
+
+
+#### 2. OpenRouter (Default)
 
 Access to multiple AI models through a single API. Requires an OpenRouter API key.
 
@@ -208,7 +282,7 @@ export OPENROUTER_API_KEY="your-openrouter-api-key"
 - `meta-llama/llama-3.1-405b-instruct`
 - `google/gemini-pro-1.5`
 
-#### 2. Groq
+#### 3. Groq
 
 Fast inference with various models. Requires a Groq API key.
 
@@ -292,8 +366,11 @@ Update your `.goji.json` to configure AI providers:
 
 ```json
 {
-  "aiprovider": "openrouter",
+  "aiprovider": "gemini",
   "aichoices": {
+    "gemini": {
+      "model": "gemini-3-flash-preview"
+    },
     "groq": {
       "model": "mixtral-8x7b-32768"
     },
@@ -312,6 +389,7 @@ Goji uses environment variables to authenticate with AI providers. Set these in 
 
 | Provider | Environment Variable | Required | Description |
 |----------|---------------------|----------|-------------|
+| **Gemini** | `GOOGLE_CLIENT_ID` (for OAuth) or `GEMINI_API_KEY` (for API key) | ❌ | OAuth via browser login (like Gemini CLI) - set `GOOGLE_CLIENT_ID` once, then browser opens automatically. Or use API key from [Google AI Studio](https://makersuite.google.com/app/apikey) |
 | **OpenRouter** | `OPENROUTER_API_KEY` | ✅ | Get from [OpenRouter](https://openrouter.ai) |
 | **Groq** | `GROQ_API_KEY` | ✅ | Get from [Groq Console](https://console.groq.com) |
 
@@ -319,6 +397,20 @@ Goji uses environment variables to authenticate with AI providers. Set these in 
 
 ```sh
 export GROQ_API_KEY="your-groq-api-key"
+```
+
+**For Gemini (OAuth - recommended, like Gemini CLI):**
+
+```sh
+# One-time: Get client ID from Google Cloud Console
+export GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+# Then run goji draft - browser will open for login
+```
+
+**For Gemini (API key):**
+
+```sh
+export GEMINI_API_KEY="your-gemini-api-key"
 ```
 
 **For OpenRouter:**
