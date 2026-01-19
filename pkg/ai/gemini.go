@@ -22,12 +22,6 @@ import (
 var (
 	geminiAPIBaseURL = "https://generativelanguage.googleapis.com/v1beta"
 	geminiOAuthScope = "https://www.googleapis.com/auth/generative-language.retriever"
-
-	// Default OAuth client ID for goji (desktop app)
-	// This should be created in Google Cloud Console for the goji project
-	// Users can override with GOOGLE_CLIENT_ID environment variable
-	// Note: Using PKCE flow, so no client secret is required
-	defaultGeminiClientID = "YOUR_GOOGLE_CLIENT_ID_HERE.apps.googleusercontent.com"
 )
 
 func getGeminiOAuthConfig() (*oauth2.Config, error) {
@@ -167,7 +161,7 @@ func (p *GeminiProvider) ensureAuthenticated() error {
 	fmt.Println("\n🔐 Authentication required for Gemini")
 	token, err := authenticateGemini()
 	if err != nil {
-		return fmt.Errorf("Gemini authentication failed: %w", err)
+		return fmt.Errorf("gemini authentication failed: %w", err)
 	}
 
 	p.accessToken = token.AccessToken
@@ -194,7 +188,7 @@ func authenticateGemini() (*oauth2.Token, error) {
 	}
 
 	// Return error with instructions
-	return nil, fmt.Errorf(`Gemini authentication required. Choose one:
+	return nil, fmt.Errorf(`gemini authentication required. Choose one:
 
 1. Login with Google (OAuth - Recommended, like Gemini CLI):
    • Get OAuth client ID from: https://console.cloud.google.com/apis/credentials
@@ -587,10 +581,10 @@ func startLocalOAuthServer(verifier string) *oauthServer {
 				<p>%s</p>
 				<p>You can close this window.</p>
 			</body></html>`, errorParam, errorDesc)
-			w.Write([]byte(html))
+			_, _ = w.Write([]byte(html))
 			go func() {
 				time.Sleep(2 * time.Second)
-				server.Close()
+				_ = server.Close()
 			}()
 			return
 		}
@@ -604,10 +598,10 @@ func startLocalOAuthServer(verifier string) *oauthServer {
 				<p>You have successfully authenticated with Google.</p>
 				<p>You can close this window and return to the terminal.</p>
 			</body></html>`
-			w.Write([]byte(html))
+			_, _ = w.Write([]byte(html))
 			go func() {
 				time.Sleep(2 * time.Second)
-				server.Close()
+				_ = server.Close()
 			}()
 		} else {
 			codeChan <- ""
@@ -618,10 +612,10 @@ func startLocalOAuthServer(verifier string) *oauthServer {
 				<p>Missing authorization code or state parameter.</p>
 				<p>You can close this window.</p>
 			</body></html>`
-			w.Write([]byte(html))
+			_, _ = w.Write([]byte(html))
 			go func() {
 				time.Sleep(2 * time.Second)
-				server.Close()
+				_ = server.Close()
 			}()
 		}
 	})

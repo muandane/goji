@@ -31,8 +31,8 @@ func TestNewGeminiProvider(t *testing.T) {
 	})
 
 	t.Run("uses API key from environment", func(t *testing.T) {
-		os.Setenv("GEMINI_API_KEY", "env-api-key")
-		defer os.Unsetenv("GEMINI_API_KEY")
+		_ = os.Setenv("GEMINI_API_KEY", "env-api-key")
+		defer func() { _ = os.Unsetenv("GEMINI_API_KEY") }()
 
 		provider := NewGeminiProvider("", "")
 		assert.NotNil(t, provider)
@@ -41,7 +41,7 @@ func TestNewGeminiProvider(t *testing.T) {
 	})
 
 	t.Run("uses OAuth when no API key provided", func(t *testing.T) {
-		os.Unsetenv("GEMINI_API_KEY")
+		_ = os.Unsetenv("GEMINI_API_KEY")
 		provider := NewGeminiProvider("", "")
 		assert.NotNil(t, provider)
 		assert.True(t, provider.useOAuth)

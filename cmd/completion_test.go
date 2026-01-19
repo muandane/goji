@@ -241,7 +241,7 @@ func TestCompletionCmd_Run(t *testing.T) {
 		os.Stdout = w
 
 		testCmd := &cobra.Command{Use: "testcmd"}
-		testCmd.GenZshCompletion(os.Stdout)
+		_ = testCmd.GenZshCompletion(os.Stdout)
 
 		_ = w.Close()
 		os.Stdout = originalStdout
@@ -257,7 +257,7 @@ func TestCompletionCmd_Run(t *testing.T) {
 		os.Stdout = w
 
 		testCmd := &cobra.Command{Use: "testcmd"}
-		testCmd.GenFishCompletion(os.Stdout, true)
+		_ = testCmd.GenFishCompletion(os.Stdout, true)
 
 		_ = w.Close()
 		os.Stdout = originalStdout
@@ -273,7 +273,7 @@ func TestCompletionCmd_Run(t *testing.T) {
 		os.Stdout = w
 
 		testCmd := &cobra.Command{Use: "testcmd"}
-		testCmd.GenPowerShellCompletionWithDesc(os.Stdout)
+		_ = testCmd.GenPowerShellCompletionWithDesc(os.Stdout)
 
 		_ = w.Close()
 		os.Stdout = originalStdout

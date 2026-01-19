@@ -268,7 +268,7 @@ func TestPrintErrorAndExit_Exists(t *testing.T) {
 	// Test that it accepts the expected parameters
 	// This will actually exit, so we can't run it in normal tests
 	// But we verify the function signature is correct
-	var fn func(string, ...interface{}) = printErrorAndExit
+	fn := printErrorAndExit
 	assert.NotNil(t, fn)
 }
 
@@ -423,10 +423,10 @@ func TestDraftCmd_RunErrorPaths(t *testing.T) {
 		apiKey := os.Getenv("OPENROUTER_API_KEY")
 		// Temporarily unset to test error path
 		originalKey := apiKey
-		os.Unsetenv("OPENROUTER_API_KEY")
+		_ = os.Unsetenv("OPENROUTER_API_KEY")
 		defer func() {
 			if originalKey != "" {
-				os.Setenv("OPENROUTER_API_KEY", originalKey)
+				_ = os.Setenv("OPENROUTER_API_KEY", originalKey)
 			}
 		}()
 
@@ -443,10 +443,10 @@ func TestDraftCmd_RunErrorPaths(t *testing.T) {
 		apiKey := os.Getenv("GROQ_API_KEY")
 		// Temporarily unset to test error path
 		originalKey := apiKey
-		os.Unsetenv("GROQ_API_KEY")
+		_ = os.Unsetenv("GROQ_API_KEY")
 		defer func() {
 			if originalKey != "" {
-				os.Setenv("GROQ_API_KEY", originalKey)
+				_ = os.Setenv("GROQ_API_KEY", originalKey)
 			}
 		}()
 
