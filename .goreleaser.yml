@@ -61,6 +61,7 @@ homebrew_casks:
   directory: Casks
   dependencies:
   - formula: git
+  - formula: carapace
   commit_author:
     name: muandane
     email: zmoualhi@outlook.com
@@ -70,6 +71,12 @@ homebrew_casks:
     fish: completions/goji.fish
   manpages:
     - manpages/goji.1.gz
+  hooks:
+    post:
+      install: |
+        if OS.mac?
+          system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/goji"]
+        end
 
 winget:
   - publisher: muandane
