@@ -53,24 +53,23 @@ archives:
 
 homebrew_casks:
 - name: goji
-  homepage: "https://github.com/muandane/homebrew-tap"
+  homepage: "https://github.com/muandane/goji"
   repository:
     owner: muandane
     name: homebrew-tap
   description: "Commitizen-like Emoji Commit Tool written in Go"
-  directory: Formula
+  directory: Casks
   dependencies:
   - formula: git
   commit_author:
     name: muandane
     email: zmoualhi@outlook.com
-  hooks: 
-    post: 
-      install: |-
-        bash_completion.install "completions/goji.bash" => "goji"
-        zsh_completion.install "completions/goji.zsh" => "_goji"
-        fish_completion.install "completions/goji.fish"
-        man1.install "manpages/goji.1.gz"
+  completions:
+    bash: completions/goji.bash
+    zsh: completions/goji.zsh
+    fish: completions/goji.fish
+  manpages:
+    - manpages/goji.1.gz
 
 winget:
   - publisher: muandane

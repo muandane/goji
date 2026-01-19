@@ -40,7 +40,7 @@ for selecting the type of change, scope, and description of your commit message.
 **Homebrew (macOs/Linux)**
 
 ```sh
-brew install muandane/tap/goji
+brew install --cask muandane/tap/goji
 ```
 
 **Linux (or WSL)**
