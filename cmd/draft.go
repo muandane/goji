@@ -163,6 +163,7 @@ func processCommitMessage(commitMessage string, noEmoji bool, configTypes []mode
 		var builder strings.Builder
 		builder.WriteString(commitType)
 
+		hasEmoji := false
 		if !noEmoji {
 			var emoji string
 			for _, t := range configTypes {
@@ -174,12 +175,12 @@ func processCommitMessage(commitMessage string, noEmoji bool, configTypes []mode
 			if emoji != "" {
 				builder.WriteString(" ")
 				builder.WriteString(emoji)
+				hasEmoji = true
 			}
 		}
 
 		if fullScopePart != "" {
-
-			if !strings.HasSuffix(builder.String(), " ") {
+			if hasEmoji {
 				builder.WriteString(" ")
 			}
 			builder.WriteString(fullScopePart)
@@ -213,7 +214,9 @@ var draftCmd = &cobra.Command{
 		var provider ai.AIProvider
 		switch cfg.AIProvider {
 		case "phind":
-			printErrorAndExit("❌ Phind provider has been permanently shut down and is no longer supported. Please update your .goji.json to use 'openrouter', 'groq', or 'gemini' instead.")
+			printErrorAndExit(
+				"❌ Phind provider has been permanently shut down and is no longer supported. Please update your .goji.json to use 'openrouter', 'groq', or 'gemini' instead.",
+			)
 		case "openrouter":
 			apiKey := os.Getenv("OPENROUTER_API_KEY")
 			if apiKey == "" {

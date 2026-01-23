@@ -118,7 +118,11 @@ func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag
 
 	commitHeader := typeMatch
 	if scopeFlag != "" {
-		commitHeader += fmt.Sprintf(" (%s)", scopeFlag)
+		if !cfg.NoEmoji {
+			commitHeader += fmt.Sprintf(" (%s)", scopeFlag)
+		} else {
+			commitHeader += fmt.Sprintf("(%s)", scopeFlag)
+		}
 	}
 
 	return fmt.Sprintf("%s: %s", commitHeader, messageFlag)
@@ -178,7 +182,7 @@ func getVersion() string {
 	if version != "" {
 		return version
 	}
-	
+
 	// Try to get version from git describe
 	cmd := exec.Command("git", "describe", "--tags", "--always", "--dirty")
 	output, err := cmd.Output()
@@ -188,7 +192,7 @@ func getVersion() string {
 		v = strings.TrimPrefix(v, "v")
 		// Clean up any newlines
 		v = strings.TrimRight(v, "\n\r")
-		// If the version contains a dash (e.g., "0.1.8-2-g035f84e-dirty"), 
+		// If the version contains a dash (e.g., "0.1.8-2-g035f84e-dirty"),
 		// extract just the version part before the first dash for cleaner output
 		if idx := strings.Index(v, "-"); idx > 0 {
 			// Keep the full string if it's just a commit hash, otherwise use prefix
@@ -200,7 +204,7 @@ func getVersion() string {
 			return v
 		}
 	}
-	
+
 	// Fallback to "dev" if git is not available or not in a git repo
 	return "dev"
 }
@@ -217,25 +221,25 @@ func showNotInGitRepoMessage(cmd *cobra.Command) error {
 	color.Set(color.FgYellow)
 	fmt.Println("\n⚠️  You're not in a git repository.")
 	color.Unset()
-	
+
 	fmt.Println("\nGoji is a CLI tool for generating conventional commit messages with emojis.")
 	fmt.Println("To use goji, you need to be in a git repository.")
-	
+
 	fmt.Println("\n💡 Quick tips:")
 	fmt.Println("   1. Initialize a git repository:  git init")
 	fmt.Println("   2. Initialize goji config:       goji init --global")
 	fmt.Println("   3. Or initialize repo config:     goji init --repo (requires git repo)")
-	
+
 	fmt.Println("\n📚 For more information:")
 	fmt.Println("   • View help:                      goji --help")
 	fmt.Println("   • Initialize config:               goji init --help")
 	fmt.Println("   • Read the README:                 https://github.com/muandane/goji")
-	
+
 	fmt.Println()
-	
+
 	// Show help output
 	_ = cmd.Help()
-	
+
 	// Return nil (no error) so we exit with code 0
 	return nil
 }
