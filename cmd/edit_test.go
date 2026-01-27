@@ -140,11 +140,21 @@ func TestConstructCommitMessageNoEmoji(t *testing.T) {
 		NoEmoji: true,
 	}
 
-	result := constructCommitMessage(cfg, "feat", "", "add feature")
-	expected := "feat: add feature"
-	if result != expected {
-		t.Errorf("Expected %q, got %q", expected, result)
-	}
+	t.Run("without scope", func(t *testing.T) {
+		result := constructCommitMessage(cfg, "feat", "", "add feature")
+		expected := "feat: add feature"
+		if result != expected {
+			t.Errorf("Expected %q, got %q", expected, result)
+		}
+	})
+
+	t.Run("with scope", func(t *testing.T) {
+		result := constructCommitMessage(cfg, "feat", "lang", "add Polish language")
+		expected := "feat(lang): add Polish language"
+		if result != expected {
+			t.Errorf("Expected %q, got %q", expected, result)
+		}
+	})
 }
 
 // TestContainsHelper tests the contains helper function
@@ -349,7 +359,7 @@ func TestGetRecentCommits_EdgeCases(t *testing.T) {
 		// Test parsing logic with malformed input
 		malformedOutput := "sha1\nsubject\n---COMMIT-END---\nsha2\n---COMMIT-END---"
 		rawCommits := strings.Split(strings.TrimSpace(malformedOutput), "---COMMIT-END---")
-		
+
 		var commits []GitCommit
 		for _, rawCommit := range rawCommits {
 			if strings.TrimSpace(rawCommit) == "" {
@@ -379,7 +389,7 @@ func TestGetRecentCommits_EdgeCases(t *testing.T) {
 	t.Run("empty git log output", func(t *testing.T) {
 		emptyOutput := ""
 		rawCommits := strings.Split(strings.TrimSpace(emptyOutput), "---COMMIT-END---")
-		
+
 		var commits []GitCommit
 		for _, rawCommit := range rawCommits {
 			if strings.TrimSpace(rawCommit) == "" {
@@ -406,7 +416,7 @@ func TestGetRecentCommits_EdgeCases(t *testing.T) {
 	t.Run("commit with body", func(t *testing.T) {
 		outputWithBody := "sha123\nsubject line\nbody content\n---COMMIT-END---"
 		rawCommits := strings.Split(strings.TrimSpace(outputWithBody), "---COMMIT-END---")
-		
+
 		var commits []GitCommit
 		for _, rawCommit := range rawCommits {
 			if strings.TrimSpace(rawCommit) == "" {
@@ -436,7 +446,7 @@ func TestGetRecentCommits_EdgeCases(t *testing.T) {
 	t.Run("commit without body", func(t *testing.T) {
 		outputWithoutBody := "sha123\nsubject line\n---COMMIT-END---"
 		rawCommits := strings.Split(strings.TrimSpace(outputWithoutBody), "---COMMIT-END---")
-		
+
 		var commits []GitCommit
 		for _, rawCommit := range rawCommits {
 			if strings.TrimSpace(rawCommit) == "" {
@@ -657,7 +667,7 @@ func TestGetRecentCommits_ErrorPaths(t *testing.T) {
 		// Test that commits with body are parsed correctly
 		output := "sha123\nsubject line\nbody content\n---COMMIT-END---"
 		rawCommits := strings.Split(strings.TrimSpace(output), "---COMMIT-END---")
-		
+
 		var commits []GitCommit
 		for _, rawCommit := range rawCommits {
 			if strings.TrimSpace(rawCommit) == "" {
@@ -688,7 +698,7 @@ func TestGetRecentCommits_ErrorPaths(t *testing.T) {
 		// Test that commits without body are parsed correctly
 		output := "sha123\nsubject line\n---COMMIT-END---"
 		rawCommits := strings.Split(strings.TrimSpace(output), "---COMMIT-END---")
-		
+
 		var commits []GitCommit
 		for _, rawCommit := range rawCommits {
 			if strings.TrimSpace(rawCommit) == "" {
@@ -719,7 +729,7 @@ func TestGetRecentCommits_ErrorPaths(t *testing.T) {
 		// Test that malformed commits are skipped
 		malformedOutput := "sha1\n---COMMIT-END---\nsha2\nsubject\n---COMMIT-END---"
 		rawCommits := strings.Split(strings.TrimSpace(malformedOutput), "---COMMIT-END---")
-		
+
 		var commits []GitCommit
 		for _, rawCommit := range rawCommits {
 			if strings.TrimSpace(rawCommit) == "" {

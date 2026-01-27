@@ -15,7 +15,9 @@ func AskQuestions(config *config.Config, presetType, presetMessage string) ([]st
 
 	// Validate that Types is not empty
 	if len(config.Types) == 0 {
-		return nil, fmt.Errorf("no commit types configured. Please run 'goji init --global' or 'goji init --repo' to initialize your configuration")
+		return nil, fmt.Errorf(
+			"no commit types configured. Please run 'goji init --global' or 'goji init --repo' to initialize your configuration",
+		)
 	}
 
 	nameStyle := lipgloss.NewStyle().Width(15).Align(lipgloss.Left)
@@ -28,12 +30,13 @@ func AskQuestions(config *config.Config, presetType, presetMessage string) ([]st
 			nameStyle.Render(ct.Name),
 			emojiStyle.Render(ct.Emoji),
 			descStyle.Render(ct.Description))
-		commitTypeOptions[i] = huh.NewOption[string](row, fmt.Sprintf("%s %s", ct.Name, func() string {
-			if !config.NoEmoji {
-				return ct.Emoji
-			}
-			return ""
-		}()))
+
+		// Build value: "type emoji" or just "type" if NoEmoji
+		value := ct.Name
+		if !config.NoEmoji && ct.Emoji != "" {
+			value = fmt.Sprintf("%s %s", ct.Name, ct.Emoji)
+		}
+		commitTypeOptions[i] = huh.NewOption[string](row, value)
 	}
 
 	if presetType != "" {
@@ -99,7 +102,12 @@ func AskQuestions(config *config.Config, presetType, presetMessage string) ([]st
 
 	commitMessage := commitType
 	if commitScope != "" {
-		commitMessage += fmt.Sprintf(" (%s)", strings.TrimSpace(commitScope))
+		// Add space before scope if emoji is present (commitType would be "type emoji")
+		if !config.NoEmoji && strings.Contains(commitType, " ") {
+			commitMessage += fmt.Sprintf(" (%s)", strings.TrimSpace(commitScope))
+		} else {
+			commitMessage += fmt.Sprintf("(%s)", strings.TrimSpace(commitScope))
+		}
 	}
 	commitMessage += fmt.Sprintf(": %s", strings.TrimSpace(commitSubject))
 

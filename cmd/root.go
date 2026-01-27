@@ -104,10 +104,12 @@ func init() {
 
 func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag string) string {
 	typeMatch := typeFlag
+	emoji := ""
 	for _, t := range cfg.Types {
 		if typeFlag == t.Name {
 			if !cfg.NoEmoji {
-				typeMatch = fmt.Sprintf("%s %s", t.Name, t.Emoji)
+				typeMatch = t.Name
+				emoji = t.Emoji
 				break
 			} else {
 				typeMatch = t.Name
@@ -117,8 +119,11 @@ func constructCommitMessage(cfg *config.Config, typeFlag, scopeFlag, messageFlag
 	}
 
 	commitHeader := typeMatch
+	if emoji != "" {
+		commitHeader += " " + emoji
+	}
 	if scopeFlag != "" {
-		if !cfg.NoEmoji {
+		if emoji != "" {
 			commitHeader += fmt.Sprintf(" (%s)", scopeFlag)
 		} else {
 			commitHeader += fmt.Sprintf("(%s)", scopeFlag)
