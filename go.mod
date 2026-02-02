@@ -3,7 +3,7 @@ module github.com/muandane/goji
 go 1.24.0
 
 require (
-	github.com/carapace-sh/carapace v1.11.0
+	github.com/carapace-sh/carapace v1.11.1
 	github.com/charmbracelet/huh v0.8.0
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/fatih/color v1.18.0
